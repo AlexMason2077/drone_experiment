@@ -40,6 +40,7 @@ LOG_INTERVAL_SEC = 0.1
 GO_SPEED = 20
 PRE_HOVER_SETTLE_SEC = 2.0
 HOVER_COMMAND_INTERVAL_SEC = 0.2
+HOVER_RECENTER_INTERVAL_SEC = 3.0
 MIN_BATTERY_PERCENT = 15
 TAKEOFF_BATTERY_MIN_PERCENT = 30
 
@@ -395,8 +396,8 @@ def wait_for_expected_pad(tello, config, timeout=8.0, interval=0.15):
     return False
 
 
-def coordinate_climb_on_start_pads(swarm, configs):
-    print(f"Climbing all drones to {TAKEOFF_HEIGHT_CM} cm above their start mission pads...", flush=True)
+def recenter_on_mission_pads(swarm, configs, phase):
+    set_phase_all(phase)
     swarm.parallel(
         lambda i, tello: tello.go_xyz_speed_mid(
             0,
@@ -409,24 +410,35 @@ def coordinate_climb_on_start_pads(swarm, configs):
     time.sleep(1.0)
 
 
+def coordinate_climb_on_start_pads(swarm, configs):
+    print(f"Climbing all drones to {TAKEOFF_HEIGHT_CM} cm above their start mission pads...", flush=True)
+    recenter_on_mission_pads(swarm, configs, "coordinate_climb")
+
+
 def active_hover_hold(swarm, configs, duration_sec):
     deadline = time.time() + duration_sec
     last_reported = None
+    last_recenter = 0.0
 
     while True:
         now = time.time()
         if now >= deadline:
             break
 
-        for idx, tello in enumerate(swarm.tellos):
-            try:
-                set_phase(idx, "hover_hold")
-                tello.send_rc_control(0, 0, 0, 0)
-            except Exception as exc:
-                print(
-                    f"  Warning: {configs[idx]['name']} hover hold command returned error: {exc}",
-                    flush=True,
-                )
+        if now - last_recenter >= HOVER_RECENTER_INTERVAL_SEC:
+            print("Re-centering all drones above their configured mission pads...", flush=True)
+            recenter_on_mission_pads(swarm, configs, "hover_recenter")
+            last_recenter = time.time()
+        else:
+            for idx, tello in enumerate(swarm.tellos):
+                try:
+                    set_phase(idx, "hover_hold")
+                    tello.send_rc_control(0, 0, 0, 0)
+                except Exception as exc:
+                    print(
+                        f"  Warning: {configs[idx]['name']} hover hold command returned error: {exc}",
+                        flush=True,
+                    )
 
         remaining = max(0, int(deadline - time.time()))
         if remaining % 10 == 0 and remaining != last_reported:
