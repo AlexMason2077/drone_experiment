@@ -1,0 +1,10 @@
+generated_at,reset_trial_id,dataset_id,dataset_label,is_mean,actual_trial_id,display_trial_id,drone_name,drone_ip,drone_role,battery_drop,share_pct,total_drop,charging_time_1_pad,charging_time_2_pads,charging_time_3_pads
+2026-04-29T14:23:54,0,trial_1,Trial 1,False,30,1,drone_front,192.168.0.102,left,13.0,27.659574468085108,47.0,47.0,27.0,20.0
+2026-04-29T14:23:54,0,trial_1,Trial 1,False,30,1,drone_middle,192.168.0.101,middle,14.0,29.78723404255319,47.0,47.0,27.0,20.0
+2026-04-29T14:23:54,0,trial_1,Trial 1,False,30,1,drone_back,192.168.0.103,right,20.0,42.5531914893617,47.0,47.0,27.0,20.0
+2026-04-29T14:23:54,0,trial_2,Trial 2,False,32,2,drone_front,192.168.0.102,front,12.0,28.57142857142857,42.0,42.0,25.0,17.0
+2026-04-29T14:23:54,0,trial_2,Trial 2,False,32,2,drone_middle,192.168.0.101,middle,17.0,40.476190476190474,42.0,42.0,25.0,17.0
+2026-04-29T14:23:54,0,trial_2,Trial 2,False,32,2,drone_back,192.168.0.103,back,13.0,30.952380952380953,42.0,42.0,25.0,17.0
+2026-04-29T14:23:54,0,mean,Mean (2 trials),True,,mean,drone_front,192.168.0.102,left,12.5,28.08988764044944,44.5,44.5,28.0,16.5
+2026-04-29T14:23:54,0,mean,Mean (2 trials),True,,mean,drone_middle,192.168.0.101,middle,15.5,34.831460674157306,44.5,44.5,28.0,16.5
+2026-04-29T14:23:54,0,mean,Mean (2 trials),True,,mean,drone_back,192.168.0.103,right,16.5,37.07865168539326,44.5,44.5,28.0,16.5

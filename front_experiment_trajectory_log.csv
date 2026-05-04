@@ -1,0 +1,1 @@
+trial_id,drone_name,drone_ip,lane,start_pad,target_pad,phase,timestamp,elapsed_time,mid,x,y,z,X_global,Y_global,Z_global,yaw,vgx,vgy,vgz,battery,battery_takeoff,battery_end,temph,y_distance_diff_mean,y_distance_diff_12_cm,y_distance_diff_23_cm,y_distance_diff_13_cm
