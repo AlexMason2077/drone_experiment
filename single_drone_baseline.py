@@ -722,59 +722,86 @@ def run_baseline(args):
         else:
             print("  Hover baseline does not use mission pads.", flush=True)
         if args.mode in WINDOWED_MOVEMENT_MODES:
-            check_windowed_baseline_battery(tello, drone_name, ip, battery_id)
+            check_windowed_baseline_battery(tello, config)
         print("Preflight checks passed.", flush=True)
         print("Press Enter to take off single baseline drone...", flush=True)
         input()
         print("[GUI] Takeoff confirmed.", flush=True)
 
-        battery_start = str(tello.get_battery())
-        first_state = get_state_safe(tello)
-        start_timestamp = datetime.now().isoformat(timespec="seconds")
-        print(f"Baseline battery start captured before takeoff: {battery_start}%", flush=True)
-
-        logging_active = True
         start_time = time.time()
         set_phase("pre_takeoff")
-        logger = threading.Thread(
-            target=logger_loop,
-            args=(tello, config, data_path, start_time, battery_start),
-            daemon=True,
-        )
-        logger.start()
 
         set_phase("takeoff")
         tello.takeoff()
-        detected_pad = None
 
         if args.mode == "hover":
+            battery_start = str(tello.get_battery())
+            first_state = get_state_safe(tello)
+            start_timestamp = datetime.now().isoformat(timespec="seconds")
+            print(f"Baseline battery start captured before takeoff: {battery_start}%", flush=True)
+            logging_active = True
+            logger = threading.Thread(
+                target=logger_loop,
+                args=(tello, config, data_path, start_time, battery_start),
+                daemon=True,
+            )
+            logger.start()
             print("Stabilising for 3 seconds before long hover-discharge.", flush=True)
             time.sleep(3.0)
             set_phase("hover_to_10_percent")
             end_reason = active_hover_until_battery(tello, HOVER_LANDING_BATTERY_PERCENT)
         else:
+            time.sleep(2.5)
+            set_phase("acquire_start_pad")
             detected_pad = wait_for_pad(tello, int(args.start_pad), timeout=8.0)
             if detected_pad is None:
-                raise RuntimeError("No valid mission pad detected after takeoff.")
+                raise RuntimeError(f"{drone_name} failed to detect expected mission pad {args.start_pad}.")
             print(f"{drone_name} detected start mission pad {detected_pad}.", flush=True)
-            set_phase("climb_to_80cm")
-            tello.go_xyz_speed_mid(0, 0, TAKEOFF_HEIGHT_CM, TAKEOFF_CLIMB_SPEED_CM_S, detected_pad)
-            time.sleep(1.0)
-            set_phase(args.mode)
-            signed_distance = movement_distance_cm if args.direction == "up" else -movement_distance_cm
-            if args.mode == "side_forward_250":
-                x, y = signed_distance, 0
-            else:
-                x, y = 0, signed_distance
 
-            mid = detected_pad or get_state_safe(tello)["mid"]
-            if int(mid) == -1:
-                raise RuntimeError("Cannot run node-to-node baseline: no valid mission pad marker.")
-            command = f"go {x} {y} {TAKEOFF_HEIGHT_CM} {FLIGHT_SPEED_CM_S} m{int(mid)}"
+            set_phase("coordinate_climb")
+            print(f"Climbing {drone_name} to {TAKEOFF_HEIGHT_CM} cm above start mission pad {args.start_pad}...", flush=True)
+            tello.go_xyz_speed_mid(0, 0, TAKEOFF_HEIGHT_CM, TAKEOFF_CLIMB_SPEED_CM_S, int(args.start_pad))
+            time.sleep(1.0)
+
+            set_phase("pre_node_settle")
+            print(f"Settling for {PRE_NODE_SETTLE_SEC:.1f} seconds before node-to-node flight...", flush=True)
+            time.sleep(PRE_NODE_SETTLE_SEC)
+
+            battery_start = str(tello.get_battery())
+            first_state = get_state_safe(tello)
+            start_timestamp = datetime.now().isoformat(timespec="seconds")
+            print(f"Node-to-node battery baseline captured: {battery_start}%", flush=True)
+
+            logging_active = True
+            start_time = time.time()
+            logger = threading.Thread(
+                target=logger_loop,
+                args=(tello, config, data_path, start_time, battery_start),
+                daemon=True,
+            )
+            logger.start()
+
+            set_phase("continuous_node_to_node")
+            signed_distance = movement_distance_cm * move_config["node_row_direction"]
+            command = f"go 0 {signed_distance} {TAKEOFF_HEIGHT_CM} {FLIGHT_SPEED_CM_S} m{int(args.start_pad)}"
+            print(
+                f"Flying {drone_name} continuously {movement_distance_cm} cm at {FLIGHT_SPEED_CM_S} cm/s. "
+                "Intermediate mission pads are pass-through only.",
+                flush=True,
+            )
             print(f"Running baseline movement command: {command}", flush=True)
             tello.send_control_command(command, timeout=LONG_GO_RESPONSE_TIMEOUT_SEC)
-            time.sleep(1.0)
-            end_reason = "movement complete"
+            set_phase("verify_target_pad")
+            if wait_for_pad(tello, int(move_config["target_pad"]), timeout=6.0) is None:
+                raise RuntimeError(
+                    f"{drone_name} failed to detect target mission pad {move_config['target_pad']} "
+                    "after node-to-node flight."
+                )
+            print(f"{drone_name} detected target mission pad {move_config['target_pad']}.", flush=True)
+            logging_active = False
+            if logger:
+                logger.join(timeout=2.0)
+            end_reason = f"node-to-node complete; target pad {move_config['target_pad']} detected"
 
         set_phase("landing")
         tello.land()
