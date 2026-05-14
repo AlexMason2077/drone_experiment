@@ -2,6 +2,8 @@ import csv
 import json
 import mimetypes
 import os
+import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -15,8 +17,10 @@ from flask import Flask, abort, jsonify, redirect, render_template_string, reque
 
 
 BASE_DIR = Path(__file__).resolve().parent
+os.environ.setdefault("MPLCONFIGDIR", str(BASE_DIR / ".matplotlib_cache"))
 DATA_DIR = BASE_DIR / "database"
 DATA_DIR.mkdir(exist_ok=True)
+BASELINE_DIR = DATA_DIR / "baselines"
 REGISTRY_FILE = DATA_DIR / "experiment_registry.json"
 ALLOWED_PREVIEW_EXTENSIONS = {".csv", ".png", ".jpg", ".jpeg", ".webp"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
@@ -24,7 +28,7 @@ CSV_EXTENSIONS = {".csv"}
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
     "1": "101",
-    "2": "102",
+    "2": "109",
     "3": "103",
     "4": "106",
     "5": "107",
@@ -32,15 +36,34 @@ DRONE_NUMBER_TO_IP_SUFFIX = {
 IP_SUFFIX_TO_DRONE_NUMBER = {
     suffix: number for number, suffix in DRONE_NUMBER_TO_IP_SUFFIX.items()
 }
-BATTERY_OPTIONS = [f"B{i:02d}" for i in range(1, 11)]
+BATTERY_OPTIONS = [f"B{i:02d}" for i in range(1, 16)]
+EXPERIMENT_BATTERY_WINDOW = {"low": 40, "high": 75}
+RECOMMENDED_EXPERIMENT_BATTERIES = {"B02", "B04", "B06", "B07", "B10"}
 FORMATION_OPTIONS = ["front", "column", "vee", "echalon", "diamond"]
-MISSION_PAD_COLUMNS = [
-    [1, 2, 3, 4, 5],
-    [2, 3, 4, 5, 6],
-    [3, 4, 5, 6, 7],
-    [4, 5, 6, 7, 8],
-    [5, 6, 7, 8, 1],
+BASELINE_MODES = [
+    ("hover", "hover baseline"),
+    ("head_forward_250", "head wind forward 250cm"),
+    ("tail_forward_250", "tail wind forward 250cm"),
+    ("side_forward_250", "side wind lateral 250cm"),
 ]
+BASELINE_DIRECTIONS = [
+    ("up", "↑"),
+    ("down", "↓"),
+]
+MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6],
+    [2, 3, 4, 5, 6, 7],
+    [3, 4, 5, 6, 7, 8],
+    [4, 5, 6, 7, 8, 1],
+    [5, 6, 7, 8, 1, 2],
+]
+
+
+def python_executable():
+    executable = Path(sys.executable)
+    if executable.exists():
+        return str(executable)
+    return shutil.which("python3") or "python3"
 EXPERIMENT_SCRIPTS = {
     "front": "data_collector.py",
     "column": "data_collector.py",
@@ -49,6 +72,7 @@ EXPERIMENT_SCRIPTS = {
     "diamond": "data_collector.py",
 }
 TAKEOFF_PROMPT = "Press Enter to take off"
+DISCHARGE_PROMPT = "Press Enter to discharge high-battery drones"
 WIND_DIRECTION_CODES = {
     "head wind": "head",
     "tail wind": "tail",
@@ -71,12 +95,15 @@ RUN_STATE = {
     "status": "idle",
     "message": "",
     "ready_for_takeoff": False,
+    "ready_for_discharge": False,
+    "prompt_action": "",
     "takeoff_confirmed": False,
     "started_at": None,
     "ended_at": None,
     "returncode": None,
     "process": None,
     "output": [],
+    "baseline_config": None,
 }
 
 
@@ -143,6 +170,10 @@ def human_size(num_bytes):
             return f"{size:.1f} {unit}" if unit != "B" else f"{int(size)} {unit}"
         size /= 1024
     return f"{num_bytes} B"
+
+
+def safe_slug(value):
+    return "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in str(value))
 
 
 def classify_file(path):
@@ -469,6 +500,8 @@ def group_experiments_by_condition(experiments):
             "wind_direction": first.get("wind_direction", ""),
             "wind_speed": first.get("wind_speed", ""),
             "trial_count": len(trials),
+            "included_trial_count": sum(1 for trial in trials if not trial.get("is_outlier")),
+            "outlier_count": sum(1 for trial in trials if trial.get("is_outlier")),
             "trials": trials,
         })
     return groups
@@ -547,6 +580,91 @@ def filter_experiments(experiments, formation="", wind_direction="", wind_speed=
     return filtered
 
 
+def read_first_csv_row(path):
+    try:
+        with path.open("r", newline="", encoding="utf-8-sig") as f:
+            rows = list(csv.DictReader(f))
+            return rows[0] if rows else {}
+    except (OSError, UnicodeDecodeError, csv.Error):
+        return {}
+
+
+def scan_baseline_runs():
+    runs = []
+    if not BASELINE_DIR.exists():
+        return runs
+    for summary_path in sorted(BASELINE_DIR.rglob("*_summary.csv"), key=lambda item: item.stat().st_mtime, reverse=True):
+        row = read_first_csv_row(summary_path)
+        if not row:
+            continue
+        baseline_id = row.get("baseline_id") or summary_path.name.removesuffix("_summary.csv")
+        folder = summary_path.parent
+        timeseries = folder / f"{baseline_id}_timeseries.csv"
+        metadata = folder / f"{baseline_id}_metadata.json"
+        plots_dir = folder / "plots"
+        plots = []
+        if plots_dir.exists():
+            plots = [
+                path.relative_to(DATA_DIR).as_posix()
+                for path in sorted(plots_dir.glob(f"{baseline_id}_*.png"))
+            ]
+        runs.append({
+            "baseline_id": baseline_id,
+            "run_id": row.get("run_id", ""),
+            "drone_name": row.get("drone_name", ""),
+            "drone_number": row.get("drone_number", ""),
+            "drone_ip": row.get("drone_ip", ""),
+            "battery_id": normalize_battery_id(row.get("battery_id", "")),
+            "mode": row.get("mode", ""),
+            "direction": row.get("direction", ""),
+            "baseline_path": row.get("baseline_path", ""),
+            "duration_sec": row.get("duration_sec", ""),
+            "battery_start": row.get("battery_start", ""),
+            "battery_end": row.get("battery_end", ""),
+            "battery_drop": row.get("battery_drop", ""),
+            "end_reason": row.get("end_reason", ""),
+            "summary_relpath": summary_path.relative_to(DATA_DIR).as_posix(),
+            "timeseries_relpath": timeseries.relative_to(DATA_DIR).as_posix() if timeseries.exists() else "",
+            "metadata_relpath": metadata.relative_to(DATA_DIR).as_posix() if metadata.exists() else "",
+            "plots": plots,
+            "mtime": datetime.fromtimestamp(summary_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
+        })
+    return runs
+
+
+def baseline_filter_options(runs):
+    return {
+        "drones": sorted({run["drone_number"] for run in runs if run.get("drone_number")}, key=lambda value: int(value)),
+        "batteries": sorted({run["battery_id"] for run in runs if run.get("battery_id")}),
+        "modes": sorted({run["mode"] for run in runs if run.get("mode")}),
+    }
+
+
+def filter_baseline_runs(runs, drone_number="", battery_id="", mode=""):
+    battery_id = normalize_battery_id(battery_id)
+    filtered = []
+    for run in runs:
+        if drone_number and run.get("drone_number") != drone_number:
+            continue
+        if battery_id and run.get("battery_id") != battery_id:
+            continue
+        if mode and run.get("mode") != mode:
+            continue
+        filtered.append(run)
+    return filtered
+
+
+def baseline_summary_key(drone_number="", battery_id="", mode=""):
+    parts = ["baseline"]
+    if mode:
+        parts.append(safe_slug(mode))
+    if drone_number:
+        parts.append(f"drone_{drone_number}")
+    if battery_id:
+        parts.append(normalize_battery_id(battery_id))
+    return "_".join(parts)
+
+
 def latest_archive_file(folder, pattern):
     files = sorted(folder.glob(pattern), key=lambda path: path.stat().st_mtime, reverse=True)
     return files[0] if files else None
@@ -612,6 +730,225 @@ def find_experiment_index(experiments, experiment_id):
     return None
 
 
+def experiment_by_id(experiment_id):
+    if not experiment_id:
+        return None
+    registry = load_registry()
+    idx = find_experiment_index(registry.get("experiments", []), experiment_id)
+    if idx is None:
+        return None
+    return registry["experiments"][idx]
+
+
+def battery_level_band(value):
+    try:
+        percent = float(value)
+    except (TypeError, ValueError):
+        return "unknown"
+    if percent > EXPERIMENT_BATTERY_WINDOW["high"]:
+        return "above"
+    if percent < EXPERIMENT_BATTERY_WINDOW["low"]:
+        return "below"
+    return "window"
+
+
+def battery_window_progress(value):
+    try:
+        percent = float(value)
+    except (TypeError, ValueError):
+        return 0
+    low = EXPERIMENT_BATTERY_WINDOW["low"]
+    high = EXPERIMENT_BATTERY_WINDOW["high"]
+    if high <= low:
+        return 0
+    return max(0, min(100, round((percent - low) / (high - low) * 100, 1)))
+
+
+def live_batteries_from_output(output_lines):
+    status = {"by_ip": {}, "by_battery": {}, "by_name": {}}
+    current = None
+    connect_pattern = re.compile(
+        r"Connecting\s+(?P<name>\S+)\s+\((?P<ip>[^,\)]+)(?:,\s+battery\s+(?P<battery>[A-Za-z0-9]+))?"
+    )
+    ok_pattern = re.compile(r"OK\s+-\s+battery:\s*(?P<percent>\d+(?:\.\d+)?)%")
+    window_pattern = re.compile(
+        r"(?P<name>drone_\d+)\s+\((?P<ip>[^,\)]+),\s+battery\s+(?P<battery>[A-Za-z0-9]+)\):\s*(?P<percent>\d+(?:\.\d+)?)%"
+    )
+    live_status_pattern = re.compile(
+        r"(?P<name>drone_\d+)\s+battery_id=(?P<battery>[A-Za-z0-9]+)\s+battery=(?P<percent>\d+(?:\.\d+)?)%"
+    )
+
+    def remember(item):
+        ip = item.get("drone_ip")
+        battery_id = normalize_battery_id(item.get("battery_id", ""))
+        drone_name = item.get("drone_name")
+        if battery_id:
+            item["battery_id"] = battery_id
+        if ip:
+            status["by_ip"][ip] = item
+        if battery_id:
+            status["by_battery"][battery_id] = item
+        if drone_name:
+            status["by_name"][drone_name] = item
+
+    for line in output_lines:
+        window_match = window_pattern.search(line)
+        if window_match:
+            remember({
+                "drone_name": window_match.group("name"),
+                "drone_ip": window_match.group("ip").strip(),
+                "battery_id": window_match.group("battery"),
+                "battery_percent": float(window_match.group("percent")),
+                "source": "battery_window_check",
+            })
+            continue
+        live_matches = list(live_status_pattern.finditer(line))
+        if live_matches:
+            source = "live_output" if line.startswith("Live battery status:") else "discharge_output"
+            for match in live_matches:
+                remember({
+                    "drone_name": match.group("name"),
+                    "battery_id": match.group("battery"),
+                    "battery_percent": float(match.group("percent")),
+                    "phase": "battery_discharge_hover" if source == "discharge_output" else "",
+                    "source": source,
+                })
+            continue
+        connect_match = connect_pattern.search(line)
+        if connect_match:
+            current = {
+                "drone_name": connect_match.group("name"),
+                "drone_ip": connect_match.group("ip").strip(),
+                "battery_id": normalize_battery_id(connect_match.group("battery") or ""),
+            }
+            continue
+        ok_match = ok_pattern.search(line)
+        if ok_match and current:
+            remember({
+                **current,
+                "battery_percent": float(ok_match.group("percent")),
+                "source": "preflight",
+            })
+            current = None
+    return status
+
+
+def latest_coordination_batteries(experiment_id):
+    experiment_dir = DATA_DIR / str(experiment_id or "")
+    coord_path = latest_archive_file(experiment_dir, "*_all_coordination.csv")
+    if not coord_path:
+        return {}
+    latest = {}
+    try:
+        with coord_path.open("r", newline="", encoding="utf-8-sig") as f:
+            for row in csv.DictReader(f):
+                ip = (row.get("drone_ip") or "").strip()
+                battery = (row.get("battery") or "").strip()
+                if not ip or not battery:
+                    continue
+                try:
+                    battery_percent = float(battery)
+                except ValueError:
+                    continue
+                latest[ip] = {
+                    "drone_name": row.get("drone_name", ""),
+                    "drone_ip": ip,
+                    "battery_id": normalize_battery_id(row.get("battery_id", "")),
+                    "battery_percent": battery_percent,
+                    "phase": row.get("phase", ""),
+                    "timestamp": row.get("timestamp", ""),
+                    "source": "live_csv",
+                }
+    except (OSError, csv.Error):
+        return {}
+    return latest
+
+
+def build_live_battery_status(experiment_id, output_lines):
+    experiment = experiment_by_id(experiment_id)
+    with RUN_LOCK:
+        baseline_config = dict(RUN_STATE.get("baseline_config") or {})
+    if not experiment:
+        if baseline_config:
+            stdout_status = live_batteries_from_output(output_lines)
+            ip = baseline_config.get("ip", "")
+            battery_id = normalize_battery_id(baseline_config.get("battery_id", ""))
+            drone_name = baseline_config.get("drone_name") or f"drone_{baseline_config.get('drone_number', '')}"
+            status = {}
+            if ip in stdout_status["by_ip"]:
+                status.update(stdout_status["by_ip"][ip])
+            if drone_name in stdout_status["by_name"]:
+                status.update(stdout_status["by_name"][drone_name])
+            if battery_id in stdout_status["by_battery"]:
+                status.update(stdout_status["by_battery"][battery_id])
+            percent = status.get("battery_percent")
+            return {
+                "window": EXPERIMENT_BATTERY_WINDOW,
+                "recommended_batteries": sorted(RECOMMENDED_EXPERIMENT_BATTERIES),
+                "drones": [{
+                    "takeoff_order": 1,
+                    "drone_number": baseline_config.get("drone_number", ""),
+                    "drone_name": status.get("drone_name") or drone_name,
+                    "drone_ip": ip,
+                    "battery_id": status.get("battery_id") or battery_id,
+                    "battery_percent": percent,
+                    "battery_percent_label": f"{percent:g}%" if percent is not None else "--",
+                    "band": battery_level_band(percent),
+                    "window_progress": battery_window_progress(percent),
+                    "phase": status.get("phase") or baseline_config.get("mode", ""),
+                    "timestamp": status.get("timestamp", ""),
+                    "source": status.get("source", "waiting"),
+                    "recommended": battery_id in RECOMMENDED_EXPERIMENT_BATTERIES,
+                }],
+            }
+        return {
+            "window": EXPERIMENT_BATTERY_WINDOW,
+            "recommended_batteries": sorted(RECOMMENDED_EXPERIMENT_BATTERIES),
+            "drones": [],
+        }
+
+    stdout_status = live_batteries_from_output(output_lines)
+    csv_status = latest_coordination_batteries(experiment_id)
+    drones = []
+    for drone in sorted(experiment.get("drones", []), key=lambda item: int(str(item.get("takeoff_order") or 999))):
+        ip = str(drone.get("ip") or "").strip()
+        if not ip:
+            suffix = str(drone.get("ip_suffix") or "").strip()
+            ip = f"{IP_PREFIX}{suffix}" if suffix else ""
+        battery_id = display_battery_id(drone)
+        drone_name = drone.get("role") or f"drone_{drone.get('takeoff_order', '')}"
+        status = {}
+        if ip in stdout_status["by_ip"]:
+            status.update(stdout_status["by_ip"][ip])
+        if drone_name in stdout_status["by_name"]:
+            status.update(stdout_status["by_name"][drone_name])
+        if battery_id in stdout_status["by_battery"]:
+            status.update(stdout_status["by_battery"][battery_id])
+        if ip in csv_status:
+            status.update(csv_status[ip])
+        percent = status.get("battery_percent")
+        drones.append({
+            "takeoff_order": drone.get("takeoff_order", ""),
+            "drone_number": display_drone_number(drone),
+            "drone_name": status.get("drone_name") or drone_name,
+            "drone_ip": ip,
+            "battery_id": status.get("battery_id") or battery_id,
+            "battery_percent": percent,
+            "battery_percent_label": f"{percent:g}%" if percent is not None else "--",
+            "band": battery_level_band(percent),
+            "window_progress": battery_window_progress(percent),
+            "phase": status.get("phase", ""),
+            "timestamp": status.get("timestamp", ""),
+            "source": status.get("source", "waiting"),
+            "recommended": battery_id in RECOMMENDED_EXPERIMENT_BATTERIES,
+        })
+    return {
+        "window": EXPERIMENT_BATTERY_WINDOW,
+        "recommended_batteries": sorted(RECOMMENDED_EXPERIMENT_BATTERIES),
+        "drones": drones,
+    }
+
+
 def public_run_state():
     with RUN_LOCK:
         state = {
@@ -620,7 +957,8 @@ def public_run_state():
             if key != "process"
         }
         state["output"] = RUN_STATE["output"][-240:]
-        return state
+    state["live_batteries"] = build_live_battery_status(state.get("experiment_id"), state.get("output", []))
+    return state
 
 
 def set_run_state(**changes):
@@ -635,8 +973,16 @@ def append_run_output(line):
         RUN_STATE["output"] = RUN_STATE["output"][-500:]
         if TAKEOFF_PROMPT in line:
             RUN_STATE["ready_for_takeoff"] = True
+            RUN_STATE["ready_for_discharge"] = False
+            RUN_STATE["prompt_action"] = "takeoff"
             RUN_STATE["status"] = "ready_for_takeoff"
             RUN_STATE["message"] = "Preflight checks reached takeoff confirmation."
+        elif DISCHARGE_PROMPT in line:
+            RUN_STATE["ready_for_takeoff"] = True
+            RUN_STATE["ready_for_discharge"] = True
+            RUN_STATE["prompt_action"] = "discharge"
+            RUN_STATE["status"] = "ready_for_discharge"
+            RUN_STATE["message"] = "High-battery drones need discharge hover before the experiment."
 
 
 def reset_run_state():
@@ -652,12 +998,15 @@ def reset_run_state():
             "status": "idle",
             "message": "",
             "ready_for_takeoff": False,
+            "ready_for_discharge": False,
+            "prompt_action": "",
             "takeoff_confirmed": False,
             "started_at": None,
             "ended_at": None,
             "returncode": None,
             "process": None,
             "output": [],
+            "baseline_config": None,
         })
 
 
@@ -714,7 +1063,7 @@ def start_experiment_process(experiment):
             raise RuntimeError(f"Another experiment is already {RUN_STATE['status']}.")
 
     run_id = uuid.uuid4().hex[:12]
-    command = [sys.executable, "-u", str(script_path)]
+    command = [python_executable(), "-u", str(script_path)]
     if script_name == "data_collector.py":
         command.extend(["--experiment-id", experiment["experiment_id"]])
 
@@ -739,12 +1088,108 @@ def start_experiment_process(experiment):
         status="preflight",
         message=f"Started {script_name}; waiting for preflight and takeoff prompt.",
         ready_for_takeoff=False,
+        ready_for_discharge=False,
+        prompt_action="",
         takeoff_confirmed=False,
         started_at=datetime.now().isoformat(timespec="seconds"),
         ended_at=None,
         returncode=None,
         process=process,
         output=[f"$ {' '.join(command)}", f"IP order: {ip_order}"],
+    )
+    thread = threading.Thread(target=monitor_experiment_process, args=(process,), daemon=True)
+    thread.start()
+    return public_run_state()
+
+
+def start_baseline_process(form):
+    drone_number = str(form.get("baseline_drone_number", "")).strip()
+    battery_id = normalize_battery_id(form.get("baseline_battery_id", ""))
+    mode = str(form.get("baseline_mode", "")).strip()
+    start_pad = str(form.get("baseline_start_pad", "")).strip()
+    start_col = str(form.get("baseline_start_col", "")).strip()
+    start_row = str(form.get("baseline_start_row", "")).strip()
+    direction = str(form.get("baseline_direction", "up")).strip()
+    notes = str(form.get("baseline_notes", "")).strip()
+
+    if drone_number not in DRONE_NUMBER_TO_IP_SUFFIX:
+        raise ValueError("Choose a valid drone number for the baseline test.")
+    if not battery_id:
+        raise ValueError("Choose a battery ID for the baseline test.")
+    valid_modes = {key for key, _ in BASELINE_MODES}
+    if mode not in valid_modes:
+        raise ValueError("Choose a valid baseline mode.")
+    if direction not in {"up", "down"}:
+        raise ValueError("Choose a valid baseline direction.")
+
+    script_name = "single_drone_baseline.py"
+    script_path = BASE_DIR / script_name
+    if not script_path.exists():
+        raise FileNotFoundError(f"Baseline script not found: {script_name}")
+
+    with RUN_LOCK:
+        current_process = RUN_STATE.get("process")
+        if current_process and current_process.poll() is None:
+            raise RuntimeError(f"Another experiment is already {RUN_STATE['status']}.")
+
+    suffix = DRONE_NUMBER_TO_IP_SUFFIX[drone_number]
+    ip = f"{IP_PREFIX}{suffix}"
+    run_id = uuid.uuid4().hex[:12]
+    command = [
+        python_executable(),
+        "-u",
+        str(script_path),
+        "--drone-number",
+        drone_number,
+        "--battery-id",
+        battery_id,
+        "--mode",
+        mode,
+    ]
+    if start_pad:
+        command.extend(["--start-pad", start_pad])
+    if start_col:
+        command.extend(["--start-col", start_col])
+    if start_row:
+        command.extend(["--start-row", start_row])
+    command.extend(["--direction", direction])
+    if notes:
+        command.extend(["--notes", notes])
+
+    process = subprocess.Popen(
+        command,
+        cwd=str(BASE_DIR),
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+    set_run_state(
+        run_id=run_id,
+        experiment_id=None,
+        formation="single_baseline",
+        script=script_name,
+        status="preflight",
+        message=f"Started {script_name}; waiting for single-drone preflight and takeoff prompt.",
+        ready_for_takeoff=False,
+        ready_for_discharge=False,
+        prompt_action="",
+        takeoff_confirmed=False,
+        started_at=datetime.now().isoformat(timespec="seconds"),
+        ended_at=None,
+        returncode=None,
+        process=process,
+        baseline_config={
+            "drone_number": drone_number,
+            "drone_name": f"drone_{drone_number}",
+            "ip": ip,
+            "battery_id": battery_id,
+            "mode": mode,
+            "direction": direction,
+        },
+        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode}"],
     )
     thread = threading.Thread(target=monitor_experiment_process, args=(process,), daemon=True)
     thread.start()
@@ -765,6 +1210,17 @@ def index():
         "wind_direction": request.args.get("wind_direction", "").strip(),
         "wind_speed": request.args.get("wind_speed", "").strip(),
     }
+    all_baselines = scan_baseline_runs()
+    selected_baseline_filters = {
+        "drone_number": request.args.get("baseline_drone", "").strip(),
+        "battery_id": normalize_battery_id(request.args.get("baseline_battery", "")),
+        "mode": request.args.get("baseline_mode", "").strip(),
+    }
+    baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
+    baseline_summary_plot = (
+        BASELINE_DIR / "summary" / "plots" /
+        f"{baseline_summary_key(**selected_baseline_filters)}_summary.png"
+    )
     data_experiments = filter_experiments(all_experiments, **selected_filters)
     filter_active = True
     matched_ids = {exp.get("experiment_id") for exp in data_experiments}
@@ -791,9 +1247,17 @@ def index():
         all_experiment_count=len(all_experiments),
         selected_filters=selected_filters,
         filter_options=experiment_filter_options(all_experiments),
+        baseline_runs=baseline_runs,
+        all_baseline_count=len(all_baselines),
+        selected_baseline_filters=selected_baseline_filters,
+        baseline_filter_options=baseline_filter_options(all_baselines),
+        baseline_summary_plot=baseline_summary_plot.relative_to(DATA_DIR).as_posix() if baseline_summary_plot.exists() else "",
         display_drone_number=display_drone_number,
         display_battery_id=display_battery_id,
         battery_options=BATTERY_OPTIONS,
+        battery_window=EXPERIMENT_BATTERY_WINDOW,
+        baseline_modes=BASELINE_MODES,
+        baseline_directions=BASELINE_DIRECTIONS,
         drone_options=sorted(DRONE_NUMBER_TO_IP_SUFFIX.items(), key=lambda item: int(item[0])),
     )
 
@@ -849,6 +1313,21 @@ def delete_experiment(experiment_id):
     return redirect(url_for("index"))
 
 
+@app.route("/experiments/<path:experiment_id>/outlier", methods=["POST"])
+def toggle_experiment_outlier(experiment_id):
+    registry = load_registry()
+    experiments = registry["experiments"]
+    idx = find_experiment_index(experiments, experiment_id)
+    if idx is None:
+        abort(404)
+    experiment = experiments[idx]
+    experiment["is_outlier"] = request.form.get("is_outlier") == "1"
+    experiment["outlier_note"] = request.form.get("outlier_note", experiment.get("outlier_note", "")).strip()
+    experiment["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_registry(registry)
+    return redirect(request.form.get("next") or url_for("experiment_detail", experiment_id=experiment_id))
+
+
 @app.route("/experiments/<path:experiment_id>")
 def experiment_detail(experiment_id):
     registry = load_registry()
@@ -896,6 +1375,8 @@ def condition_detail(condition_key):
         "wind_direction": trials[0].get("wind_direction", ""),
         "wind_speed": trials[0].get("wind_speed", ""),
         "trial_count": len(trials),
+        "included_trial_count": sum(1 for trial in trials if not trial.get("is_outlier")),
+        "outlier_count": sum(1 for trial in trials if trial.get("is_outlier")),
         "trials": trials,
     }
     archive = summarize_condition_archive(condition_key)
@@ -909,7 +1390,7 @@ def generate_plots(relpath):
         abort(400, description="Could not infer experiment ID from file path.")
     script_path = BASE_DIR / "plot_generate.py"
     result = subprocess.run(
-        [sys.executable, str(script_path), "--experiment-id", experiment_id],
+        [python_executable(), str(script_path), "--experiment-id", experiment_id],
         cwd=str(BASE_DIR),
         text=True,
         capture_output=True,
@@ -924,7 +1405,7 @@ def generate_plots(relpath):
 def generate_condition_plots(condition_key):
     script_path = BASE_DIR / "plot_generate.py"
     result = subprocess.run(
-        [sys.executable, str(script_path), "--condition-key", condition_key],
+        [python_executable(), str(script_path), "--condition-key", condition_key],
         cwd=str(BASE_DIR),
         text=True,
         capture_output=True,
@@ -935,6 +1416,120 @@ def generate_condition_plots(condition_key):
     return redirect(url_for("condition_detail", condition_key=condition_key))
 
 
+def baseline_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def generate_baseline_hover_summary_plot(runs, output_path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    hover_runs = [run for run in runs if run.get("mode") == "hover" and run.get("timeseries_relpath")]
+    if not hover_runs:
+        raise ValueError("No hover baseline runs matched this filter.")
+
+    fig, axes = plt.subplots(3, 1, figsize=(10, 12), sharex=False)
+    ax_battery, ax_temp, ax_drop = axes
+    drop_labels = []
+    drop_values = []
+    duration_values = []
+
+    for run in hover_runs:
+        path = DATA_DIR / run["timeseries_relpath"]
+        try:
+            with path.open("r", newline="", encoding="utf-8-sig") as f:
+                rows = list(csv.DictReader(f))
+        except (OSError, csv.Error):
+            continue
+        points = []
+        temp_low = []
+        temp_high = []
+        for row in rows:
+            elapsed = baseline_float(row.get("elapsed_time"))
+            battery = baseline_float(row.get("battery"))
+            templ = baseline_float(row.get("templ"))
+            temph = baseline_float(row.get("temph"))
+            if elapsed is not None and battery is not None:
+                points.append((elapsed, battery))
+            if elapsed is not None and templ is not None:
+                temp_low.append((elapsed, templ))
+            if elapsed is not None and temph is not None:
+                temp_high.append((elapsed, temph))
+        label = f"D{run.get('drone_number')} {run.get('battery_id')} {run.get('run_id')}"
+        if points:
+            ax_battery.plot([p[0] for p in points], [p[1] for p in points], linewidth=1.8, label=label)
+        if temp_low:
+            ax_temp.plot([p[0] for p in temp_low], [p[1] for p in temp_low], linewidth=1.3, label=f"{label} templ")
+        if temp_high:
+            ax_temp.plot([p[0] for p in temp_high], [p[1] for p in temp_high], linewidth=1.3, linestyle="--", label=f"{label} temph")
+        drop = baseline_float(run.get("battery_drop"))
+        duration = baseline_float(run.get("duration_sec"))
+        if drop is not None:
+            drop_labels.append(label)
+            drop_values.append(drop)
+            duration_values.append(duration or 0)
+
+    ax_battery.axhline(10, color="#a23b3b", linestyle="--", linewidth=1, label="10% landing threshold")
+    ax_battery.set_title("Hover baseline: battery percentage to 10%")
+    ax_battery.set_xlabel("Elapsed time (s)")
+    ax_battery.set_ylabel("Battery (%)")
+    ax_battery.grid(True, alpha=0.25)
+    ax_battery.legend(fontsize=7, loc="best")
+
+    ax_temp.set_title("Hover baseline: temperature")
+    ax_temp.set_xlabel("Elapsed time (s)")
+    ax_temp.set_ylabel("Temperature (C)")
+    ax_temp.grid(True, alpha=0.25)
+    ax_temp.legend(fontsize=7, loc="best")
+
+    if drop_values:
+        x_positions = list(range(len(drop_values)))
+        ax_drop.bar(x_positions, drop_values, color="#216c5f", alpha=0.85, label="battery drop (%)")
+        ax_drop.set_xticks(x_positions)
+        ax_drop.set_xticklabels(drop_labels, rotation=35, ha="right", fontsize=8)
+        ax_drop.set_ylabel("Battery drop (%)")
+        ax_drop.set_title("Hover baseline: total battery drop and duration")
+        ax_duration = ax_drop.twinx()
+        ax_duration.plot(x_positions, duration_values, color="#2f80a8", marker="o", linewidth=1.8, label="duration (s)")
+        ax_duration.set_ylabel("Duration (s)")
+        ax_drop.grid(True, axis="y", alpha=0.25)
+
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+
+
+@app.route("/baselines/generate-summary", methods=["POST"])
+def generate_baseline_summary():
+    drone_number = request.form.get("baseline_drone", "").strip()
+    battery_id = normalize_battery_id(request.form.get("baseline_battery", ""))
+    mode = request.form.get("baseline_mode", "").strip() or "hover"
+    runs = filter_baseline_runs(
+        scan_baseline_runs(),
+        drone_number=drone_number,
+        battery_id=battery_id,
+        mode=mode,
+    )
+    key = baseline_summary_key(drone_number, battery_id, mode)
+    output_path = BASELINE_DIR / "summary" / "plots" / f"{key}_summary.png"
+    try:
+        generate_baseline_hover_summary_plot(runs, output_path)
+    except ValueError as exc:
+        abort(400, description=str(exc))
+    return redirect(url_for(
+        "index",
+        baseline_drone=drone_number,
+        baseline_battery=battery_id,
+        baseline_mode=mode,
+    ))
+
+
 @app.route("/experiments/<path:experiment_id>/start", methods=["POST"])
 def start_experiment(experiment_id):
     registry = load_registry()
@@ -943,6 +1538,15 @@ def start_experiment(experiment_id):
         abort(404)
     try:
         state = start_experiment_process(registry["experiments"][idx])
+    except (ValueError, RuntimeError, FileNotFoundError) as exc:
+        return jsonify({"ok": False, "error": str(exc), "state": public_run_state()}), 400
+    return jsonify({"ok": True, "state": state})
+
+
+@app.route("/baselines/start", methods=["POST"])
+def start_baseline():
+    try:
+        state = start_baseline_process(request.form)
     except (ValueError, RuntimeError, FileNotFoundError) as exc:
         return jsonify({"ok": False, "error": str(exc), "state": public_run_state()}), 400
     return jsonify({"ok": True, "state": state})
@@ -959,6 +1563,7 @@ def confirm_takeoff():
         process = RUN_STATE.get("process")
         ready_for_takeoff = RUN_STATE.get("ready_for_takeoff")
         status = RUN_STATE.get("status")
+        prompt_action = RUN_STATE.get("prompt_action")
     if not process or process.poll() is not None:
         return jsonify({"ok": False, "error": "No active experiment process.", "state": public_run_state()}), 400
     if not ready_for_takeoff:
@@ -969,13 +1574,43 @@ def confirm_takeoff():
             process.stdin.flush()
     except BrokenPipeError:
         return jsonify({"ok": False, "error": "Experiment process is no longer accepting input.", "state": public_run_state()}), 400
+    is_discharge = prompt_action == "discharge"
     set_run_state(
-        status="running",
-        message="Takeoff confirmed from GUI.",
-        takeoff_confirmed=True,
+        status="discharging" if is_discharge else "running",
+        message="Battery discharge hover confirmed from GUI." if is_discharge else "Takeoff confirmed from GUI.",
+        takeoff_confirmed=not is_discharge,
         ready_for_takeoff=False,
+        ready_for_discharge=False,
+        prompt_action="",
     )
-    append_run_output("[GUI] Takeoff confirmed.")
+    append_run_output("[GUI] Battery discharge hover confirmed." if is_discharge else "[GUI] Takeoff confirmed.")
+    return jsonify({"ok": True, "state": public_run_state()})
+
+
+@app.route("/experiment-run/skip-discharge", methods=["POST"])
+def skip_discharge_hover():
+    with RUN_LOCK:
+        process = RUN_STATE.get("process")
+        ready_for_discharge = RUN_STATE.get("ready_for_discharge")
+        prompt_action = RUN_STATE.get("prompt_action")
+    if not process or process.poll() is not None:
+        return jsonify({"ok": False, "error": "No active experiment process.", "state": public_run_state()}), 400
+    if not ready_for_discharge and prompt_action != "discharge":
+        return jsonify({"ok": False, "error": "Experiment is not waiting for battery discharge confirmation.", "state": public_run_state()}), 400
+    try:
+        if process.stdin:
+            process.stdin.write("skip\n")
+            process.stdin.flush()
+    except BrokenPipeError:
+        return jsonify({"ok": False, "error": "Experiment process is no longer accepting input.", "state": public_run_state()}), 400
+    set_run_state(
+        status="preflight",
+        message="Battery discharge hover skipped. Waiting for formal takeoff prompt.",
+        ready_for_takeoff=False,
+        ready_for_discharge=False,
+        prompt_action="",
+    )
+    append_run_output("[GUI] Battery discharge hover skipped.")
     return jsonify({"ok": True, "state": public_run_state()})
 
 
@@ -1191,6 +1826,7 @@ INDEX_TEMPLATE = """
       background: #fbfcfd;
     }
     .badge.coordination { color: var(--brand-2); border-color: #b7d7e4; }
+    .badge.outlier { border-color:#d49a90; color:#9d3d31; background:#fff4f1; }
     .badge.battery { color: var(--warn); border-color: #e3c49e; }
     .badge.image { color: var(--brand); border-color: #a9d2c7; }
     details { margin-top: 10px; }
@@ -1226,7 +1862,11 @@ INDEX_TEMPLATE = """
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 8px;
     }
-    .formation-option {
+    .wind-toolbar {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .formation-option,
+    .wind-option {
       border: 1px solid var(--line);
       background: #fff;
       color: var(--text);
@@ -1234,7 +1874,8 @@ INDEX_TEMPLATE = """
       padding: 9px 8px;
       font-size: 13px;
     }
-    .formation-option.active {
+    .formation-option.active,
+    .wind-option.active {
       background: var(--soft);
       border-color: #9cc7bd;
       color: var(--brand);
@@ -1243,6 +1884,23 @@ INDEX_TEMPLATE = """
       color: var(--muted);
       background: #f7f8fa;
     }
+    .mode-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .mode-switch button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+    }
+    .mode-switch button.active {
+      background: var(--soft);
+      border-color: #9cc7bd;
+      color: var(--brand);
+    }
+    .mode-panel[hidden] { display: none; }
     .mission-board {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -1295,6 +1953,55 @@ INDEX_TEMPLATE = """
     .pad-cell:not(.active) input[type="text"],
     .pad-cell:not(.active) select {
       visibility: hidden;
+    }
+    .baseline-pad-cell {
+      min-height: 74px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      align-content: space-between;
+      gap: 6px;
+      opacity: 0.72;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .baseline-pad-cell.selected {
+      opacity: 1;
+      border-color: #8abeb2;
+      background: #f3faf8;
+      box-shadow: inset 0 0 0 1px #c4dfd8;
+      color: var(--text);
+    }
+    .baseline-pad-cell.in-path {
+      opacity: 1;
+      border-color: #b7d7cd;
+      background: #f8fcfb;
+    }
+    .baseline-pad-cell .path-index {
+      min-height: 18px;
+      font-size: 12px;
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .arrow-toolbar {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .arrow-option {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1;
+    }
+    .arrow-option.active {
+      background: var(--soft);
+      border-color: #9cc7bd;
+      color: var(--brand);
     }
     .board-note {
       margin-top: 10px;
@@ -1407,6 +2114,11 @@ INDEX_TEMPLATE = """
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
+    .baseline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
     .experiment-tags {
       display: flex;
       flex-wrap: wrap;
@@ -1427,6 +2139,56 @@ INDEX_TEMPLATE = """
       justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
+    }
+    .battery-monitor {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .battery-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 9px;
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+    .battery-card .battery-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .battery-card strong {
+      font-size: 20px;
+      line-height: 1;
+      color: var(--text);
+    }
+    .battery-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8edf0;
+      overflow: hidden;
+      border: 1px solid #d8e0e4;
+    }
+    .battery-fill {
+      height: 100%;
+      width: 0%;
+      background: #2f8f72;
+      transition: width 0.25s ease, background 0.25s ease;
+    }
+    .battery-card[data-band="above"] .battery-fill { background: #2f80a8; }
+    .battery-card[data-band="below"] .battery-fill { background: #c95b4d; }
+    .battery-card[data-band="unknown"] .battery-fill { background: #a3adb5; }
+    .battery-card[data-band="below"] { border-color: #e0aaa4; background: #fff7f5; }
+    .battery-window-note {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      margin-top: 2px;
     }
     .terminal {
       min-height: 220px;
@@ -1515,7 +2277,9 @@ INDEX_TEMPLATE = """
       .mission-grid { grid-template-columns: repeat(5, minmax(58px, 1fr)); }
       .edit-grid { grid-template-columns: 1fr; }
       .edit-drone-grid { grid-template-columns: 1fr 1fr; }
+      .battery-monitor { grid-template-columns: 1fr; }
       .filter-grid { grid-template-columns: 1fr; }
+      .baseline-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1594,12 +2358,89 @@ INDEX_TEMPLATE = """
             <div class="experiment-tags" style="margin-top:8px;">
               {% for group in condition_groups %}
                 <a href="{{ url_for('condition_detail', condition_key=group.condition_key) }}">
-                  {{ group.condition_key }} ({{ group.trial_count }} trials)
+                  {{ group.condition_key }} ({{ group.included_trial_count }} used / {{ group.trial_count }} trials{% if group.outlier_count %}, {{ group.outlier_count }} outlier{% endif %})
                 </a>
               {% else %}
                 <span class="small">No experiments match the selected filters.</span>
               {% endfor %}
             </div>
+          </div>
+        </div>
+        <div class="filter-panel" style="margin-bottom:14px;">
+          <div class="run-status">
+            <div>
+              <h3>Baseline Data Filter</h3>
+              <div class="small">
+                Showing {{ baseline_runs|length }} matched baseline run(s) from {{ all_baseline_count }} total.
+              </div>
+            </div>
+            <a class="badge" href="{{ url_for('index') }}">Reset</a>
+          </div>
+          <form method="get" action="{{ url_for('index') }}">
+            <div class="filter-grid">
+              <label>Drone
+                <select name="baseline_drone">
+                  <option value="">All drones</option>
+                  {% for drone_number in baseline_filter_options.drones %}
+                    <option value="{{ drone_number }}" {% if selected_baseline_filters.drone_number == drone_number %}selected{% endif %}>drone {{ drone_number }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>Battery
+                <select name="baseline_battery">
+                  <option value="">All batteries</option>
+                  {% for battery_id in baseline_filter_options.batteries %}
+                    <option value="{{ battery_id }}" {% if selected_baseline_filters.battery_id == battery_id %}selected{% endif %}>{{ battery_id }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>Mode
+                <select name="baseline_mode">
+                  <option value="">All modes</option>
+                  {% for mode in baseline_filter_options.modes %}
+                    <option value="{{ mode }}" {% if selected_baseline_filters.mode == mode %}selected{% endif %}>{{ mode }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </div>
+            <button type="submit">Apply baseline filter</button>
+          </form>
+          <form method="post" action="{{ url_for('generate_baseline_summary') }}">
+            <input type="hidden" name="baseline_drone" value="{{ selected_baseline_filters.drone_number }}">
+            <input type="hidden" name="baseline_battery" value="{{ selected_baseline_filters.battery_id }}">
+            <input type="hidden" name="baseline_mode" value="{{ selected_baseline_filters.mode or 'hover' }}">
+            <button class="secondary" type="submit">Generate hover summary</button>
+          </form>
+          {% if baseline_summary_plot %}
+            <div>
+              <a class="file-name" href="{{ url_for('file_detail', relpath=baseline_summary_plot) }}">Open latest baseline summary plot</a>
+              <img src="{{ url_for('raw_file', relpath=baseline_summary_plot) }}" alt="Baseline hover summary" style="width:100%;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:#fff;">
+            </div>
+          {% endif %}
+          <div class="experiment-list" style="max-height:260px;">
+            {% for run in baseline_runs %}
+              <article class="experiment-row">
+                <div class="experiment-title">
+                  <div>
+                    <h3><a class="file-name" href="{{ url_for('file_detail', relpath=run.summary_relpath) }}">{{ run.baseline_id }}</a></h3>
+                    <div class="small">drone {{ run.drone_number }} · {{ run.battery_id }} · {{ run.mode }} · {{ run.mtime }}</div>
+                  </div>
+                  <span class="badge">{{ run.battery_start }}% -> {{ run.battery_end }}%</span>
+                </div>
+                <div class="small">
+                  duration {{ run.duration_sec }}s · drop {{ run.battery_drop }}%{% if run.end_reason %} · {{ run.end_reason }}{% endif %}
+                </div>
+                <div class="record-actions">
+                  {% if run.timeseries_relpath %}<a class="badge" href="{{ url_for('file_detail', relpath=run.timeseries_relpath) }}">timeseries</a>{% endif %}
+                  {% if run.metadata_relpath %}<a class="badge" href="{{ url_for('file_detail', relpath=run.metadata_relpath) }}">metadata</a>{% endif %}
+                  {% for plot in run.plots %}
+                    <a class="badge image" href="{{ url_for('file_detail', relpath=plot) }}">plot</a>
+                  {% endfor %}
+                </div>
+              </article>
+            {% else %}
+              <div class="small">No baseline runs match the selected filters.</div>
+            {% endfor %}
           </div>
         </div>
         <div class="small" id="fileListHint">Select a condition group above to inspect its trials, or click a file category button to browse raw files.</div>
@@ -1663,6 +2504,12 @@ INDEX_TEMPLATE = """
         <span class="small">Create a run record before or after a flight</span>
       </div>
       <div class="section-body">
+        <div class="mode-switch">
+          <button class="area-mode-button active" type="button" data-area-mode="experiment">Experiment Area</button>
+          <button class="area-mode-button" type="button" data-area-mode="baseline">Single Drone Baseline</button>
+        </div>
+
+        <div class="mode-panel" id="experimentAreaPanel">
         <form method="post" action="{{ url_for('create_experiment') }}">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <label>Experiment ID
@@ -1683,11 +2530,8 @@ INDEX_TEMPLATE = """
           </label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <label>Wind Direction
-              <select name="wind_direction">
-                <option value="head wind">head wind</option>
-                <option value="tail wind">tail wind</option>
-                <option value="side wind">side wind</option>
-              </select>
+              <input id="windDirectionDisplay" value="head wind" readonly>
+              <input id="windDirectionInput" type="hidden" name="wind_direction" value="head wind">
             </label>
             <label>Wind Speed
               <select name="wind_speed">
@@ -1696,6 +2540,11 @@ INDEX_TEMPLATE = """
                 <option value="Level3">Level3</option>
               </select>
             </label>
+          </div>
+          <div class="formation-toolbar wind-toolbar" style="margin-top:8px;">
+            <button class="wind-option active" type="button" data-wind-direction="head wind">head wind</button>
+            <button class="wind-option" type="button" data-wind-direction="tail wind">tail wind</button>
+            <button class="wind-option" type="button" data-wind-direction="side wind">side wind</button>
           </div>
           <div>
             <h3>Run Experiment Board</h3>
@@ -1708,7 +2557,7 @@ INDEX_TEMPLATE = """
             </div>
             <div class="mission-board" style="margin-top:10px;">
               <div class="mission-grid" id="missionGrid">
-                {% for display_row in range(4, -1, -1) %}
+                {% for display_row in range(mission_pad_columns[0]|length - 1, -1, -1) %}
                   {% for col in range(5) %}
                     {% set pad_id = mission_pad_columns[col][display_row] %}
                     <div class="pad-cell"
@@ -1741,10 +2590,10 @@ INDEX_TEMPLATE = """
                 {% endfor %}
               </div>
               <div class="board-note">
-                <span class="small">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
+                <span class="small" id="frontFormationNote">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
                 <span class="small">column: first column, bottom to top = 1, 2, 3, 4, 5</span>
-                <span class="small">drone #: 1->101, 2->102, 3->103, 4->106, 5->107</span>
-                <span class="small">battery: choose five unique charged batteries B01-B10</span>
+                <span class="small">drone #: 1->101, 2->109, 3->103, 4->106, 5->107</span>
+                <span class="small">battery: choose five unique charged batteries B01-B15</span>
               </div>
             </div>
           </div>
@@ -1762,6 +2611,89 @@ INDEX_TEMPLATE = """
           </label>
           <button type="submit">Create experiment record</button>
         </form>
+        </div>
+
+        <div class="mode-panel" id="baselineAreaPanel" hidden>
+
+        <div class="run-panel">
+          <div class="run-status">
+            <div>
+              <h3>Single Drone Battery Baseline</h3>
+              <div class="small">Test one drone with one battery before adding it to formal experiments. Data is saved under database/baselines/.</div>
+            </div>
+            <span class="badge">baseline mode</span>
+          </div>
+          <form id="baselineForm" method="post" action="{{ url_for('start_baseline') }}">
+            <div class="baseline-grid">
+              <label>Drone
+                <select name="baseline_drone_number" required>
+                  <option value="">drone</option>
+                  {% for drone_number, ip_suffix in drone_options %}
+                    <option value="{{ drone_number }}">{{ drone_number }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>Battery
+                <select name="baseline_battery_id" required>
+                  <option value="">battery</option>
+                  {% for battery_id in battery_options %}
+                    <option value="{{ battery_id }}">{{ battery_id }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>Baseline Test
+                <select id="baselineModeInput" name="baseline_mode" required>
+                  {% for mode, label in baseline_modes %}
+                    <option value="{{ mode }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>Flight Direction
+                <input id="baselineDirectionDisplay" value="↑ up" readonly>
+                <input id="baselineDirectionInput" type="hidden" name="baseline_direction" value="up">
+              </label>
+            </div>
+            <div id="baselineMissionPadPanel">
+              <h3>Baseline Mission Pad Board</h3>
+              <div class="small" style="margin-top:6px;">Choose the start mission pad cell, then use the arrow buttons to set the pass-through direction.</div>
+              <div class="mission-board" style="margin-top:10px;">
+                <div class="mission-grid" id="baselineMissionGrid">
+                  {% for display_row in range(mission_pad_columns[0]|length - 1, -1, -1) %}
+                    {% for col in range(5) %}
+                      {% set pad_id = mission_pad_columns[col][display_row] %}
+                      <button class="baseline-pad-cell"
+                              type="button"
+                              data-col="{{ col }}"
+                              data-row="{{ display_row }}"
+                              data-pad="{{ pad_id }}">
+                        <div class="pad-title">
+                          <span>pad</span>
+                          <span class="pad-id">{{ pad_id }}</span>
+                        </div>
+                        <div class="path-index"></div>
+                      </button>
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+                <div class="arrow-toolbar" style="margin-top:10px;">
+                  <button class="arrow-option active" type="button" data-baseline-direction="up" title="Fly upward">↑</button>
+                  <button class="arrow-option" type="button" data-baseline-direction="down" title="Fly downward">↓</button>
+                </div>
+                <div class="board-note">
+                  <span class="small" id="baselinePathPreview">Select a start mission pad.</span>
+                </div>
+              </div>
+            </div>
+            <input id="baselineStartPadInput" type="hidden" name="baseline_start_pad" value="">
+            <input id="baselineStartColInput" type="hidden" name="baseline_start_col" value="">
+            <input id="baselineStartRowInput" type="hidden" name="baseline_start_row" value="">
+            <label>Baseline Notes
+              <textarea name="baseline_notes" placeholder="New battery batch, wind setup, room layout, abnormal behavior..."></textarea>
+            </label>
+            <button type="submit">Start baseline test</button>
+          </form>
+        </div>
+        </div>
 
         <div style="height:1px;background:var(--line);margin:18px 0;"></div>
 
@@ -1776,6 +2708,13 @@ INDEX_TEMPLATE = """
               <button class="secondary" type="button" id="refreshRunButton">Refresh</button>
               <button class="danger" type="button" id="stopRunButton">Stop</button>
             </div>
+          </div>
+          <div class="battery-window-note">
+            <div class="small">Live battery monitor · experiment window <strong id="batteryWindowLabel">{{ battery_window.high }}% - {{ battery_window.low }}%</strong></div>
+            <div class="small">selected batteries: B02 · B04 · B06 · B07 · B10</div>
+          </div>
+          <div class="battery-monitor" id="batteryMonitor">
+            <div class="small">Prepare an experiment to see live drone battery levels.</div>
           </div>
           <div class="terminal-shell">
             <div class="terminal-titlebar">
@@ -1802,7 +2741,10 @@ INDEX_TEMPLATE = """
             <article class="experiment-row" id="{{ exp.experiment_id }}">
               <div class="experiment-title">
                 <div>
-                  <h3><a class="file-name" href="{{ url_for('experiment_detail', experiment_id=exp.experiment_id) }}">{{ exp.experiment_id }}</a></h3>
+              <h3>
+                <a class="file-name" href="{{ url_for('experiment_detail', experiment_id=exp.experiment_id) }}">{{ exp.experiment_id }}</a>
+                {% if exp.is_outlier %}<span class="badge outlier">outlier</span>{% endif %}
+              </h3>
                   <div class="small">
                     {{ exp.formation or 'formation not set' }}
                     {% if exp.wind_direction or exp.wind_speed %}
@@ -1898,6 +2840,11 @@ INDEX_TEMPLATE = """
                 </form>
               </details>
               <div class="record-actions">
+                <form method="post" action="{{ url_for('toggle_experiment_outlier', experiment_id=exp.experiment_id) }}">
+                  <input type="hidden" name="next" value="{{ url_for('index', selected=exp.experiment_id) }}">
+                  <input type="hidden" name="is_outlier" value="{{ '0' if exp.is_outlier else '1' }}">
+                  <button class="secondary" type="submit">{{ 'Normal' if exp.is_outlier else 'Outlier' }}</button>
+                </form>
                 <button class="secondary start-experiment-button"
                         type="button"
                         data-start-url="{{ url_for('start_experiment', experiment_id=exp.experiment_id) }}"
@@ -1921,13 +2868,14 @@ INDEX_TEMPLATE = """
 
   <div class="modal-backdrop" id="takeoffModal" role="dialog" aria-modal="true">
     <div class="modal">
-      <h2>Ready for takeoff</h2>
-      <div class="small">
+      <h2 id="takeoffModalTitle">Ready for takeoff</h2>
+      <div class="small" id="takeoffModalBody">
         The script has completed preflight connection checks and is waiting at the takeoff prompt.
         Confirm only when the flight area is clear.
       </div>
       <div class="record-actions">
         <button type="button" id="confirmTakeoffButton">Confirm takeoff</button>
+        <button class="secondary" type="button" id="skipDischargeButton" hidden>Skip discharge</button>
         <button class="secondary" type="button" id="closeTakeoffModalButton">Wait</button>
       </div>
     </div>
@@ -1938,6 +2886,9 @@ INDEX_TEMPLATE = """
     const rows = document.querySelectorAll(".file-row");
     const workspaceFileList = document.getElementById("workspaceFileList");
     const fileListHint = document.getElementById("fileListHint");
+    const areaModeButtons = document.querySelectorAll(".area-mode-button");
+    const experimentAreaPanel = document.getElementById("experimentAreaPanel");
+    const baselineAreaPanel = document.getElementById("baselineAreaPanel");
     let activeFileFilter = null;
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
@@ -1960,15 +2911,34 @@ INDEX_TEMPLATE = """
       });
     });
 
+    areaModeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.areaMode;
+        areaModeButtons.forEach((item) => item.classList.toggle("active", item === button));
+        experimentAreaPanel.hidden = mode !== "experiment";
+        baselineAreaPanel.hidden = mode !== "baseline";
+      });
+    });
+
     const formationInput = document.getElementById("formationInput");
     const formationDisplay = document.getElementById("formationDisplay");
     const formationButtons = document.querySelectorAll(".formation-option");
-    const padCells = Array.from(document.querySelectorAll(".pad-cell"));
+    const windDirectionInput = document.getElementById("windDirectionInput");
+    const windDirectionDisplay = document.getElementById("windDirectionDisplay");
+    const windDirectionButtons = document.querySelectorAll(".wind-option");
+    const padCells = Array.from(document.querySelectorAll("#missionGrid .pad-cell"));
+    const frontFormationNote = document.getElementById("frontFormationNote");
+    const recommendedBatteryOrder = ["B02", "B04", "B06", "B07", "B10"];
+    const topMissionRow = Math.max(...padCells.map((cell) => Number(cell.dataset.row)));
+
+    function isFrontTailWind() {
+      return formationInput.value === "front" && windDirectionInput && windDirectionInput.value === "tail wind";
+    }
 
     function isFormationCell(cell, formation) {
       const col = Number(cell.dataset.col);
       const row = Number(cell.dataset.row);
-      if (formation === "front") return row === 0;
+      if (formation === "front") return row === (isFrontTailWind() ? topMissionRow : 0);
       if (formation === "column") return col === 0;
       if (formation === "echalon") return row === 0;
       if (formation === "vee") {
@@ -2010,6 +2980,11 @@ INDEX_TEMPLATE = """
     function setFormation(formation) {
       formationInput.value = formation;
       formationDisplay.value = formation;
+      if (frontFormationNote) {
+        frontFormationNote.textContent = isFrontTailWind()
+          ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"
+          : "front: bottom row, left to right = 1, 2, 3, 4, 5";
+      }
       formationButtons.forEach((button) => {
         button.classList.toggle("active", button.dataset.formation === formation);
       });
@@ -2024,6 +2999,7 @@ INDEX_TEMPLATE = """
         input.required = false;
         battery.disabled = true;
         battery.required = false;
+        battery.value = "";
         order.value = "";
         role.value = "";
       });
@@ -2038,6 +3014,7 @@ INDEX_TEMPLATE = """
         input.required = true;
         battery.disabled = false;
         battery.required = true;
+        battery.value = recommendedBatteryOrder[index] || "";
         order.value = String(index + 1);
         role.value = `${formation}_${index + 1}`;
       });
@@ -2046,6 +3023,17 @@ INDEX_TEMPLATE = """
     formationButtons.forEach((button) => {
       button.addEventListener("click", () => {
         setFormation(button.dataset.formation);
+      });
+    });
+    windDirectionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const windDirection = button.dataset.windDirection;
+        windDirectionInput.value = windDirection;
+        windDirectionDisplay.value = windDirection;
+        windDirectionButtons.forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
+        setFormation(formationInput.value);
       });
     });
 
@@ -2072,17 +3060,163 @@ INDEX_TEMPLATE = """
       });
     }
 
+    const baselineCells = Array.from(document.querySelectorAll(".baseline-pad-cell"));
+    const baselineModeInput = document.getElementById("baselineModeInput");
+    const baselineMissionPadPanel = document.getElementById("baselineMissionPadPanel");
+    const baselineDirectionInput = document.getElementById("baselineDirectionInput");
+    const baselineDirectionDisplay = document.getElementById("baselineDirectionDisplay");
+    const baselineStartPadInput = document.getElementById("baselineStartPadInput");
+    const baselineStartColInput = document.getElementById("baselineStartColInput");
+    const baselineStartRowInput = document.getElementById("baselineStartRowInput");
+    const baselinePathPreview = document.getElementById("baselinePathPreview");
+    const baselineArrowButtons = document.querySelectorAll(".arrow-option");
+    let selectedBaselineCell = null;
+
+    function isHoverBaselineMode() {
+      return baselineModeInput && baselineModeInput.value === "hover";
+    }
+
+    function baselineCellAt(col, row) {
+      return baselineCells.find((cell) => Number(cell.dataset.col) === col && Number(cell.dataset.row) === row);
+    }
+
+    function baselinePathFromSelection() {
+      if (!selectedBaselineCell) return [];
+      const col = Number(selectedBaselineCell.dataset.col);
+      const startRow = Number(selectedBaselineCell.dataset.row);
+      const direction = baselineDirectionInput.value === "down" ? -1 : 1;
+      const path = [];
+      for (let row = startRow; row >= 0 && row <= topMissionRow; row += direction) {
+        const cell = baselineCellAt(col, row);
+        if (cell) path.push(cell);
+      }
+      return path;
+    }
+
+    function renderBaselinePath() {
+      if (baselineMissionPadPanel) {
+        baselineMissionPadPanel.hidden = isHoverBaselineMode();
+      }
+      baselineCells.forEach((cell) => {
+        cell.classList.remove("selected", "in-path");
+        const index = cell.querySelector(".path-index");
+        if (index) index.textContent = "";
+      });
+      if (isHoverBaselineMode()) {
+        baselineStartPadInput.value = "";
+        baselineStartColInput.value = "";
+        baselineStartRowInput.value = "";
+        baselinePathPreview.textContent = "Hover baseline: no mission pad is required; it records from takeoff until battery reaches 10%.";
+        return;
+      }
+      if (!selectedBaselineCell) {
+        baselinePathPreview.textContent = "Select a start mission pad.";
+        return;
+      }
+      const path = baselinePathFromSelection();
+      path.forEach((cell, index) => {
+        cell.classList.add(index === 0 ? "selected" : "in-path");
+        const label = cell.querySelector(".path-index");
+        if (label) label.textContent = index === 0 ? "start" : String(index + 1);
+      });
+      const pads = path.map((cell) => cell.dataset.pad);
+      baselineStartPadInput.value = selectedBaselineCell.dataset.pad;
+      baselineStartColInput.value = selectedBaselineCell.dataset.col;
+      baselineStartRowInput.value = selectedBaselineCell.dataset.row;
+      baselinePathPreview.textContent = `Path: ${pads.join(" -> ")}`;
+    }
+
+    baselineCells.forEach((cell) => {
+      cell.addEventListener("click", () => {
+        selectedBaselineCell = cell;
+        renderBaselinePath();
+      });
+    });
+
+    baselineArrowButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const direction = button.dataset.baselineDirection;
+        baselineDirectionInput.value = direction;
+        baselineDirectionDisplay.value = direction === "down" ? "↓ down" : "↑ up";
+        baselineArrowButtons.forEach((item) => item.classList.toggle("active", item === button));
+        renderBaselinePath();
+      });
+    });
+    if (baselineModeInput) {
+      baselineModeInput.addEventListener("change", renderBaselinePath);
+      renderBaselinePath();
+    }
+
     const runStatus = document.getElementById("runStatus");
     const runMessage = document.getElementById("runMessage");
     const runTerminal = document.getElementById("runTerminal");
     const runTerminalTitle = document.getElementById("runTerminalTitle");
     const runTerminalMeta = document.getElementById("runTerminalMeta");
+    const batteryMonitor = document.getElementById("batteryMonitor");
+    const batteryWindowLabel = document.getElementById("batteryWindowLabel");
     const takeoffModal = document.getElementById("takeoffModal");
+    const takeoffModalTitle = document.getElementById("takeoffModalTitle");
+    const takeoffModalBody = document.getElementById("takeoffModalBody");
     const confirmTakeoffButton = document.getElementById("confirmTakeoffButton");
+    const skipDischargeButton = document.getElementById("skipDischargeButton");
     const closeTakeoffModalButton = document.getElementById("closeTakeoffModalButton");
     const refreshRunButton = document.getElementById("refreshRunButton");
     const stopRunButton = document.getElementById("stopRunButton");
+    const baselineForm = document.getElementById("baselineForm");
     let takeoffModalShownForRun = null;
+
+    function batteryWindowFromState(state) {
+      return (state.live_batteries && state.live_batteries.window) || { high: {{ battery_window.high }}, low: {{ battery_window.low }} };
+    }
+
+    function renderBatteryMonitor(liveBatteries) {
+      const data = liveBatteries || {};
+      const windowInfo = data.window || { high: {{ battery_window.high }}, low: {{ battery_window.low }} };
+      batteryWindowLabel.textContent = `${windowInfo.high}% - ${windowInfo.low}%`;
+      const drones = data.drones || [];
+      batteryMonitor.innerHTML = "";
+      if (!drones.length) {
+        const empty = document.createElement("div");
+        empty.className = "small";
+        empty.textContent = "Prepare an experiment to see live drone battery levels.";
+        batteryMonitor.appendChild(empty);
+        return;
+      }
+      drones.forEach((drone) => {
+        const card = document.createElement("div");
+        card.className = "battery-card";
+        card.dataset.band = drone.band || "unknown";
+
+        const top = document.createElement("div");
+        top.className = "battery-top";
+        const label = document.createElement("span");
+        label.className = "small";
+        label.textContent = `Drone ${drone.drone_number || drone.takeoff_order || "-"} · ${drone.battery_id || "-"}`;
+        const value = document.createElement("strong");
+        value.textContent = drone.battery_percent_label || "--";
+        top.append(label, value);
+
+        const track = document.createElement("div");
+        track.className = "battery-track";
+        const fill = document.createElement("div");
+        fill.className = "battery-fill";
+        fill.style.width = `${drone.window_progress || 0}%`;
+        track.appendChild(fill);
+
+        const meta = document.createElement("div");
+        meta.className = "small";
+        const bandText = {
+          above: "above experiment window",
+          window: "inside experiment window",
+          below: "below experiment window",
+          unknown: "waiting for reading",
+        }[drone.band || "unknown"];
+        meta.textContent = `${bandText}${drone.phase ? " · " + drone.phase : ""}`;
+
+        card.append(top, track, meta);
+        batteryMonitor.appendChild(card);
+      });
+    }
 
     function renderRunState(state) {
       runStatus.textContent = state.status || "idle";
@@ -2092,9 +3226,31 @@ INDEX_TEMPLATE = """
       const lines = state.output || [];
       runTerminal.textContent = lines.length ? lines.join("\\n") : "$ waiting for experiment command...";
       runTerminal.scrollTop = runTerminal.scrollHeight;
-      if (state.ready_for_takeoff && takeoffModalShownForRun !== state.run_id) {
+      renderBatteryMonitor(state.live_batteries);
+      const windowInfo = batteryWindowFromState(state);
+      if (baselineForm && !["preflight", "ready_for_takeoff", "ready_for_discharge", "running", "discharging"].includes(state.status || "")) {
+        const submitButton = baselineForm.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = false;
+      }
+      const promptKey = `${state.run_id || "none"}:${state.prompt_action || "takeoff"}`;
+      if (state.ready_for_takeoff && takeoffModalShownForRun !== promptKey) {
+        if (state.prompt_action === "discharge" || state.ready_for_discharge) {
+          takeoffModalTitle.textContent = "Battery discharge needed";
+          takeoffModalBody.textContent = state.script === "single_drone_baseline.py"
+            ? `This baseline drone is above ${windowInfo.high}%. Start a hover discharge first, or skip discharge and continue to takeoff.`
+            : `One or more drones are above ${windowInfo.high}%. You can hover-discharge them first, or skip discharge and continue to the formal takeoff confirmation.`;
+          confirmTakeoffButton.textContent = "Start hover discharge";
+          skipDischargeButton.hidden = false;
+        } else {
+          takeoffModalTitle.textContent = "Ready for takeoff";
+          takeoffModalBody.textContent = state.script === "single_drone_baseline.py"
+            ? "The single-drone baseline script is waiting at the takeoff prompt. Confirm only when the flight area is clear."
+            : `All drones are inside the ${windowInfo.low}%-${windowInfo.high}% battery window and the script is waiting at the takeoff prompt. Confirm only when the flight area is clear.`;
+          confirmTakeoffButton.textContent = "Confirm takeoff";
+          skipDischargeButton.hidden = true;
+        }
         takeoffModal.classList.add("visible");
-        takeoffModalShownForRun = state.run_id;
+        takeoffModalShownForRun = promptKey;
       }
     }
 
@@ -2120,6 +3276,27 @@ INDEX_TEMPLATE = """
         if (!payload.ok) button.disabled = false;
       });
     });
+    if (baselineForm) {
+      baselineForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!isHoverBaselineMode() && !baselineStartPadInput.value) {
+          alert("Choose a start mission pad for the baseline test.");
+          return;
+        }
+        const submitButton = baselineForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        const response = await fetch(baselineForm.action, {
+          method: "POST",
+          body: new FormData(baselineForm),
+        });
+        const payload = await response.json();
+        if (payload.state) renderRunState(payload.state);
+        if (!payload.ok) {
+          alert(payload.error || "Baseline start failed.");
+          submitButton.disabled = false;
+        }
+      });
+    }
 
     refreshRunButton.addEventListener("click", fetchRunState);
     stopRunButton.addEventListener("click", () => {
@@ -2130,6 +3307,10 @@ INDEX_TEMPLATE = """
     confirmTakeoffButton.addEventListener("click", async () => {
       takeoffModal.classList.remove("visible");
       await postRunAction("{{ url_for('confirm_takeoff') }}");
+    });
+    skipDischargeButton.addEventListener("click", async () => {
+      takeoffModal.classList.remove("visible");
+      await postRunAction("{{ url_for('skip_discharge_hover') }}");
     });
     closeTakeoffModalButton.addEventListener("click", () => {
       takeoffModal.classList.remove("visible");
@@ -2249,6 +3430,7 @@ EXPERIMENT_TEMPLATE = """
     h3 { font-size:14px; }
     .small { color:var(--muted); font-size:13px; line-height:1.5; }
     .badge { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:3px 8px; color:var(--muted); font-size:12px; background:#fbfcfd; }
+    .badge.outlier { border-color:#d49a90; color:#9d3d31; background:#fff4f1; }
     .mission-grid { display:grid; grid-template-columns:repeat(5, minmax(72px,1fr)); gap:8px; }
     .pad-cell { min-height:92px; border:1px solid var(--line); border-radius:8px; background:#fbfcfd; padding:8px; display:grid; gap:6px; opacity:.45; }
     .pad-cell.has-drone { opacity:1; background:#f3faf8; border-color:#8abeb2; }
@@ -2263,6 +3445,7 @@ EXPERIMENT_TEMPLATE = """
     .plots { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
     .plots img { width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
     button { border:0; border-radius:8px; background:var(--brand); color:#fff; padding:9px 12px; font:inherit; font-weight:650; cursor:pointer; }
+    button.secondary { background:#657286; }
     @media (max-width: 980px) { main { grid-template-columns:1fr; } .plots { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -2270,9 +3453,19 @@ EXPERIMENT_TEMPLATE = """
   <header>
     <div>
       <h1>{{ experiment.experiment_id }}</h1>
-      <div class="small">{{ experiment.formation }} · {{ experiment.wind_direction }} · {{ experiment.wind_speed }}</div>
+      <div class="small">
+        {{ experiment.formation }} · {{ experiment.wind_direction }} · {{ experiment.wind_speed }}
+        {% if experiment.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
+      </div>
     </div>
-    <a href="{{ url_for('index') }}">Back</a>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+      <form method="post" action="{{ url_for('toggle_experiment_outlier', experiment_id=experiment.experiment_id) }}">
+        <input type="hidden" name="next" value="{{ url_for('experiment_detail', experiment_id=experiment.experiment_id) }}">
+        <input type="hidden" name="is_outlier" value="{{ '0' if experiment.is_outlier else '1' }}">
+        <button class="secondary" type="submit">{{ 'Mark as normal' if experiment.is_outlier else 'Mark as outlier' }}</button>
+      </form>
+      <a href="{{ url_for('index') }}">Back</a>
+    </div>
   </header>
   <main>
     <section>
@@ -2282,7 +3475,7 @@ EXPERIMENT_TEMPLATE = """
       </div>
       <div class="body">
         <div class="mission-grid">
-          {% for display_row in range(4, -1, -1) %}
+          {% for display_row in range(mission_pad_columns[0]|length - 1, -1, -1) %}
             {% for col in range(5) %}
               {% set pad_id = mission_pad_columns[col][display_row] %}
               {% set matched = namespace(drone=None) %}
@@ -2397,6 +3590,9 @@ CONDITION_TEMPLATE = """
     .small { color:var(--muted); font-size:13px; line-height:1.5; }
     .trial-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
     .trial-card { border:1px solid var(--line); border-radius:8px; padding:12px; background:#fbfcfd; display:grid; gap:8px; }
+    .trial-card.outlier { border-color:#d49a90; background:#fff7f5; }
+    .badge { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:3px 8px; color:var(--muted); font-size:12px; background:#fbfcfd; width:max-content; }
+    .badge.outlier { border-color:#d49a90; color:#9d3d31; background:#fff4f1; }
     .plots { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
     .plots img { width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
     button { border:0; border-radius:8px; background:var(--brand); color:#fff; padding:9px 12px; font:inherit; font-weight:650; cursor:pointer; }
@@ -2407,7 +3603,11 @@ CONDITION_TEMPLATE = """
   <header>
     <div>
       <h1>{{ condition.condition_key }}</h1>
-      <div class="small">{{ condition.formation }} · {{ condition.wind_direction }} · {{ condition.wind_speed }} · {{ condition.trial_count }} trial(s)</div>
+      <div class="small">
+        {{ condition.formation }} · {{ condition.wind_direction }} · {{ condition.wind_speed }}
+        · {{ condition.included_trial_count }} used / {{ condition.trial_count }} trial(s)
+        {% if condition.outlier_count %}· {{ condition.outlier_count }} outlier excluded{% endif %}
+      </div>
     </div>
     <a href="{{ url_for('index') }}">Back</a>
   </header>
@@ -2425,8 +3625,9 @@ CONDITION_TEMPLATE = """
       <div class="body">
         <div class="trial-grid">
           {% for trial in condition.trials %}
-            <a class="trial-card" href="{{ url_for('experiment_detail', experiment_id=trial.experiment_id) }}">
+            <a class="trial-card {% if trial.is_outlier %}outlier{% endif %}" href="{{ url_for('experiment_detail', experiment_id=trial.experiment_id) }}">
               <h3>{{ trial.experiment_id }}</h3>
+              {% if trial.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
               <div class="small">Trial {{ trial.short_id or trial.experiment_id.rsplit('_', 1)[-1] }}</div>
               <div class="small">{{ trial.status }} · {{ trial.created_at }}</div>
             </a>
@@ -2438,7 +3639,7 @@ CONDITION_TEMPLATE = """
     <section>
       <div class="head">
         <h2>Condition Summary Layer</h2>
-        <div class="small">Generated from all trials in this condition group.</div>
+        <div class="small">Generated from non-outlier trials in this condition group.</div>
       </div>
       <div class="body">
         <div class="plots">

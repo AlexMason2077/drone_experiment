@@ -1,0 +1,11 @@
+battery_id,source_file,start_pct,end_pct,duration_min,mean_drop_pct_per_min,samples,unique_levels
+B01,Battery test/discharge_logs/battery_01_20260506_172546.csv,97,10,8.085,10.7606,4788,88
+B02,Battery test/discharge_logs/battery_02_20260506_121208.csv,91,10,9.789,8.2747,5821,82
+B03,Battery test/discharge_logs/battery_03_20260506_155740.csv,95,10,7.306,11.6347,4343,86
+B04,Battery test/discharge_logs/battery_04_20260506_162317.csv,97,10,9.337,9.318,5552,88
+B05,Battery test/discharge_logs/battery_05_20260506_161116.csv,93,10,7.577,10.9542,4491,84
+B06,Battery test/discharge_logs/battery_06_20260506_164133.csv,97,10,9.929,8.7619,5905,88
+B07,Battery test/discharge_logs/battery_07_20260506_165708.csv,94,10,9.599,8.7509,5691,85
+B08,Battery test/discharge_logs/battery_08_20260506_133811.csv,96,10,8.407,10.2291,5000,87
+B09,Battery test/discharge_logs/battery_09_20260506_171401.csv,97,10,8.424,10.3281,4988,88
+B10,Battery test/discharge_logs/battery_10_20260506_115206.csv,95,10,9.559,8.8921,5685,86

@@ -1,0 +1,110 @@
+{
+  "comparison_plot": "Battery test/analysis_outputs/latest_10_battery_comparison.png",
+  "best_common_window_plot": "Battery test/analysis_outputs/latest_10_battery_best_common_linear_window.png",
+  "best_common_window_all_10": {
+    "window": "62-47%",
+    "hi_pct": 62,
+    "lo_pct": 47,
+    "span_pct": 15,
+    "min_r2": 0.99494,
+    "mean_r2": 0.99745,
+    "max_rmse_pct": 0.3278,
+    "mean_rmse_pct": 0.2255,
+    "rate_mean_pct_per_min": 8.4093,
+    "rate_cv": 0.07996,
+    "min_duration_min": 1.6013,
+    "score": 0.968323
+  },
+  "best_previous_five_window": {
+    "window": "63-48%",
+    "hi_pct": 63,
+    "lo_pct": 48,
+    "span_pct": 15,
+    "min_r2": 0.99473,
+    "max_rmse_pct": 0.3346,
+    "rate_mean_pct_per_min": 8.231,
+    "rate_cv": 0.0631,
+    "score": 0.968916
+  },
+  "previous_five": [
+    "B04",
+    "B06",
+    "B07",
+    "B08",
+    "B10"
+  ],
+  "top5_in_common_window": [
+    "B03",
+    "B04",
+    "B07",
+    "B06",
+    "B05"
+  ],
+  "previous_five_ranking_rows": [
+    {
+      "battery_id": "B04",
+      "previous_used": true,
+      "window": "62-47%",
+      "n_nodes": 16,
+      "soc_span": 15.0,
+      "duration_min": 1.8599166666666669,
+      "rate_pct_per_min": 8.12261849637167,
+      "r2": 0.9966757493241665,
+      "rmse_pct": 0.26578248035087554,
+      "rate_deviation_from_median_pct": 1.0189292722658478,
+      "rank_score": 0.9846265578245768
+    },
+    {
+      "battery_id": "B07",
+      "previous_used": true,
+      "window": "62-47%",
+      "n_nodes": 16,
+      "soc_span": 15.0,
+      "duration_min": 1.8416000000000001,
+      "rate_pct_per_min": 8.10360762413262,
+      "r2": 0.9969260689398539,
+      "rmse_pct": 0.2555798016825747,
+      "rate_deviation_from_median_pct": 1.250593050458795,
+      "rank_score": 0.9842563026875415
+    },
+    {
+      "battery_id": "B06",
+      "previous_used": true,
+      "window": "62-47%",
+      "n_nodes": 16,
+      "soc_span": 15.0,
+      "duration_min": 1.8997333333333333,
+      "rate_pct_per_min": 7.912778273117808,
+      "r2": 0.9982592341005185,
+      "rmse_pct": 0.1923311606682132,
+      "rate_deviation_from_median_pct": 3.576012310043876,
+      "rank_score": 0.9781852500402967
+    },
+    {
+      "battery_id": "B08",
+      "previous_used": true,
+      "window": "62-47%",
+      "n_nodes": 16,
+      "soc_span": 15.0,
+      "duration_min": 1.7744249999999995,
+      "rate_pct_per_min": 8.504959638655025,
+      "r2": 0.9949434270853139,
+      "rmse_pct": 0.32779898480178216,
+      "rate_deviation_from_median_pct": 3.64022536652168,
+      "rank_score": 0.9705485560751738
+    },
+    {
+      "battery_id": "B10",
+      "previous_used": true,
+      "window": "62-47%",
+      "n_nodes": 16,
+      "soc_span": 15.0,
+      "duration_min": 1.6333083333333334,
+      "rate_pct_per_min": 9.282803503260224,
+      "r2": 0.9980194593215093,
+      "rmse_pct": 0.20514991937099863,
+      "rate_deviation_from_median_pct": 13.11891978163093,
+      "rank_score": 0.9393892826138556
+    }
+  ]
+}

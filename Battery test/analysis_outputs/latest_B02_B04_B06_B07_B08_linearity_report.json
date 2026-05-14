@@ -1,0 +1,46 @@
+{
+  "selected": [
+    "B02",
+    "B04",
+    "B06",
+    "B07",
+    "B08"
+  ],
+  "best_window": {
+    "window": "64-49%",
+    "hi_pct": 64,
+    "lo_pct": 49,
+    "span_pct": 15,
+    "min_r2": 0.9943,
+    "mean_r2": 0.99737,
+    "max_rmse_pct": 0.3479,
+    "mean_rmse_pct": 0.2261,
+    "rate_mean_pct_per_min": 7.7221,
+    "rate_cv": 0.03915,
+    "min_duration_min": 1.8573,
+    "score": 0.977791
+  },
+  "scan_table": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_linear_windows.csv",
+  "outputs": [
+    {
+      "kind": "best",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_best_window_64_49.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_best_window_64_49_details.csv"
+    },
+    {
+      "kind": "large20_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_large20_window_64_44.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_large20_window_64_44_details.csv"
+    },
+    {
+      "kind": "large25_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_large25_window_61_36.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_large25_window_61_36_details.csv"
+    },
+    {
+      "kind": "large30_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_large30_window_63_33.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B08_large30_window_63_33_details.csv"
+    }
+  ]
+}

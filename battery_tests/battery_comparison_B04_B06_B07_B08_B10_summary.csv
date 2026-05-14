@@ -1,0 +1,6 @@
+battery_code,file,duration_s,start_percent,end_percent,consumed_percent,consumption_per_min_percent
+B04,battery_test_B04_192_168_0_103_20260504_192355.csv,89.022,87.0,71.0,16.0,10.784
+B06,battery_test_B06_192_168_0_103_20260504_191752.csv,89.012,89.0,74.0,15.0,10.111
+B07,battery_test_B07_192_168_0_103_20260504_194107.csv,89.021,90.0,74.0,16.0,10.784
+B08,battery_test_B08_192_168_0_103_20260504_193508.csv,89.011,88.0,70.0,18.0,12.133
+B10,battery_test_B10_192_168_0_103_20260504_193832.csv,89.023,94.0,78.0,16.0,10.784

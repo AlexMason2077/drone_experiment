@@ -1,0 +1,12 @@
+{
+  "run_id": "batterytest_10_20260506_115206",
+  "baseline_id": "drone_3_B10_hover_batterytest_10_20260506_115206",
+  "drone_number": "3",
+  "drone_name": "drone_3",
+  "drone_ip": "192.168.0.103",
+  "battery_id": "B10",
+  "mode": "hover",
+  "source_file": "Battery test/discharge_logs/battery_10_20260506_115206.csv",
+  "source_raw_copy": "baselines/drone_3_B10/drone_3_B10_hover_batterytest_10_20260506_115206_source_raw.csv",
+  "imported_at": "2026-05-13T15:35:46"
+}

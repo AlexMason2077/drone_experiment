@@ -1,0 +1,1 @@
+run_id,baseline_id,drone_name,drone_number,drone_ip,battery_id,mode,direction,baseline_path,phase,timestamp,elapsed_time,mid,x,y,z,battery,battery_start,battery_drop_from_start,yaw,pitch,roll,vgx,vgy,vgz,agx,agy,agz,templ,temph,tof,h,baro,motor_time

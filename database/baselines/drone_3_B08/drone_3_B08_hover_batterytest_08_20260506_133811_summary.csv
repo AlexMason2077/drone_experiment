@@ -1,0 +1,2 @@
+run_id,baseline_id,drone_name,drone_number,drone_ip,battery_id,mode,direction,baseline_path,start_timestamp,end_timestamp,duration_sec,battery_start,battery_end,battery_drop,templ_start,templ_end,temph_start,temph_end,end_reason,notes
+batterytest_08_20260506_133811,drone_3_B08_hover_batterytest_08_20260506_133811,drone_3,3,192.168.0.103,B08,hover,,,2026-05-06T13:38:22.867,2026-05-06T13:46:47.309,504.442,96,10,86,45,60,47,62,imported from Battery test/discharge_logs; ended at 10% battery,Imported legacy Battery test discharge log for baseline comparison.

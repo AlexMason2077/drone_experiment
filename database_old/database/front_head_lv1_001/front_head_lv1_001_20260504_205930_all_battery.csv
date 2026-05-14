@@ -1,0 +1,6 @@
+run_id,experiment_id,formation,wind_direction,wind_speed,drone_name,drone_ip,battery_id,takeoff_order,drone_role,mission_pad,grid_column,grid_row,hover_start_timestamp,hover_end_timestamp,hover_duration_sec,battery_hover_start,battery_hover_end,battery_drop
+20260504_205930,front_head_lv1_001,front,head wind,Level1,drone_1,192.168.0.101,B06,1,front_1,1,0,0,2026-05-04T20:59:56.982,2026-05-04T21:00:57.024,60,97,83,14
+20260504_205930,front_head_lv1_001,front,head wind,Level1,drone_2,192.168.0.102,B04,2,front_2,2,1,0,2026-05-04T20:59:56.982,2026-05-04T21:00:57.024,60,94,79,15
+20260504_205930,front_head_lv1_001,front,head wind,Level1,drone_3,192.168.0.103,B07,3,front_3,3,2,0,2026-05-04T20:59:56.982,2026-05-04T21:00:57.024,60,86,77,9
+20260504_205930,front_head_lv1_001,front,head wind,Level1,drone_4,192.168.0.106,B10,4,front_4,4,3,0,2026-05-04T20:59:56.982,2026-05-04T21:00:57.024,60,99,84,15
+20260504_205930,front_head_lv1_001,front,head wind,Level1,drone_5,192.168.0.107,B08,5,front_5,5,4,0,2026-05-04T20:59:56.982,2026-05-04T21:00:57.024,60,92,72,20
