@@ -3306,6 +3306,13 @@ INDEX_TEMPLATE = """
           alert("Choose a start mission pad for the baseline test.");
           return;
         }
+        if (!isHoverBaselineMode()) {
+          const targetRow = baselineTargetRow();
+          if (targetRow === null || targetRow < 0 || targetRow > topMissionRow) {
+            alert("Choose a start pad on the opposite edge row so the single-drone baseline can fly exactly 250cm between mission pads.");
+            return;
+          }
+        }
         const submitButton = baselineForm.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         const response = await fetch(baselineForm.action, {

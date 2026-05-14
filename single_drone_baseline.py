@@ -195,8 +195,8 @@ def movement_config(start_col, start_row, direction):
     step = node_direction_from_baseline(direction)
     segment_count = int(round(FORWARD_DISTANCE_CM / ROW_SPACING_CM))
     target_row = start_row + step * segment_count
-    if target_row < 0:
-        raise ValueError("Selected start pad does not leave 250cm of travel in the down direction.")
+    if target_row < 0 or target_row >= len(MISSION_PAD_COLUMNS[start_col]):
+        raise ValueError("Selected start pad does not leave 250cm of travel between visible mission pads.")
     start_pad = pad_at_physical_row(start_col, start_row)
     target_pad = pad_at_physical_row(start_col, target_row)
     path_rows = range(start_row, target_row + step, step)
