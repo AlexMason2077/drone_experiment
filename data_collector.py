@@ -747,10 +747,10 @@ def fly_node_to_node(swarm, configs):
     if segments <= 0:
         raise RuntimeError("Node-to-node flight has zero segments; check start and target mission pads.")
     direction_text = "negative y" if configs[0]["node_row_direction"] < 0 else "positive y"
-    distance_cm = configs[0]["node_forward_distance_cm"]
     print(
-        f"Flying all drones continuously {distance_cm} cm along {direction_text} at "
-        f"{NODE_FLIGHT_SPEED_CM_S} cm/s. Intermediate mission pads are pass-through only.",
+        f"Flying all drones in {segments} mission-pad segments "
+        f"({NODE_SEGMENT_DISTANCE_CM} cm each) along {direction_text} at "
+        f"{NODE_FLIGHT_SPEED_CM_S} cm/s.",
         flush=True,
     )
     for config in configs:
@@ -767,17 +767,27 @@ def fly_node_to_node(swarm, configs):
             flush=True,
         )
 
-    set_phase_all("continuous_node_to_node")
-    run_swarm_parallel_checked(
-        swarm,
-        "Continuous node-to-node flight",
-        lambda i, tello: fly_continuous_node_to_node(
-            tello,
-            configs[i],
-            speed=NODE_FLIGHT_SPEED_CM_S,
+    current_rows = [config["grid_row"] for config in configs]
+    for segment_index in range(segments):
+        set_phase_all(f"node_segment_{segment_index + 1}_of_{segments}")
+        print(f"  Segment {segment_index + 1}/{segments}", flush=True)
+        run_swarm_parallel_checked(
+            swarm,
+            f"Node segment {segment_index + 1}",
+            lambda i, tello: fly_synchronized_node_segment(
+                tello,
+                configs[i],
+                current_rows[i],
+                speed=NODE_FLIGHT_SPEED_CM_S,
+            )
         )
-    )
-    print("  Continuous node-to-node flight complete.", flush=True)
+        for i, config in enumerate(configs):
+            current_rows[i] += config["node_row_direction"]
+            print(
+                f"    {config['name']} detected pad {pad_at_physical_row(config, current_rows[i])}.",
+                flush=True,
+            )
+    print("  Segmented node-to-node flight complete.", flush=True)
 
     set_phase_all("arrived_target_node")
 

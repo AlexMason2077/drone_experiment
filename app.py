@@ -12,6 +12,7 @@ import uuid
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlencode
 
 from flask import Flask, abort, jsonify, redirect, render_template_string, request, send_file, url_for
 
@@ -567,14 +568,36 @@ def experiment_filter_options(experiments):
     }
 
 
-def filter_experiments(experiments, formation="", wind_direction="", wind_speed=""):
+def selected_values(args, name, normalizer=None):
+    values = []
+    for value in args.getlist(name):
+        text = str(value or "").strip()
+        if not text:
+            continue
+        if normalizer:
+            text = normalizer(text)
+        if text and text not in values:
+            values.append(text)
+    return values
+
+
+def value_matches_filter(value, selected):
+    if not selected:
+        return True
+    return value in selected
+
+
+def filter_experiments(experiments, formation=None, wind_direction=None, wind_speed=None):
+    formation = formation or []
+    wind_direction = wind_direction or []
+    wind_speed = wind_speed or []
     filtered = []
     for exp in experiments:
-        if formation and exp.get("formation") != formation:
+        if not value_matches_filter(exp.get("formation"), formation):
             continue
-        if wind_direction and exp.get("wind_direction") != wind_direction:
+        if not value_matches_filter(exp.get("wind_direction"), wind_direction):
             continue
-        if wind_speed and exp.get("wind_speed") != wind_speed:
+        if not value_matches_filter(exp.get("wind_speed"), wind_speed):
             continue
         filtered.append(exp)
     return filtered
@@ -589,8 +612,18 @@ def read_first_csv_row(path):
         return {}
 
 
+def read_json_file(path):
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
 def scan_baseline_runs():
     runs = []
+    seen = set()
     if not BASELINE_DIR.exists():
         return runs
     for summary_path in sorted(BASELINE_DIR.rglob("*_summary.csv"), key=lambda item: item.stat().st_mtime, reverse=True):
@@ -598,6 +631,7 @@ def scan_baseline_runs():
         if not row:
             continue
         baseline_id = row.get("baseline_id") or summary_path.name.removesuffix("_summary.csv")
+        seen.add(baseline_id)
         folder = summary_path.parent
         timeseries = folder / f"{baseline_id}_timeseries.csv"
         metadata = folder / f"{baseline_id}_metadata.json"
@@ -629,6 +663,115 @@ def scan_baseline_runs():
             "plots": plots,
             "mtime": datetime.fromtimestamp(summary_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
         })
+    for battery_path in sorted(BASELINE_DIR.rglob("*_all_battery.csv"), key=lambda item: item.stat().st_mtime, reverse=True):
+        row = read_first_csv_row(battery_path)
+        if not row:
+            continue
+        baseline_id = row.get("experiment_id") or battery_path.name.removesuffix("_all_battery.csv")
+        if baseline_id in seen:
+            continue
+        seen.add(baseline_id)
+        folder = battery_path.parent
+        metadata_candidates = sorted(folder.glob(f"{baseline_id}_metadata.json"), key=lambda item: item.stat().st_mtime, reverse=True)
+        metadata = metadata_candidates[0] if metadata_candidates else None
+        meta = read_json_file(metadata) if metadata else {}
+        coordination = latest_archive_file(folder, f"{baseline_id}_*_all_coordination.csv")
+        plots_dir = folder / "plots"
+        plots = []
+        if plots_dir.exists():
+            plots = [
+                path.relative_to(DATA_DIR).as_posix()
+                for path in sorted(plots_dir.glob("*.png"))
+                if baseline_id in path.name
+            ]
+        drone_number = str(meta.get("drone_number", "") or "")
+        if not drone_number:
+            match = re.search(r"drone_(\d+)", row.get("drone_name", ""))
+            drone_number = match.group(1) if match else ""
+        runs.append({
+            "baseline_id": baseline_id,
+            "run_id": row.get("run_id", meta.get("run_id", "")),
+            "drone_name": row.get("drone_name", meta.get("drone_name", "")),
+            "drone_number": drone_number,
+            "drone_ip": row.get("drone_ip", meta.get("drone_ip", "")),
+            "battery_id": normalize_battery_id(row.get("battery_id", meta.get("battery_id", ""))),
+            "mode": meta.get("mode", row.get("wind_direction", "")),
+            "direction": meta.get("direction", row.get("wind_speed", "")),
+            "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
+            "duration_sec": row.get("node_duration_sec", row.get("hover_duration_sec", "")),
+            "battery_start": row.get("battery_hover_start", ""),
+            "battery_end": row.get("battery_hover_end", ""),
+            "battery_drop": row.get("battery_drop", ""),
+            "end_reason": "formal-format single baseline",
+            "summary_relpath": battery_path.relative_to(DATA_DIR).as_posix(),
+            "timeseries_relpath": coordination.relative_to(DATA_DIR).as_posix() if coordination else "",
+            "metadata_relpath": metadata.relative_to(DATA_DIR).as_posix() if metadata else "",
+            "plots": plots,
+            "mtime": datetime.fromtimestamp(battery_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
+        })
+    for metadata_path in sorted(BASELINE_DIR.rglob("*_metadata.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+        meta = read_json_file(metadata_path)
+        baseline_id = meta.get("baseline_id") or metadata_path.name.removesuffix("_metadata.json")
+        if not baseline_id or baseline_id in seen:
+            continue
+        folder = metadata_path.parent
+        timeseries = folder / f"{baseline_id}_timeseries.csv"
+        if not timeseries.exists():
+            timeseries = latest_archive_file(folder, f"{baseline_id}_*_all_coordination.csv")
+        battery_path = latest_archive_file(folder, f"{baseline_id}_*_all_battery.csv")
+        battery_row = read_first_csv_row(battery_path) if battery_path else {}
+        timeseries_rows = []
+        if timeseries and timeseries.exists():
+            try:
+                with timeseries.open("r", newline="", encoding="utf-8-sig") as f:
+                    timeseries_rows = list(csv.DictReader(f))
+            except (OSError, UnicodeDecodeError, csv.Error):
+                timeseries_rows = []
+        first_ts = timeseries_rows[0] if timeseries_rows else {}
+        last_ts = timeseries_rows[-1] if timeseries_rows else {}
+        battery_start = battery_row.get("battery_hover_start", first_ts.get("battery_start", first_ts.get("battery", "")))
+        battery_end = battery_row.get("battery_hover_end", last_ts.get("battery", ""))
+        try:
+            battery_drop = str(int(float(battery_start)) - int(float(battery_end)))
+        except (TypeError, ValueError):
+            battery_drop = battery_row.get("battery_drop", "")
+        duration = battery_row.get("node_duration_sec") or battery_row.get("hover_duration_sec")
+        if not duration and first_ts and last_ts:
+            duration = str(baseline_time_value(last_ts) or "")
+        drone_number = str(meta.get("drone_number", "") or "")
+        drone_name = meta.get("drone_name", "")
+        if not drone_number:
+            match = re.search(r"drone_(\d+)", drone_name)
+            drone_number = match.group(1) if match else ""
+        plots_dir = folder / "plots"
+        plots = []
+        if plots_dir.exists():
+            plots = [
+                path.relative_to(DATA_DIR).as_posix()
+                for path in sorted(plots_dir.glob(f"{baseline_id}*.png"))
+            ]
+        seen.add(baseline_id)
+        runs.append({
+            "baseline_id": baseline_id,
+            "run_id": meta.get("run_id", ""),
+            "drone_name": drone_name,
+            "drone_number": drone_number,
+            "drone_ip": meta.get("drone_ip", ""),
+            "battery_id": normalize_battery_id(meta.get("battery_id", "")),
+            "mode": meta.get("mode", ""),
+            "direction": meta.get("direction", ""),
+            "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
+            "duration_sec": duration or "",
+            "battery_start": battery_start,
+            "battery_end": battery_end,
+            "battery_drop": battery_drop,
+            "end_reason": "metadata baseline run",
+            "summary_relpath": battery_path.relative_to(DATA_DIR).as_posix() if battery_path else "",
+            "timeseries_relpath": timeseries.relative_to(DATA_DIR).as_posix() if timeseries and timeseries.exists() else "",
+            "metadata_relpath": metadata_path.relative_to(DATA_DIR).as_posix(),
+            "plots": plots,
+            "mtime": datetime.fromtimestamp(metadata_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
+        })
     return runs
 
 
@@ -640,28 +783,33 @@ def baseline_filter_options(runs):
     }
 
 
-def filter_baseline_runs(runs, drone_number="", battery_id="", mode=""):
-    battery_id = normalize_battery_id(battery_id)
+def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None):
+    drone_number = drone_number or []
+    battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
+    mode = mode or []
     filtered = []
     for run in runs:
-        if drone_number and run.get("drone_number") != drone_number:
+        if not value_matches_filter(run.get("drone_number"), drone_number):
             continue
-        if battery_id and run.get("battery_id") != battery_id:
+        if not value_matches_filter(run.get("battery_id"), battery_id):
             continue
-        if mode and run.get("mode") != mode:
+        if not value_matches_filter(run.get("mode"), mode):
             continue
         filtered.append(run)
     return filtered
 
 
-def baseline_summary_key(drone_number="", battery_id="", mode=""):
+def baseline_summary_key(drone_number=None, battery_id=None, mode=None):
+    drone_number = drone_number or []
+    battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
+    mode = mode or []
     parts = ["baseline"]
     if mode:
-        parts.append(safe_slug(mode))
+        parts.append("mode_" + "_".join(safe_slug(value) for value in mode))
     if drone_number:
-        parts.append(f"drone_{drone_number}")
+        parts.append("drone_" + "_".join(safe_slug(value) for value in drone_number))
     if battery_id:
-        parts.append(normalize_battery_id(battery_id))
+        parts.append("battery_" + "_".join(safe_slug(value) for value in battery_id))
     return "_".join(parts)
 
 
@@ -1206,21 +1354,26 @@ def index():
         reverse=True,
     )
     selected_filters = {
-        "formation": request.args.get("formation", "").strip(),
-        "wind_direction": request.args.get("wind_direction", "").strip(),
-        "wind_speed": request.args.get("wind_speed", "").strip(),
+        "formation": selected_values(request.args, "formation"),
+        "wind_direction": selected_values(request.args, "wind_direction"),
+        "wind_speed": selected_values(request.args, "wind_speed"),
     }
     all_baselines = scan_baseline_runs()
     selected_baseline_filters = {
-        "drone_number": request.args.get("baseline_drone", "").strip(),
-        "battery_id": normalize_battery_id(request.args.get("baseline_battery", "")),
-        "mode": request.args.get("baseline_mode", "").strip(),
+        "drone_number": selected_values(request.args, "baseline_drone"),
+        "battery_id": selected_values(request.args, "baseline_battery", normalize_battery_id),
+        "mode": selected_values(request.args, "baseline_mode"),
     }
     baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
     baseline_summary_plot = (
         BASELINE_DIR / "summary" / "plots" /
         f"{baseline_summary_key(**selected_baseline_filters)}_summary.png"
     )
+    baseline_summary_extra_plots = []
+    for suffix in ("consumption_vs_start_battery", "stitched_100_to_40_curve"):
+        extra_path = baseline_summary_plot.with_name(f"{baseline_summary_plot.stem}_{suffix}.png")
+        if extra_path.exists():
+            baseline_summary_extra_plots.append(extra_path.relative_to(DATA_DIR).as_posix())
     data_experiments = filter_experiments(all_experiments, **selected_filters)
     filter_active = True
     matched_ids = {exp.get("experiment_id") for exp in data_experiments}
@@ -1252,6 +1405,7 @@ def index():
         selected_baseline_filters=selected_baseline_filters,
         baseline_filter_options=baseline_filter_options(all_baselines),
         baseline_summary_plot=baseline_summary_plot.relative_to(DATA_DIR).as_posix() if baseline_summary_plot.exists() else "",
+        baseline_summary_extra_plots=baseline_summary_extra_plots,
         display_drone_number=display_drone_number,
         display_battery_id=display_battery_id,
         battery_options=BATTERY_OPTIONS,
@@ -1416,6 +1570,38 @@ def generate_condition_plots(condition_key):
     return redirect(url_for("condition_detail", condition_key=condition_key))
 
 
+@app.route("/plots/generate-filtered-conditions", methods=["POST"])
+def generate_filtered_condition_plots():
+    registry = load_registry()
+    selected_filters = {
+        "formation": selected_values(request.form, "formation"),
+        "wind_direction": selected_values(request.form, "wind_direction"),
+        "wind_speed": selected_values(request.form, "wind_speed"),
+    }
+    experiments = filter_experiments(registry["experiments"], **selected_filters)
+    groups = group_experiments_by_condition(experiments)
+    if not groups:
+        abort(400, description="No condition groups match the selected filters.")
+
+    script_path = BASE_DIR / "plot_generate.py"
+    errors = []
+    for group in groups:
+        result = subprocess.run(
+            [python_executable(), str(script_path), "--condition-key", group["condition_key"]],
+            cwd=str(BASE_DIR),
+            text=True,
+            capture_output=True,
+            timeout=120,
+        )
+        if result.returncode != 0:
+            errors.append(f"{group['condition_key']}: {result.stderr or result.stdout or 'failed'}")
+    if errors:
+        abort(500, description="\n".join(errors))
+
+    query = urlencode(selected_filters, doseq=True)
+    return redirect(url_for("index") + (f"?{query}" if query else ""))
+
+
 def baseline_float(value):
     try:
         return float(value)
@@ -1423,50 +1609,296 @@ def baseline_float(value):
         return None
 
 
-def generate_baseline_hover_summary_plot(runs, output_path):
+def baseline_time_value(row):
+    for column in ("node_elapsed_time", "elapsed_time", "hover_elapsed_time"):
+        value = baseline_float(row.get(column))
+        if value is not None:
+            return value
+    return None
+
+
+def baseline_run_label(run):
+    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode"), run.get("run_id")]
+    return " ".join(str(part) for part in label_parts if part)
+
+
+def read_baseline_timeseries(run):
+    if not run.get("timeseries_relpath"):
+        return []
+    path = DATA_DIR / run["timeseries_relpath"]
+    try:
+        with path.open("r", newline="", encoding="utf-8-sig") as f:
+            return list(csv.DictReader(f))
+    except (OSError, UnicodeDecodeError, csv.Error):
+        return []
+
+
+def baseline_battery_points(rows):
+    points = []
+    for index, row in enumerate(rows):
+        battery = baseline_float(row.get("battery"))
+        if battery is None:
+            continue
+        x_value = baseline_time_value(row)
+        if x_value is None:
+            x_value = float(index)
+        points.append((x_value, battery))
+    points.sort(key=lambda item: item[0])
+    return points
+
+
+def baseline_numeric_summary(run, rows):
+    points = baseline_battery_points(rows)
+    start = baseline_float(run.get("battery_start"))
+    end = baseline_float(run.get("battery_end"))
+    drop = baseline_float(run.get("battery_drop"))
+    if start is None and points:
+        start = points[0][1]
+    if end is None and points:
+        end = points[-1][1]
+    if drop is None and start is not None and end is not None:
+        drop = start - end
+    return start, end, drop, points
+
+
+def baseline_summary_records(runs):
+    records = []
+    for run in runs:
+        rows = read_baseline_timeseries(run)
+        start, end, drop, points = baseline_numeric_summary(run, rows)
+        if start is None and end is None and drop is None and not points:
+            continue
+        records.append({
+            "run": run,
+            "label": baseline_run_label(run),
+            "group": f"D{run.get('drone_number') or '-'} / {run.get('battery_id') or '-'}",
+            "start": start,
+            "end": end,
+            "drop": drop,
+            "points": points,
+        })
+    return records
+
+
+def generate_baseline_consumption_trend_plot(records, output_path):
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    hover_runs = [run for run in runs if run.get("mode") == "hover" and run.get("timeseries_relpath")]
-    if not hover_runs:
-        raise ValueError("No hover baseline runs matched this filter.")
+    numeric_records = [
+        record for record in records
+        if record["start"] is not None and record["end"] is not None and record["drop"] is not None
+    ]
+    if not numeric_records:
+        return None
 
-    fig, axes = plt.subplots(3, 1, figsize=(10, 12), sharex=False)
-    ax_battery, ax_temp, ax_drop = axes
+    numeric_records.sort(key=lambda record: (
+        record["group"],
+        record["start"] if record["start"] is not None else 999,
+        record["run"].get("run_id", ""),
+    ), reverse=True)
+
+    fig, axes = plt.subplots(2, 1, figsize=(12, 9), sharex=False)
+    ax_scatter, ax_sequence = axes
+
+    groups = sorted({record["group"] for record in numeric_records})
+    colors = plt.cm.tab10.colors
+    for group_index, group in enumerate(groups):
+        group_records = [record for record in numeric_records if record["group"] == group]
+        starts = [record["start"] for record in group_records]
+        drops = [record["drop"] for record in group_records]
+        color = colors[group_index % len(colors)]
+        ax_scatter.scatter(starts, drops, s=55, label=group, color=color, alpha=0.85)
+        if len(group_records) >= 2:
+            ordered = sorted(group_records, key=lambda record: record["start"], reverse=True)
+            ax_scatter.plot(
+                [record["start"] for record in ordered],
+                [record["drop"] for record in ordered],
+                color=color,
+                alpha=0.45,
+                linewidth=1.4,
+            )
+    ax_scatter.invert_xaxis()
+    ax_scatter.set_title("Does each identical flight consume more as start battery gets lower?")
+    ax_scatter.set_xlabel("Start battery before flight (%)")
+    ax_scatter.set_ylabel("Battery drop for one forward flight (%)")
+    ax_scatter.grid(True, alpha=0.25)
+    ax_scatter.legend(fontsize=8, loc="best")
+
+    x_positions = list(range(len(numeric_records)))
+    labels = [record["label"] for record in numeric_records]
+    starts = [record["start"] for record in numeric_records]
+    ends = [record["end"] for record in numeric_records]
+    drops = [record["drop"] for record in numeric_records]
+    ax_sequence.vlines(x_positions, ends, starts, color="#9fb7c9", linewidth=5, alpha=0.65, label="start to end range")
+    ax_sequence.scatter(x_positions, starts, color="#2f80a8", s=42, label="start")
+    ax_sequence.scatter(x_positions, ends, color="#c95b4d", s=42, label="end")
+    ax_sequence_twin = ax_sequence.twinx()
+    ax_sequence_twin.plot(x_positions, drops, color="#216c5f", marker="o", linewidth=1.8, label="drop")
+    ax_sequence.set_title("Repeated flights: start/end battery and consumed battery")
+    ax_sequence.set_ylabel("Battery level (%)")
+    ax_sequence_twin.set_ylabel("Battery drop (%)")
+    ax_sequence.set_xticks(x_positions)
+    ax_sequence.set_xticklabels(labels, rotation=35, ha="right", fontsize=7)
+    ax_sequence.grid(True, axis="y", alpha=0.25)
+    lines_a, labels_a = ax_sequence.get_legend_handles_labels()
+    lines_b, labels_b = ax_sequence_twin.get_legend_handles_labels()
+    ax_sequence.legend(lines_a + lines_b, labels_a + labels_b, fontsize=8, loc="best")
+
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+    return output_path
+
+
+def normalized_drop_shape(points, start, end):
+    if not points:
+        if start is not None and end is not None and start > end:
+            return [0.0, 1.0]
+        return []
+    batteries = [point[1] for point in points]
+    series_start = start if start is not None else batteries[0]
+    series_end = end if end is not None else batteries[-1]
+    total_drop = series_start - series_end
+    if total_drop <= 0:
+        return []
+    shape = []
+    last_value = 0.0
+    for battery in batteries:
+        value = max(0.0, min(1.0, (series_start - battery) / total_drop))
+        if value >= last_value:
+            shape.append(value)
+            last_value = value
+    if not shape or shape[0] > 0:
+        shape.insert(0, 0.0)
+    if shape[-1] < 1:
+        shape.append(1.0)
+    return shape
+
+
+def generate_baseline_stitched_100_to_40_curve(records, output_path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    usable = [
+        record for record in records
+        if record["drop"] is not None and record["drop"] > 0
+    ]
+    if not usable:
+        return None
+
+    usable.sort(key=lambda record: (
+        record["run"].get("drone_number", ""),
+        record["run"].get("battery_id", ""),
+        record["run"].get("run_id", ""),
+    ))
+
+    x_values = [0.0]
+    y_values = [100.0]
+    current_battery = 100.0
+    segment_labels = []
+    for record in usable:
+        if current_battery <= 40:
+            break
+        shape = normalized_drop_shape(record["points"], record["start"], record["end"])
+        if not shape:
+            continue
+        segment_drop = min(record["drop"], current_battery - 40)
+        segment_start_x = x_values[-1]
+        previous_x = x_values[-1]
+        previous_y = y_values[-1]
+        for shape_value in shape[1:]:
+            next_drop = segment_drop * shape_value
+            next_x = segment_start_x + next_drop
+            next_y = 100.0 - next_x
+            if next_y < 40:
+                next_y = 40.0
+                next_x = 60.0
+            if next_x >= previous_x and next_y <= previous_y:
+                x_values.append(next_x)
+                y_values.append(next_y)
+                previous_x = next_x
+                previous_y = next_y
+            if next_y <= 40:
+                break
+        segment_labels.append((segment_start_x, x_values[-1], record["label"]))
+        current_battery = y_values[-1]
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(x_values, y_values, color="#216c5f", linewidth=2.4, marker="o", markersize=3)
+    for start_x, end_x, label in segment_labels:
+        if end_x <= start_x:
+            continue
+        mid_x = (start_x + end_x) / 2
+        ax.axvspan(start_x, end_x, color="#dcebe7", alpha=0.25, linewidth=0)
+        ax.text(mid_x, 41.2, label, rotation=90, va="bottom", ha="center", fontsize=6, color="#657286")
+    ax.set_title("Stitched battery decline curve: normalized 100% to 40%")
+    ax.set_xlabel("Cumulative consumed battery (%)")
+    ax.set_ylabel("Normalized battery level (%)")
+    ax.set_xlim(0, 60)
+    ax.set_ylim(38, 102)
+    ax.grid(True, alpha=0.28)
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+    return output_path
+
+
+def generate_baseline_summary_plot(runs, output_path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    plot_runs = [run for run in runs if run.get("timeseries_relpath")]
+    if not plot_runs:
+        raise ValueError("No baseline runs with time-series data matched this filter.")
+    records = baseline_summary_records(plot_runs)
+
+    fig, axes = plt.subplots(4, 1, figsize=(11, 15), sharex=False)
+    ax_battery, ax_temp, ax_drop, ax_error = axes
     drop_labels = []
     drop_values = []
     duration_values = []
+    error_plotted = False
+    modes = sorted({run.get("mode", "") for run in plot_runs if run.get("mode")})
 
-    for run in hover_runs:
-        path = DATA_DIR / run["timeseries_relpath"]
-        try:
-            with path.open("r", newline="", encoding="utf-8-sig") as f:
-                rows = list(csv.DictReader(f))
-        except (OSError, csv.Error):
-            continue
+    for record in records:
+        run = record["run"]
+        rows = read_baseline_timeseries(run)
         points = []
         temp_low = []
         temp_high = []
+        errors = []
         for row in rows:
-            elapsed = baseline_float(row.get("elapsed_time"))
+            elapsed = baseline_time_value(row)
             battery = baseline_float(row.get("battery"))
             templ = baseline_float(row.get("templ"))
             temph = baseline_float(row.get("temph"))
+            position_error = baseline_float(row.get("position_error_dist"))
             if elapsed is not None and battery is not None:
                 points.append((elapsed, battery))
             if elapsed is not None and templ is not None:
                 temp_low.append((elapsed, templ))
             if elapsed is not None and temph is not None:
                 temp_high.append((elapsed, temph))
-        label = f"D{run.get('drone_number')} {run.get('battery_id')} {run.get('run_id')}"
+            if elapsed is not None and position_error is not None:
+                errors.append((elapsed, position_error))
+        label = record["label"]
         if points:
             ax_battery.plot([p[0] for p in points], [p[1] for p in points], linewidth=1.8, label=label)
         if temp_low:
             ax_temp.plot([p[0] for p in temp_low], [p[1] for p in temp_low], linewidth=1.3, label=f"{label} templ")
         if temp_high:
             ax_temp.plot([p[0] for p in temp_high], [p[1] for p in temp_high], linewidth=1.3, linestyle="--", label=f"{label} temph")
+        if errors:
+            ax_error.plot([p[0] for p in errors], [p[1] for p in errors], linewidth=1.5, label=label)
+            error_plotted = True
         drop = baseline_float(run.get("battery_drop"))
         duration = baseline_float(run.get("duration_sec"))
         if drop is not None:
@@ -1474,15 +1906,17 @@ def generate_baseline_hover_summary_plot(runs, output_path):
             drop_values.append(drop)
             duration_values.append(duration or 0)
 
-    ax_battery.axhline(10, color="#a23b3b", linestyle="--", linewidth=1, label="10% landing threshold")
-    ax_battery.set_title("Hover baseline: battery percentage to 10%")
-    ax_battery.set_xlabel("Elapsed time (s)")
+    title_mode = ", ".join(modes) if modes else "matched modes"
+    if modes == ["hover"]:
+        ax_battery.axhline(10, color="#a23b3b", linestyle="--", linewidth=1, label="10% landing threshold")
+    ax_battery.set_title(f"Baseline battery percentage: {title_mode}")
+    ax_battery.set_xlabel("Flight time (s)")
     ax_battery.set_ylabel("Battery (%)")
     ax_battery.grid(True, alpha=0.25)
     ax_battery.legend(fontsize=7, loc="best")
 
-    ax_temp.set_title("Hover baseline: temperature")
-    ax_temp.set_xlabel("Elapsed time (s)")
+    ax_temp.set_title("Baseline temperature")
+    ax_temp.set_xlabel("Flight time (s)")
     ax_temp.set_ylabel("Temperature (C)")
     ax_temp.grid(True, alpha=0.25)
     ax_temp.legend(fontsize=7, loc="best")
@@ -1493,23 +1927,40 @@ def generate_baseline_hover_summary_plot(runs, output_path):
         ax_drop.set_xticks(x_positions)
         ax_drop.set_xticklabels(drop_labels, rotation=35, ha="right", fontsize=8)
         ax_drop.set_ylabel("Battery drop (%)")
-        ax_drop.set_title("Hover baseline: total battery drop and duration")
+        ax_drop.set_title("Baseline total battery drop and duration")
         ax_duration = ax_drop.twinx()
         ax_duration.plot(x_positions, duration_values, color="#2f80a8", marker="o", linewidth=1.8, label="duration (s)")
         ax_duration.set_ylabel("Duration (s)")
         ax_drop.grid(True, axis="y", alpha=0.25)
 
+    ax_error.set_title("Baseline position error")
+    ax_error.set_xlabel("Flight time (s)")
+    ax_error.set_ylabel("Position error (cm)")
+    ax_error.grid(True, alpha=0.25)
+    if error_plotted:
+        ax_error.legend(fontsize=7, loc="best")
+    else:
+        ax_error.text(0.5, 0.5, "No position-error series available for these runs.", ha="center", va="center", transform=ax_error.transAxes, color="#657286")
+
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=160)
     plt.close(fig)
+    generate_baseline_consumption_trend_plot(
+        records,
+        output_path.with_name(f"{output_path.stem}_consumption_vs_start_battery.png"),
+    )
+    generate_baseline_stitched_100_to_40_curve(
+        records,
+        output_path.with_name(f"{output_path.stem}_stitched_100_to_40_curve.png"),
+    )
 
 
 @app.route("/baselines/generate-summary", methods=["POST"])
 def generate_baseline_summary():
-    drone_number = request.form.get("baseline_drone", "").strip()
-    battery_id = normalize_battery_id(request.form.get("baseline_battery", ""))
-    mode = request.form.get("baseline_mode", "").strip() or "hover"
+    drone_number = selected_values(request.form, "baseline_drone")
+    battery_id = selected_values(request.form, "baseline_battery", normalize_battery_id)
+    mode = selected_values(request.form, "baseline_mode") or ["hover"]
     runs = filter_baseline_runs(
         scan_baseline_runs(),
         drone_number=drone_number,
@@ -1519,15 +1970,15 @@ def generate_baseline_summary():
     key = baseline_summary_key(drone_number, battery_id, mode)
     output_path = BASELINE_DIR / "summary" / "plots" / f"{key}_summary.png"
     try:
-        generate_baseline_hover_summary_plot(runs, output_path)
+        generate_baseline_summary_plot(runs, output_path)
     except ValueError as exc:
         abort(400, description=str(exc))
-    return redirect(url_for(
-        "index",
-        baseline_drone=drone_number,
-        baseline_battery=battery_id,
-        baseline_mode=mode,
-    ))
+    query = urlencode({
+        "baseline_drone": drone_number,
+        "baseline_battery": battery_id,
+        "baseline_mode": mode,
+    }, doseq=True)
+    return redirect(url_for("index") + (f"?{query}" if query else ""))
 
 
 @app.route("/experiments/<path:experiment_id>/start", methods=["POST"])
@@ -2114,6 +2565,94 @@ INDEX_TEMPLATE = """
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
+    .filter-group {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .filter-group-title {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .filter-group summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 11px;
+      cursor: pointer;
+      background: #fff;
+    }
+    .filter-group summary::-webkit-details-marker { display: none; }
+    .filter-group summary::after {
+      content: "+";
+      display: inline-grid;
+      place-items: center;
+      inline-size: 20px;
+      block-size: 20px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--muted);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+    .filter-group[open] summary {
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+    .filter-group[open] summary::after { content: "-"; }
+    .filter-summary {
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .check-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 9px;
+    }
+    .check-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      min-height: 36px;
+    }
+    .check-pill:has(input:checked) {
+      background: var(--soft);
+      border-color: #9cc7bd;
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .check-pill input {
+      margin: 0;
+      accent-color: var(--brand);
+      inline-size: 16px;
+      block-size: 16px;
+      flex: 0 0 auto;
+      order: 2;
+    }
+    .check-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     .baseline-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2318,40 +2857,79 @@ INDEX_TEMPLATE = """
             <div>
               <h3>Data Filters</h3>
               <div class="small">
-                Showing {{ data_experiments|length }} matched condition group(s).
-                Empty fields mean all values for that condition.
+                Showing {{ data_experiments|length }} matched experiment(s).
+                Leave a list unselected to include all values for that condition.
               </div>
             </div>
-            <a class="badge" href="{{ url_for('index') }}">Reset</a>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+              <button class="secondary" type="button" data-toggle-filter-groups>Expand all</button>
+              <a class="badge" href="{{ url_for('index') }}">Reset</a>
+            </div>
           </div>
           <form method="get" action="{{ url_for('index') }}">
             <div class="filter-grid">
-              <label>Formation
-                <select name="formation">
-                  <option value="">All formations</option>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Formation</span>
+                  <span class="filter-summary">{% if selected_filters.formation %}{{ selected_filters.formation|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_filters.formation %}checked{% endif %}>
+                    <span class="check-text">All formations</span>
+                  </label>
                   {% for formation in filter_options.formations %}
-                    <option value="{{ formation }}" {% if selected_filters.formation == formation %}selected{% endif %}>{{ formation }}</option>
+                    <label class="check-pill">
+                      <input type="checkbox" name="formation" value="{{ formation }}" data-filter-option {% if formation in selected_filters.formation %}checked{% endif %}>
+                      <span class="check-text">{{ formation }}</span>
+                    </label>
                   {% endfor %}
-                </select>
-              </label>
-              <label>Wind Direction
-                <select name="wind_direction">
-                  <option value="">All wind directions</option>
+                </div>
+              </details>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Wind Direction</span>
+                  <span class="filter-summary">{% if selected_filters.wind_direction %}{{ selected_filters.wind_direction|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_filters.wind_direction %}checked{% endif %}>
+                    <span class="check-text">All wind directions</span>
+                  </label>
                   {% for wind_direction in filter_options.wind_directions %}
-                    <option value="{{ wind_direction }}" {% if selected_filters.wind_direction == wind_direction %}selected{% endif %}>{{ wind_direction }}</option>
+                    <label class="check-pill">
+                      <input type="checkbox" name="wind_direction" value="{{ wind_direction }}" data-filter-option {% if wind_direction in selected_filters.wind_direction %}checked{% endif %}>
+                      <span class="check-text">{{ wind_direction }}</span>
+                    </label>
                   {% endfor %}
-                </select>
-              </label>
-              <label>Wind Speed
-                <select name="wind_speed">
-                  <option value="">All wind speeds</option>
+                </div>
+              </details>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Wind Speed</span>
+                  <span class="filter-summary">{% if selected_filters.wind_speed %}{{ selected_filters.wind_speed|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_filters.wind_speed %}checked{% endif %}>
+                    <span class="check-text">All wind speeds</span>
+                  </label>
                   {% for wind_speed in filter_options.wind_speeds %}
-                    <option value="{{ wind_speed }}" {% if selected_filters.wind_speed == wind_speed %}selected{% endif %}>{{ wind_speed }}</option>
+                    <label class="check-pill">
+                      <input type="checkbox" name="wind_speed" value="{{ wind_speed }}" data-filter-option {% if wind_speed in selected_filters.wind_speed %}checked{% endif %}>
+                      <span class="check-text">{{ wind_speed }}</span>
+                    </label>
                   {% endfor %}
-                </select>
-              </label>
+                </div>
+              </details>
             </div>
             <button type="submit">Apply filters</button>
+          </form>
+          <form method="post" action="{{ url_for('generate_filtered_condition_plots') }}">
+            {% for formation in selected_filters.formation %}<input type="hidden" name="formation" value="{{ formation }}">{% endfor %}
+            {% for wind_direction in selected_filters.wind_direction %}<input type="hidden" name="wind_direction" value="{{ wind_direction }}">{% endfor %}
+            {% for wind_speed in selected_filters.wind_speed %}<input type="hidden" name="wind_speed" value="{{ wind_speed }}">{% endfor %}
+            <button class="secondary" type="submit">Generate matched summaries</button>
           </form>
           <div>
             <h3>Matched Condition Groups</h3>
@@ -2374,42 +2952,75 @@ INDEX_TEMPLATE = """
                 Showing {{ baseline_runs|length }} matched baseline run(s) from {{ all_baseline_count }} total.
               </div>
             </div>
-            <a class="badge" href="{{ url_for('index') }}">Reset</a>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+              <button class="secondary" type="button" data-toggle-filter-groups>Expand all</button>
+              <a class="badge" href="{{ url_for('index') }}">Reset</a>
+            </div>
           </div>
           <form method="get" action="{{ url_for('index') }}">
             <div class="filter-grid">
-              <label>Drone
-                <select name="baseline_drone">
-                  <option value="">All drones</option>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Drone</span>
+                  <span class="filter-summary">{% if selected_baseline_filters.drone_number %}drone {{ selected_baseline_filters.drone_number|join(', drone ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_baseline_filters.drone_number %}checked{% endif %}>
+                    <span class="check-text">All drones</span>
+                  </label>
                   {% for drone_number in baseline_filter_options.drones %}
-                    <option value="{{ drone_number }}" {% if selected_baseline_filters.drone_number == drone_number %}selected{% endif %}>drone {{ drone_number }}</option>
+                    <label class="check-pill">
+                      <input type="checkbox" name="baseline_drone" value="{{ drone_number }}" data-filter-option {% if drone_number in selected_baseline_filters.drone_number %}checked{% endif %}>
+                      <span class="check-text">drone {{ drone_number }}</span>
+                    </label>
                   {% endfor %}
-                </select>
-              </label>
-              <label>Battery
-                <select name="baseline_battery">
-                  <option value="">All batteries</option>
+                </div>
+              </details>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Battery</span>
+                  <span class="filter-summary">{% if selected_baseline_filters.battery_id %}{{ selected_baseline_filters.battery_id|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_baseline_filters.battery_id %}checked{% endif %}>
+                    <span class="check-text">All batteries</span>
+                  </label>
                   {% for battery_id in baseline_filter_options.batteries %}
-                    <option value="{{ battery_id }}" {% if selected_baseline_filters.battery_id == battery_id %}selected{% endif %}>{{ battery_id }}</option>
+                    <label class="check-pill">
+                      <input type="checkbox" name="baseline_battery" value="{{ battery_id }}" data-filter-option {% if battery_id in selected_baseline_filters.battery_id %}checked{% endif %}>
+                      <span class="check-text">{{ battery_id }}</span>
+                    </label>
                   {% endfor %}
-                </select>
-              </label>
-              <label>Mode
-                <select name="baseline_mode">
-                  <option value="">All modes</option>
+                </div>
+              </details>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Mode</span>
+                  <span class="filter-summary">{% if selected_baseline_filters.mode %}{{ selected_baseline_filters.mode|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_baseline_filters.mode %}checked{% endif %}>
+                    <span class="check-text">All modes</span>
+                  </label>
                   {% for mode in baseline_filter_options.modes %}
-                    <option value="{{ mode }}" {% if selected_baseline_filters.mode == mode %}selected{% endif %}>{{ mode }}</option>
+                    <label class="check-pill">
+                      <input type="checkbox" name="baseline_mode" value="{{ mode }}" data-filter-option {% if mode in selected_baseline_filters.mode %}checked{% endif %}>
+                      <span class="check-text">{{ mode }}</span>
+                    </label>
                   {% endfor %}
-                </select>
-              </label>
+                </div>
+              </details>
             </div>
             <button type="submit">Apply baseline filter</button>
           </form>
           <form method="post" action="{{ url_for('generate_baseline_summary') }}">
-            <input type="hidden" name="baseline_drone" value="{{ selected_baseline_filters.drone_number }}">
-            <input type="hidden" name="baseline_battery" value="{{ selected_baseline_filters.battery_id }}">
-            <input type="hidden" name="baseline_mode" value="{{ selected_baseline_filters.mode or 'hover' }}">
-            <button class="secondary" type="submit">Generate hover summary</button>
+            {% for drone_number in selected_baseline_filters.drone_number %}<input type="hidden" name="baseline_drone" value="{{ drone_number }}">{% endfor %}
+            {% for battery_id in selected_baseline_filters.battery_id %}<input type="hidden" name="baseline_battery" value="{{ battery_id }}">{% endfor %}
+            {% for mode in selected_baseline_filters.mode %}<input type="hidden" name="baseline_mode" value="{{ mode }}">{% endfor %}
+            <button class="secondary" type="submit">Generate baseline summary</button>
           </form>
           {% if baseline_summary_plot %}
             <div>
@@ -2417,12 +3028,24 @@ INDEX_TEMPLATE = """
               <img src="{{ url_for('raw_file', relpath=baseline_summary_plot) }}" alt="Baseline hover summary" style="width:100%;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:#fff;">
             </div>
           {% endif %}
+          {% for extra_plot in baseline_summary_extra_plots %}
+            <div>
+              <a class="file-name" href="{{ url_for('file_detail', relpath=extra_plot) }}">Open {{ extra_plot.rsplit('/', 1)[-1] }}</a>
+              <img src="{{ url_for('raw_file', relpath=extra_plot) }}" alt="Baseline extra summary" style="width:100%;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:#fff;">
+            </div>
+          {% endfor %}
           <div class="experiment-list" style="max-height:260px;">
             {% for run in baseline_runs %}
               <article class="experiment-row">
                 <div class="experiment-title">
                   <div>
-                    <h3><a class="file-name" href="{{ url_for('file_detail', relpath=run.summary_relpath) }}">{{ run.baseline_id }}</a></h3>
+                    <h3>
+                      {% if run.summary_relpath %}
+                        <a class="file-name" href="{{ url_for('file_detail', relpath=run.summary_relpath) }}">{{ run.baseline_id }}</a>
+                      {% else %}
+                        <span class="file-name">{{ run.baseline_id }}</span>
+                      {% endif %}
+                    </h3>
                     <div class="small">drone {{ run.drone_number }} · {{ run.battery_id }} · {{ run.mode }} · {{ run.mtime }}</div>
                   </div>
                   <span class="badge">{{ run.battery_start }}% -> {{ run.battery_end }}%</span>
@@ -3344,6 +3967,42 @@ INDEX_TEMPLATE = """
     });
     closeTakeoffModalButton.addEventListener("click", () => {
       takeoffModal.classList.remove("visible");
+    });
+
+    document.querySelectorAll("[data-filter-group]").forEach((group) => {
+      const allBox = group.querySelector("[data-filter-all]");
+      const optionBoxes = Array.from(group.querySelectorAll("[data-filter-option]"));
+      const syncAllState = () => {
+        if (!allBox) return;
+        allBox.checked = !optionBoxes.some((box) => box.checked);
+      };
+      if (allBox) {
+        allBox.addEventListener("change", () => {
+          if (allBox.checked) {
+            optionBoxes.forEach((box) => { box.checked = false; });
+          } else {
+            syncAllState();
+          }
+        });
+      }
+      optionBoxes.forEach((box) => {
+        box.addEventListener("change", () => {
+          if (box.checked && allBox) {
+            allBox.checked = false;
+          }
+          syncAllState();
+        });
+      });
+      syncAllState();
+    });
+    document.querySelectorAll("[data-toggle-filter-groups]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const panel = button.closest(".filter-panel");
+        const groups = Array.from(panel.querySelectorAll("[data-filter-group]"));
+        const shouldOpen = groups.some((group) => !group.open);
+        groups.forEach((group) => { group.open = shouldOpen; });
+        button.textContent = shouldOpen ? "Collapse all" : "Expand all";
+      });
     });
 
     setInterval(fetchRunState, 1500);

@@ -46,6 +46,7 @@ DRONE_NUMBER_TO_IP_SUFFIX = {
 TAKEOFF_HEIGHT_CM = 80
 TAKEOFF_CLIMB_SPEED_CM_S = 20
 ROW_SPACING_CM = 50
+COLUMN_SPACING_CM = 50
 FORWARD_DISTANCE_CM = 250
 FLIGHT_SPEED_CM_S = 10
 HOVER_DURATION_SEC = 150
@@ -136,6 +137,114 @@ SUMMARY_COLUMNS = [
     "notes",
 ]
 
+COORDINATION_COLUMNS = [
+    "run_id",
+    "experiment_id",
+    "formation",
+    "wind_direction",
+    "wind_speed",
+    "drone_name",
+    "drone_ip",
+    "battery_id",
+    "takeoff_order",
+    "drone_role",
+    "mission_pad",
+    "grid_column",
+    "grid_row",
+    "phase",
+    "timestamp",
+    "elapsed_time",
+    "hover_elapsed_time",
+    "node_elapsed_time",
+    "mid",
+    "x",
+    "y",
+    "z",
+    "X_global",
+    "Y_global",
+    "Z_global",
+    "target_x",
+    "target_y",
+    "target_z",
+    "target_pad",
+    "node_forward_distance_cm",
+    "node_speed_cm_s",
+    "position_error_x",
+    "position_error_y",
+    "position_error_z",
+    "position_error_dist",
+    "mean_spacing_error",
+    "max_spacing_error",
+    "battery",
+    "battery_hover_start",
+    "battery_hover_end",
+    "yaw",
+    "pitch",
+    "roll",
+    "vgx",
+    "vgy",
+    "vgz",
+    "agx",
+    "agy",
+    "agz",
+    "templ",
+    "temph",
+    "tof",
+    "h",
+    "baro",
+    "motor_time",
+]
+
+BATTERY_COLUMNS = [
+    "run_id",
+    "experiment_id",
+    "formation",
+    "wind_direction",
+    "wind_speed",
+    "drone_name",
+    "drone_ip",
+    "battery_id",
+    "takeoff_order",
+    "drone_role",
+    "mission_pad",
+    "grid_column",
+    "grid_row",
+    "hover_start_timestamp",
+    "hover_end_timestamp",
+    "hover_duration_sec",
+    "node_start_timestamp",
+    "node_end_timestamp",
+    "node_duration_sec",
+    "target_pad",
+    "node_forward_distance_cm",
+    "node_speed_cm_s",
+    "battery_hover_start",
+    "battery_hover_end",
+    "battery_drop",
+]
+
+BATTERY_TIMESERIES_COLUMNS = [
+    "run_id",
+    "experiment_id",
+    "formation",
+    "wind_direction",
+    "wind_speed",
+    "drone_name",
+    "drone_ip",
+    "battery_id",
+    "takeoff_order",
+    "drone_role",
+    "mission_pad",
+    "target_pad",
+    "phase",
+    "timestamp",
+    "elapsed_time",
+    "node_elapsed_time",
+    "battery",
+    "battery_start",
+    "battery_drop_from_start",
+]
+
 
 logging_active = False
 current_phase = "idle"
@@ -187,6 +296,37 @@ def pad_at_physical_row(start_col, row_idx):
     return lane[row_idx]
 
 
+def pad_origin_for_detection(config, mid):
+    if config.get("start_row") == "" or config.get("target_row") in ("", None):
+        return None, None
+    min_row = min(config["start_row"], config["target_row"]) - 1
+    max_row = max(config["start_row"], config["target_row"]) + 1
+    column = lane_pad_sequence(config["start_col"], min_rows=max(max_row + 2, len(PAD_SEQUENCE)))
+    candidate_rows = [
+        row_idx
+        for row_idx, pad_id in enumerate(column)
+        if pad_id == mid and min_row <= row_idx <= max_row
+    ]
+    if not candidate_rows:
+        return None, None
+    detected_row = candidate_rows[0]
+    return config["start_col"] * COLUMN_SPACING_CM, detected_row * ROW_SPACING_CM
+
+
+def to_global(config, state):
+    mid = state["mid"]
+    if mid == -1:
+        return None, None, None
+    origin_x, origin_y = pad_origin_for_detection(config, mid)
+    if origin_x is None or origin_y is None:
+        return None, None, None
+    return origin_x + state["x"], origin_y + state["y"], state["z"]
+
+
+def is_valid_column_detection(config, x_global):
+    return abs(x_global - config["target_x"]) <= COLUMN_SPACING_CM * 0.75
+
+
 def node_direction_from_baseline(direction):
     return -1 if direction == "down" else 1
 
@@ -209,9 +349,11 @@ def movement_config(start_col, start_row, direction):
         "path_pads": path_pads,
         "path_text": " -> ".join(str(pad) for pad in path_pads),
         "start_pad": start_pad,
-        "start_x": start_col * ROW_SPACING_CM,
+        "start_x": start_col * COLUMN_SPACING_CM,
+        "start_col": start_col,
+        "start_row": start_row,
         "start_y": start_row * ROW_SPACING_CM,
-        "target_x": start_col * ROW_SPACING_CM,
+        "target_x": start_col * COLUMN_SPACING_CM,
         "target_y": target_row * ROW_SPACING_CM,
         "target_z": TAKEOFF_HEIGHT_CM,
         "movement_distance_cm": FORWARD_DISTANCE_CM,
@@ -227,6 +369,40 @@ def write_header(path, columns):
 def append_row(path, row):
     with path.open("a", newline="", encoding="utf-8") as f:
         csv.writer(f).writerow(row)
+
+
+def drone_folder_name(config):
+    suffix = config["ip"].replace(IP_PREFIX, "")
+    return f"{safe_name(config['name'])}_{suffix}_pad{config['mission_pad']}"
+
+
+def formal_output_paths(baseline_dir, baseline_id, run_id, config):
+    drones_dir = baseline_dir / "drones"
+    plots_dir = baseline_dir / "plots"
+    drones_dir.mkdir(parents=True, exist_ok=True)
+    plots_dir.mkdir(parents=True, exist_ok=True)
+
+    coordination_path = baseline_dir / f"{safe_name(baseline_id)}_{run_id}_all_coordination.csv"
+    battery_path = baseline_dir / f"{safe_name(baseline_id)}_{run_id}_all_battery.csv"
+    battery_timeseries_path = baseline_dir / f"{safe_name(baseline_id)}_{run_id}_all_battery_timeseries.csv"
+    drone_dir = drones_dir / drone_folder_name(config)
+    drone_dir.mkdir(parents=True, exist_ok=True)
+    drone_paths = {
+        config["ip"]: {
+            "coordination": drone_dir / f"{safe_name(baseline_id)}_{run_id}_{safe_name(config['name'])}_coordination.csv",
+            "battery": drone_dir / f"{safe_name(baseline_id)}_{run_id}_{safe_name(config['name'])}_battery.csv",
+        }
+    }
+    battery_plot_path = plots_dir / f"{safe_name(baseline_id)}_{run_id}_all_battery_lines.png"
+    temperature_plot_path = plots_dir / f"{safe_name(baseline_id)}_{run_id}_all_temperature_lines.png"
+    return (
+        coordination_path,
+        battery_path,
+        battery_timeseries_path,
+        drone_paths,
+        battery_plot_path,
+        temperature_plot_path,
+    )
 
 
 def get_phase():
@@ -277,13 +453,108 @@ def wait_for_pad(tello, pad_id=None, timeout=8.0, interval=0.15):
     return None
 
 
-def logger_loop(tello, config, data_path, start_time, battery_start):
+def fly_baseline_node_segment(tello, config, current_row, speed=FLIGHT_SPEED_CM_S, tolerance=8, max_corrections=3):
+    next_row = current_row + config["node_row_direction"]
+    next_pad_y = next_row * ROW_SPACING_CM
+    expected_pad = pad_at_physical_row(config["start_col"], next_row)
+
+    for attempt in range(max_corrections):
+        state = get_state_safe(tello)
+        if state["mid"] == -1:
+            time.sleep(0.3)
+            continue
+
+        x_global, y_global, _ = to_global(config, state)
+        if x_global is None or y_global is None:
+            time.sleep(0.3)
+            continue
+        if not is_valid_column_detection(config, x_global):
+            time.sleep(0.3)
+            continue
+
+        if abs(next_pad_y - y_global) <= tolerance and abs(config["target_x"] - x_global) <= tolerance:
+            break
+
+        origin_x, origin_y = pad_origin_for_detection(config, state["mid"])
+        if origin_x is None or origin_y is None:
+            time.sleep(0.3)
+            continue
+
+        local_x = max(-500, min(500, int(round(config["target_x"] - origin_x))))
+        local_y = max(-500, min(500, int(round(next_pad_y - origin_y))))
+        local_z = max(20, min(500, int(round(TAKEOFF_HEIGHT_CM))))
+        print(
+            f"  Segment command {attempt + 1}/{max_corrections}: "
+            f"go {local_x} {local_y} {local_z} {max(10, min(100, speed))} m{int(state['mid'])}",
+            flush=True,
+        )
+        tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
+        time.sleep(0.5)
+
+    if wait_for_pad(tello, expected_pad, timeout=4.0) is None:
+        raise RuntimeError(
+            f"{config['drone_name']} failed to detect mission pad {expected_pad} after segment to row {next_row}."
+        )
+
+
+def fly_baseline_node_to_node(tello, config, speed=FLIGHT_SPEED_CM_S):
+    segments = config["node_segment_count"]
+    if segments <= 0:
+        raise RuntimeError("Node-to-node baseline has zero segments; check start and target mission pads.")
+
+    direction_text = "negative y" if config["node_row_direction"] < 0 else "positive y"
+    print(
+        f"Flying {config['drone_name']} in {segments} mission-pad segments "
+        f"({ROW_SPACING_CM} cm each) along {direction_text} at {speed} cm/s.",
+        flush=True,
+    )
+
+    current_row = config["start_row"]
+    for segment_index in range(segments):
+        next_row = current_row + config["node_row_direction"]
+        expected_pad = pad_at_physical_row(config["start_col"], next_row)
+        set_phase(f"node_segment_{segment_index + 1}_of_{segments}")
+        print(
+            f"Segment {segment_index + 1}/{segments}: row {current_row} -> {next_row}, "
+            f"target pad {expected_pad}.",
+            flush=True,
+        )
+        fly_baseline_node_segment(tello, config, current_row, speed=speed)
+        print(f"  {config['drone_name']} detected segment target pad {expected_pad}.", flush=True)
+        current_row = next_row
+
+    set_phase("arrived_target_node")
+
+
+def logger_loop(
+    tello,
+    config,
+    experiment,
+    coordination_path,
+    battery_timeseries_path,
+    drone_paths,
+    experiment_start_time,
+    node_start_time,
+    battery_start,
+):
     global logging_active
     last_live_report = 0.0
     while logging_active:
         now = time.time()
+        timestamp = datetime.now().isoformat(timespec="milliseconds")
         state = get_state_safe(tello)
+        x_global, y_global, z_global = to_global(config, state)
         battery = tello.get_battery()
+        elapsed = round(now - experiment_start_time, 3)
+        node_elapsed = round(now - node_start_time, 3)
+        err_x = config["target_x"] - x_global if x_global is not None and config["target_x"] != "" else None
+        err_y = config["target_y"] - y_global if y_global is not None and config["target_y"] != "" else None
+        err_z = config["target_z"] - z_global if z_global is not None and config["target_z"] != "" else None
+        err_dist = (
+            round((err_x ** 2 + err_y ** 2 + err_z ** 2) ** 0.5, 3)
+            if err_x is not None and err_y is not None and err_z is not None
+            else None
+        )
         try:
             battery_drop = int(battery_start) - int(battery)
         except (TypeError, ValueError):
@@ -296,26 +567,47 @@ def logger_loop(tello, config, data_path, start_time, battery_start):
             )
             last_live_report = now
 
-        append_row(data_path, [
+        coordination_row = [
             config["run_id"],
-            config["baseline_id"],
-            config["drone_name"],
-            config["drone_number"],
+            experiment["experiment_id"],
+            experiment.get("formation", ""),
+            experiment.get("wind_direction", ""),
+            experiment.get("wind_speed", ""),
+            config["name"],
             config["ip"],
             config["battery_id"],
-            config["mode"],
-            config["direction"],
-            config["baseline_path"],
+            config["takeoff_order"],
+            config["role"],
+            config["mission_pad"],
+            config["grid_column"],
+            config["grid_row"],
             get_phase(),
-            datetime.now().isoformat(timespec="milliseconds"),
-            round(now - start_time, 3),
+            timestamp,
+            elapsed,
+            node_elapsed,
+            node_elapsed,
             state["mid"],
             state["x"],
             state["y"],
             state["z"],
+            x_global,
+            y_global,
+            z_global,
+            config["target_x"],
+            config["target_y"],
+            config["target_z"],
+            config["target_pad"],
+            config["node_forward_distance_cm"],
+            config["node_speed_cm_s"],
+            err_x,
+            err_y,
+            err_z,
+            err_dist,
+            "",
+            "",
             battery,
             battery_start,
-            battery_drop,
+            config.get("battery_hover_end", ""),
             state["yaw"],
             state["pitch"],
             state["roll"],
@@ -331,6 +623,29 @@ def logger_loop(tello, config, data_path, start_time, battery_start):
             state["h"],
             state["baro"],
             state["motor_time"],
+        ]
+        append_row(coordination_path, coordination_row)
+        append_row(drone_paths[config["ip"]]["coordination"], coordination_row)
+        append_row(battery_timeseries_path, [
+            config["run_id"],
+            experiment["experiment_id"],
+            experiment.get("formation", ""),
+            experiment.get("wind_direction", ""),
+            experiment.get("wind_speed", ""),
+            config["name"],
+            config["ip"],
+            config["battery_id"],
+            config["takeoff_order"],
+            config["role"],
+            config["mission_pad"],
+            config["target_pad"],
+            get_phase(),
+            timestamp,
+            elapsed,
+            node_elapsed,
+            battery,
+            battery_start,
+            battery_drop,
         ])
         time.sleep(LOG_INTERVAL_SEC)
 
@@ -447,6 +762,134 @@ def check_windowed_baseline_battery(tello, config):
                 f"Takeoff blocked: {drone_name} battery={battery_value}% < "
                 f"{BASELINE_BATTERY_WINDOW_LOW_PERCENT}%."
             )
+
+
+def read_coordination_battery_series(path):
+    series = {}
+    with path.open("r", newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            drone_name = row.get("drone_name", "")
+            if not drone_name:
+                continue
+            try:
+                elapsed_value = row.get("node_elapsed_time") or row.get("hover_elapsed_time", "")
+                node_time = float(elapsed_value)
+                battery = float(row.get("battery", ""))
+            except (TypeError, ValueError):
+                continue
+            series.setdefault(drone_name, []).append((node_time, battery))
+    for values in series.values():
+        values.sort(key=lambda item: item[0])
+    return series
+
+
+def generate_battery_line_plot(coordination_path, output_path, experiment_id, run_id):
+    series = read_coordination_battery_series(coordination_path)
+    if not series:
+        print("Battery plot skipped: no battery time series found.", flush=True)
+        return None
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    for drone_name, values in sorted(series.items()):
+        times = [item[0] for item in values]
+        batteries = [item[1] for item in values]
+        if times and batteries:
+            ax.plot(times, batteries, linewidth=1.8, label=drone_name)
+
+    ax.set_title(f"{experiment_id} {run_id}: battery percentage during node-to-node flight")
+    ax.set_xlabel("Node-to-node flight time (s)")
+    ax.set_ylabel("Battery (%)")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend(fontsize=8)
+
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    print(f"Battery line plot saved: {output_path}", flush=True)
+    return output_path
+
+
+def read_coordination_temperature_series(path):
+    series = {}
+    with path.open("r", newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            drone_name = row.get("drone_name", "")
+            if not drone_name:
+                continue
+            try:
+                elapsed_value = row.get("node_elapsed_time") or row.get("hover_elapsed_time", "")
+                node_time = float(elapsed_value)
+                temp_low = float(row.get("templ", ""))
+                temp_high = float(row.get("temph", ""))
+            except (TypeError, ValueError):
+                continue
+            temp_avg = (temp_low + temp_high) / 2
+            series.setdefault(drone_name, []).append((node_time, temp_avg))
+    for values in series.values():
+        values.sort(key=lambda item: item[0])
+    return series
+
+
+def generate_temperature_line_plot(coordination_path, output_path, experiment_id, run_id):
+    series = read_coordination_temperature_series(coordination_path)
+    if not series:
+        print("Temperature plot skipped: no temperature time series found.", flush=True)
+        return None
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    for drone_name, values in sorted(series.items()):
+        times = [item[0] for item in values]
+        temperatures = [item[1] for item in values]
+        if times and temperatures:
+            ax.plot(times, temperatures, linewidth=1.8, label=drone_name)
+
+    ax.set_title(f"{experiment_id} {run_id}: average temperature during node-to-node flight")
+    ax.set_xlabel("Node-to-node flight time (s)")
+    ax.set_ylabel("Temperature (C)")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend(fontsize=8)
+
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    print(f"Temperature line plot saved: {output_path}", flush=True)
+    return output_path
+
+
+def save_battery_row(path, drone_paths, config, experiment, node_start_timestamp, node_end_timestamp, duration, battery_start, battery_end):
+    try:
+        drop = int(battery_start) - int(battery_end)
+    except (TypeError, ValueError):
+        drop = ""
+    row = [
+        config["run_id"],
+        experiment["experiment_id"],
+        experiment.get("formation", ""),
+        experiment.get("wind_direction", ""),
+        experiment.get("wind_speed", ""),
+        config["name"],
+        config["ip"],
+        config["battery_id"],
+        config["takeoff_order"],
+        config["role"],
+        config["mission_pad"],
+        config["grid_column"],
+        config["grid_row"],
+        node_start_timestamp,
+        node_end_timestamp,
+        duration,
+        node_start_timestamp,
+        node_end_timestamp,
+        duration,
+        config["target_pad"],
+        config["node_forward_distance_cm"],
+        config["node_speed_cm_s"],
+        battery_start,
+        battery_end,
+        drop,
+    ]
+    append_row(path, row)
+    append_row(drone_paths[config["ip"]]["battery"], row)
 
 
 def generate_plots(data_path, plots_dir, baseline_id):
@@ -638,18 +1081,68 @@ def run_baseline(args):
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     baseline_id = f"{drone_name}_{battery_id}_{safe_name(args.mode)}_{run_id}"
     baseline_dir = BASELINE_DIR / f"{drone_name}_{battery_id}"
-    plots_dir = baseline_dir / "plots"
-    data_path = baseline_dir / f"{baseline_id}_timeseries.csv"
-    summary_path = baseline_dir / f"{baseline_id}_summary.csv"
     metadata_path = baseline_dir / f"{baseline_id}_metadata.json"
-    output_paths = [data_path, summary_path, metadata_path]
 
     baseline_dir.mkdir(parents=True, exist_ok=True)
-    write_header(data_path, BASELINE_COLUMNS)
-    write_header(summary_path, SUMMARY_COLUMNS)
+    config = {
+        "run_id": run_id,
+        "baseline_id": baseline_id,
+        "drone_number": drone_number,
+        "drone_name": drone_name,
+        "name": drone_name,
+        "ip": ip,
+        "battery_id": battery_id,
+        "takeoff_order": 1,
+        "role": "single_baseline",
+        "mode": args.mode,
+        "direction": args.direction,
+        "baseline_path": path_text,
+        "start_pad": args.start_pad if args.mode != "hover" else "",
+        "mission_pad": args.start_pad if args.mode != "hover" else "",
+        "grid_column": start_col if args.mode != "hover" else "",
+        "grid_row": start_row if args.mode != "hover" else "",
+        "start_col": move_config.get("start_col"),
+        "start_row": move_config.get("start_row"),
+        "node_row_direction": move_config.get("node_row_direction"),
+        "node_segment_count": move_config.get("node_segment_count"),
+        "target_pad": move_config.get("target_pad", ""),
+        "target_row": move_config.get("target_row"),
+        "target_grid_row": move_config.get("target_row", ""),
+        "target_x": move_config.get("target_x", ""),
+        "target_y": move_config.get("target_y", ""),
+        "target_z": move_config.get("target_z", ""),
+        "movement_distance_cm": movement_distance_cm,
+        "node_forward_distance_cm": movement_distance_cm,
+        "node_speed_cm_s": FLIGHT_SPEED_CM_S if args.mode != "hover" else "",
+        "battery_hover_end": "",
+    }
+    (
+        coordination_path,
+        battery_path,
+        battery_timeseries_path,
+        drone_paths,
+        battery_plot_path,
+        temperature_plot_path,
+    ) = formal_output_paths(baseline_dir, baseline_id, run_id, config)
+    output_paths = [coordination_path, battery_path, battery_timeseries_path, metadata_path]
+    for paths in drone_paths.values():
+        output_paths.extend(paths.values())
+    output_paths.extend([battery_plot_path, temperature_plot_path])
+
+    write_header(coordination_path, COORDINATION_COLUMNS)
+    write_header(battery_path, BATTERY_COLUMNS)
+    write_header(battery_timeseries_path, BATTERY_TIMESERIES_COLUMNS)
+    for paths in drone_paths.values():
+        write_header(paths["coordination"], COORDINATION_COLUMNS)
+        write_header(paths["battery"], BATTERY_COLUMNS)
+
     metadata = {
         "run_id": run_id,
         "baseline_id": baseline_id,
+        "experiment_id": baseline_id,
+        "formation": "single_drone_baseline",
+        "wind_direction": args.mode,
+        "wind_speed": args.direction if args.mode != "hover" else "",
         "drone_number": drone_number,
         "drone_name": drone_name,
         "drone_ip": ip,
@@ -668,21 +1161,11 @@ def run_baseline(args):
         "notes": args.notes,
     }
     metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    config = {
-        "run_id": run_id,
-        "baseline_id": baseline_id,
-        "drone_number": drone_number,
-        "drone_name": drone_name,
-        "ip": ip,
-        "battery_id": battery_id,
-        "mode": args.mode,
-        "direction": args.direction,
-        "baseline_path": path_text,
-        "start_pad": args.start_pad,
-        "target_pad": move_config.get("target_pad"),
-        "target_row": move_config.get("target_row"),
-        "movement_distance_cm": movement_distance_cm,
+    experiment = {
+        "experiment_id": baseline_id,
+        "formation": "single_drone_baseline",
+        "wind_direction": args.mode,
+        "wind_speed": args.direction if args.mode != "hover" else "",
     }
 
     tello = Tello(host=ip)
@@ -696,6 +1179,7 @@ def run_baseline(args):
     landed = False
     logger = None
     end_reason = ""
+    node_start_time = start_time
 
     print("\nSingle-drone baseline loaded:", flush=True)
     print(f"  baseline_id : {baseline_id}", flush=True)
@@ -708,7 +1192,9 @@ def run_baseline(args):
         print(f"  direction   : {args.direction}", flush=True)
         print(f"  path        : {path_text}", flush=True)
         print(f"  target pad  : {move_config['target_pad']} ({movement_distance_cm}cm)", flush=True)
-    print(f"  data output : {data_path}", flush=True)
+    print(f"  coordination output : {coordination_path}", flush=True)
+    print(f"  battery output      : {battery_path}", flush=True)
+    print(f"  battery time series : {battery_timeseries_path}", flush=True)
 
     try:
         print("\nPreflight: connecting baseline drone...", flush=True)
@@ -737,12 +1223,23 @@ def run_baseline(args):
         if args.mode == "hover":
             battery_start = str(tello.get_battery())
             first_state = get_state_safe(tello)
-            start_timestamp = datetime.now().isoformat(timespec="seconds")
+            start_timestamp = datetime.now().isoformat(timespec="milliseconds")
+            node_start_time = time.time()
             print(f"Baseline battery start captured before takeoff: {battery_start}%", flush=True)
             logging_active = True
             logger = threading.Thread(
                 target=logger_loop,
-                args=(tello, config, data_path, start_time, battery_start),
+                args=(
+                    tello,
+                    config,
+                    experiment,
+                    coordination_path,
+                    battery_timeseries_path,
+                    drone_paths,
+                    start_time,
+                    node_start_time,
+                    battery_start,
+                ),
                 daemon=True,
             )
             logger.start()
@@ -769,28 +1266,35 @@ def run_baseline(args):
 
             battery_start = str(tello.get_battery())
             first_state = get_state_safe(tello)
-            start_timestamp = datetime.now().isoformat(timespec="seconds")
+            start_timestamp = datetime.now().isoformat(timespec="milliseconds")
             print(f"Node-to-node battery baseline captured: {battery_start}%", flush=True)
 
             logging_active = True
-            start_time = time.time()
+            node_start_time = time.time()
             logger = threading.Thread(
                 target=logger_loop,
-                args=(tello, config, data_path, start_time, battery_start),
+                args=(
+                    tello,
+                    config,
+                    experiment,
+                    coordination_path,
+                    battery_timeseries_path,
+                    drone_paths,
+                    start_time,
+                    node_start_time,
+                    battery_start,
+                ),
                 daemon=True,
             )
             logger.start()
 
-            set_phase("continuous_node_to_node")
-            signed_distance = movement_distance_cm * move_config["node_row_direction"]
-            command = f"go 0 {signed_distance} {TAKEOFF_HEIGHT_CM} {FLIGHT_SPEED_CM_S} m{int(args.start_pad)}"
+            set_phase("node_to_node")
             print(
-                f"Flying {drone_name} continuously {movement_distance_cm} cm at {FLIGHT_SPEED_CM_S} cm/s. "
-                "Intermediate mission pads are pass-through only.",
+                f"Flying {drone_name} {movement_distance_cm} cm with mission-pad segmented control. "
+                "Each segment reacquires the current visible pad before moving to the next row.",
                 flush=True,
             )
-            print(f"Running baseline movement command: {command}", flush=True)
-            tello.send_control_command(command, timeout=LONG_GO_RESPONSE_TIMEOUT_SEC)
+            fly_baseline_node_to_node(tello, config, speed=FLIGHT_SPEED_CM_S)
             set_phase("verify_target_pad")
             if wait_for_pad(tello, int(move_config["target_pad"]), timeout=6.0) is None:
                 raise RuntimeError(
@@ -808,47 +1312,38 @@ def run_baseline(args):
         landed = True
         time.sleep(1.5)
         battery_end = str(tello.get_battery())
+        config["battery_hover_end"] = battery_end
         final_state = get_state_safe(tello)
-        end_timestamp = datetime.now().isoformat(timespec="seconds")
-        duration = round(time.time() - start_time, 3)
+        end_timestamp = datetime.now().isoformat(timespec="milliseconds")
+        duration = round(time.time() - node_start_time, 3)
         set_phase("complete")
         time.sleep(0.5)
         logging_active = False
         if logger:
             logger.join(timeout=2.0)
 
-        try:
-            battery_drop = int(battery_start) - int(battery_end)
-        except (TypeError, ValueError):
-            battery_drop = ""
-        append_row(summary_path, [
-            run_id,
-            baseline_id,
-            drone_name,
-            drone_number,
-            ip,
-            battery_id,
-            args.mode,
-            args.direction,
-            path_text,
+        save_battery_row(
+            battery_path,
+            drone_paths,
+            config,
+            experiment,
             start_timestamp,
             end_timestamp,
             duration,
             battery_start,
             battery_end,
-            battery_drop,
-            first_state.get("templ", ""),
-            final_state.get("templ", ""),
-            first_state.get("temph", ""),
-            final_state.get("temph", ""),
-            end_reason,
-            args.notes,
-        ])
-        generated = generate_plots(data_path, plots_dir, baseline_id)
+        )
+        generated = [
+            generate_battery_line_plot(coordination_path, battery_plot_path, baseline_id, run_id),
+            generate_temperature_line_plot(coordination_path, temperature_plot_path, baseline_id, run_id),
+        ]
         print("\nBaseline complete.", flush=True)
-        print(f"  Summary: {summary_path}", flush=True)
+        print(f"  Coordination: {coordination_path}", flush=True)
+        print(f"  Battery summary: {battery_path}", flush=True)
+        print(f"  Battery time series: {battery_timeseries_path}", flush=True)
         for path in generated:
-            print(f"  Plot: {path}", flush=True)
+            if path:
+                print(f"  Plot: {path}", flush=True)
         return True
 
     except (KeyboardInterrupt, BaselineStopped, Exception) as exc:
