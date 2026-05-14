@@ -704,10 +704,10 @@ def run_baseline(args):
     print(f"  mode        : {MODE_LABELS[args.mode]}", flush=True)
     if args.mode == "hover":
         print(f"  hover rule  : no mission pad; land at {HOVER_LANDING_BATTERY_PERCENT}% battery", flush=True)
-        else:
-            print(f"  direction   : {args.direction}", flush=True)
-            print(f"  path        : {path_text}", flush=True)
-            print(f"  target pad  : {move_config['target_pad']} ({movement_distance_cm}cm)", flush=True)
+    else:
+        print(f"  direction   : {args.direction}", flush=True)
+        print(f"  path        : {path_text}", flush=True)
+        print(f"  target pad  : {move_config['target_pad']} ({movement_distance_cm}cm)", flush=True)
     print(f"  data output : {data_path}", flush=True)
 
     try:
