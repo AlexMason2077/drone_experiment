@@ -1,0 +1,2 @@
+run_id,experiment_id,formation,wind_direction,wind_speed,drone_name,drone_ip,battery_id,takeoff_order,drone_role,mission_pad,grid_column,grid_row,hover_start_timestamp,hover_end_timestamp,hover_duration_sec,battery_hover_start,battery_hover_end,battery_drop
+20260504_180400,front_head_lv1_002,front,head wind,Level1,drone_5,192.168.0.107,B02,5,front_5,5,4,0,2026-05-04T18:04:18.339,2026-05-04T18:05:18.423,60,80,67,13

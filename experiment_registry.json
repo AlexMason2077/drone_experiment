@@ -1,0 +1,38 @@
+{
+  "experiments": [
+    {
+      "experiment_id": "exp_20260503_151526",
+      "formation": "front",
+      "status": "planned",
+      "created_at": "2026-05-03T15:15:26",
+      "updated_at": "2026-05-03T15:15:26",
+      "coordination_files": [
+        "hover_front_20260429_111106.csv",
+        "hover_front_20260429_111403.csv",
+        "hover_front_20260429_111929.csv",
+        "hover_front_20260429_112201.csv",
+        "hover_front_20260429_112735.csv"
+      ],
+      "battery_files": [
+        "calculate_time_front_history.csv",
+        "hover_front_summary.csv"
+      ],
+      "image_files": [
+        "calculate_time_front_overview.png",
+        "front_experiment_trajectory_log_formation_plot.png"
+      ],
+      "drones": [
+        {
+          "ip": "192.168.0.101",
+          "ip_suffix": "101",
+          "takeoff_order": "1",
+          "role": "front_1",
+          "mission_pad": "1",
+          "grid_column": "0",
+          "grid_row": "0"
+        }
+      ],
+      "notes": ""
+    }
+  ]
+}

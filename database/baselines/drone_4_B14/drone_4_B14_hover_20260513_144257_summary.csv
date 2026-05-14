@@ -1,0 +1,2 @@
+run_id,baseline_id,drone_name,drone_number,drone_ip,battery_id,mode,direction,baseline_path,start_timestamp,end_timestamp,duration_sec,battery_start,battery_end,battery_drop,templ_start,templ_end,temph_start,temph_end,end_reason,notes
+20260513_144257,drone_4_B14_hover_20260513_144257,drone_4,4,192.168.0.106,B14,hover,up,,2026-05-13T14:43:06,2026-05-13T14:51:39,512.72,100,10,90,46,59,49,62,battery reached 10%,

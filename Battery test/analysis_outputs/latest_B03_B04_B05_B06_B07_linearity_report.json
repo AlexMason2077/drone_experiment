@@ -1,0 +1,26 @@
+{
+  "selected_batteries": [
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07"
+  ],
+  "best_window": {
+    "window": "61-45%",
+    "hi_pct": 61,
+    "lo_pct": 45,
+    "span_pct": 16,
+    "min_r2": 0.99722,
+    "mean_r2": 0.99767,
+    "max_rmse_pct": 0.2584,
+    "mean_rmse_pct": 0.2356,
+    "rate_mean_pct_per_min": 8.2833,
+    "rate_cv": 0.02301,
+    "min_duration_min": 1.8683,
+    "score": 0.987453
+  },
+  "plot": "Battery test/analysis_outputs/latest_B03_B04_B05_B06_B07_common_linear_window.png",
+  "scan_table": "Battery test/analysis_outputs/latest_B03_B04_B05_B06_B07_linear_windows.csv",
+  "detail_table": "Battery test/analysis_outputs/latest_B03_B04_B05_B06_B07_best_window_details.csv"
+}

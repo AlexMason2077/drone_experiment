@@ -1,0 +1,161 @@
+{
+  "included": [
+    {
+      "battery_id": "02",
+      "source_file": "discharge_logs/battery_02_20260506_121208.csv",
+      "samples": 5821,
+      "duration_s": 587.332,
+      "duration_min": 9.788866666666667,
+      "start_battery_pct": 91,
+      "end_battery_pct": 10,
+      "unique_battery_levels": 82,
+      "mean_drop_pct_per_min": 8.27470663951564,
+      "raw_curve_constrained_poly3_battery_pct_vs_u": {
+        "x_start": 0.0,
+        "x_end": 1.0,
+        "y_start": 91.0,
+        "y_end": 10.0,
+        "basis_params": [
+          4.4808477653035,
+          -22.821878644826
+        ],
+        "standard_poly_coeff": [
+          -45.643757289652,
+          63.9847881691745,
+          -99.3410308795225,
+          91.0
+        ]
+      },
+      "raw_curve_poly3_r2": 0.986285625201337,
+      "raw_curve_poly3_rmse_pct": 2.771908815410595,
+      "linearization_constrained_poly3_linear_remaining_vs_raw_pct": {
+        "x_start": 91.0,
+        "x_end": 10.0,
+        "y_start": 100.0,
+        "y_end": 0.0,
+        "basis_params": [
+          -4.242800289500835,
+          35.28836604657499
+        ],
+        "standard_poly_coeff": [
+          -0.00013280257280328384,
+          0.020766259538804475,
+          0.3710443917306261,
+          -5.654267298383424
+        ]
+      },
+      "linearization_poly3_r2": 0.9898678065495673,
+      "linearization_poly3_rmse_pct": 3.1872783204098316
+    },
+    {
+      "battery_id": "08",
+      "source_file": "discharge_logs/battery_08_20260506_133811.csv",
+      "samples": 5000,
+      "duration_s": 504.442,
+      "duration_min": 8.407366666666666,
+      "start_battery_pct": 96,
+      "end_battery_pct": 10,
+      "unique_battery_levels": 87,
+      "mean_drop_pct_per_min": 10.229124458312354,
+      "raw_curve_constrained_poly3_battery_pct_vs_u": {
+        "x_start": 0.0,
+        "x_end": 1.0,
+        "y_start": 96.0,
+        "y_end": 10.0,
+        "basis_params": [
+          -10.23938384075361,
+          -51.905971458839296
+        ],
+        "standard_poly_coeff": [
+          -103.81194291767859,
+          165.9572982172715,
+          -148.14535529959292,
+          96.0
+        ]
+      },
+      "raw_curve_poly3_r2": 0.9593221239317149,
+      "raw_curve_poly3_rmse_pct": 5.064995607803145,
+      "linearization_constrained_poly3_linear_remaining_vs_raw_pct": {
+        "x_start": 96.0,
+        "x_end": 10.0,
+        "y_start": 100.0,
+        "y_end": 0.0,
+        "basis_params": [
+          12.32990220688432,
+          62.98309637094115
+        ],
+        "standard_poly_coeff": [
+          -0.0001980426137665273,
+          0.02982167145057547,
+          0.036779422978252985,
+          -3.1519187610735493
+        ]
+      },
+      "linearization_poly3_r2": 0.9766581473393622,
+      "linearization_poly3_rmse_pct": 4.990533035631609
+    },
+    {
+      "battery_id": "10",
+      "source_file": "discharge_logs/battery_10_20260506_115206.csv",
+      "samples": 5685,
+      "duration_s": 573.54,
+      "duration_min": 9.559,
+      "start_battery_pct": 95,
+      "end_battery_pct": 10,
+      "unique_battery_levels": 86,
+      "mean_drop_pct_per_min": 8.892143529657915,
+      "raw_curve_constrained_poly3_battery_pct_vs_u": {
+        "x_start": 0.0,
+        "x_end": 1.0,
+        "y_start": 95.0,
+        "y_end": 10.0,
+        "basis_params": [
+          2.4775257095690257,
+          7.083640678065008
+        ],
+        "standard_poly_coeff": [
+          14.167281356130015,
+          -23.728447743764047,
+          -75.43883361236597,
+          95.0
+        ]
+      },
+      "raw_curve_poly3_r2": 0.9895570788773494,
+      "raw_curve_poly3_rmse_pct": 2.5368189020569463,
+      "linearization_constrained_poly3_linear_remaining_vs_raw_pct": {
+        "x_start": 95.0,
+        "x_end": 10.0,
+        "y_start": 100.0,
+        "y_end": 0.0,
+        "basis_params": [
+          -1.7660374646658743,
+          -2.4267624833560992
+        ],
+        "standard_poly_coeff": [
+          7.903154840972437e-06,
+          -0.001000312636288332,
+          1.2018791300227716,
+          -11.926663191439856
+        ]
+      },
+      "linearization_poly3_r2": 0.9893069391259052,
+      "linearization_poly3_rmse_pct": 3.04318695873263
+    }
+  ],
+  "skipped": [
+    {
+      "battery_id": "04",
+      "source_file": "discharge_logs/battery_04_20260506_133222.csv",
+      "samples": 401,
+      "duration_s": 40.398,
+      "duration_min": 0.6733,
+      "start_battery_pct": 95,
+      "end_battery_pct": 86,
+      "reason": "battery 04 skipped: SoC span 9.0% (95->86%) is too short for full-curve linearization; need span >= 30% and end <= 40%"
+    }
+  ],
+  "settings": {
+    "min_linearization_soc_span_pct": 30.0,
+    "min_end_battery_pct": 40.0
+  }
+}

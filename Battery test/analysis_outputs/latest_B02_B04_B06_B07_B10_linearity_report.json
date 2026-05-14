@@ -1,0 +1,58 @@
+{
+  "selected": [
+    "B02",
+    "B04",
+    "B06",
+    "B07",
+    "B10"
+  ],
+  "sources": {
+    "02": "Battery test/discharge_logs/battery_02_20260506_121208.csv",
+    "04": "Battery test/discharge_logs/battery_04_20260506_162317.csv",
+    "06": "Battery test/discharge_logs/battery_06_20260506_164133.csv",
+    "07": "Battery test/discharge_logs/battery_07_20260506_165708.csv",
+    "10": "Battery test/discharge_logs/battery_10_20260506_115206.csv"
+  },
+  "best_window": {
+    "window": "65-50%",
+    "hi_pct": 65,
+    "lo_pct": 50,
+    "span_pct": 15,
+    "min_r2": 0.99767,
+    "mean_r2": 0.99812,
+    "max_rmse_pct": 0.2225,
+    "mean_rmse_pct": 0.1987,
+    "rate_mean_pct_per_min": 7.7474,
+    "rate_cv": 0.08005,
+    "min_duration_min": 1.7003,
+    "score": 0.974382
+  },
+  "scan_table": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_linear_windows.csv",
+  "outputs": [
+    {
+      "kind": "best_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_best_window_65_50.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_best_window_65_50_details.csv"
+    },
+    {
+      "kind": "large20_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large20_window_63_43.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large20_window_63_43_details.csv"
+    },
+    {
+      "kind": "large25_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large25_window_62_37.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large25_window_62_37_details.csv"
+    },
+    {
+      "kind": "large30_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large30_window_61_31.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large30_window_61_31_details.csv"
+    },
+    {
+      "kind": "large40_window",
+      "plot": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large40_window_70_30.png",
+      "details": "Battery test/analysis_outputs/latest_B02_B04_B06_B07_B10_large40_window_70_30_details.csv"
+    }
+  ]
+}

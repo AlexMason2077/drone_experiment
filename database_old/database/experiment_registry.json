@@ -1,0 +1,325 @@
+{
+  "experiments": [
+    {
+      "experiment_id": "front_head_lv1_001",
+      "short_id": "front_head_lv1_001",
+      "formation": "front",
+      "wind_direction": "head wind",
+      "wind_speed": "Level1",
+      "status": "planned",
+      "created_at": "2026-05-04T20:31:33",
+      "updated_at": "2026-05-05T12:27:51",
+      "coordination_files": [
+        "front_head_lv1_001/drones/drone_1_101_pad1/front_head_lv1_001_20260504_205930_drone_1_coordination.csv",
+        "front_head_lv1_001/drones/drone_2_102_pad2/front_head_lv1_001_20260504_205930_drone_2_coordination.csv",
+        "front_head_lv1_001/drones/drone_3_103_pad3/front_head_lv1_001_20260504_205930_drone_3_coordination.csv",
+        "front_head_lv1_001/drones/drone_4_106_pad4/front_head_lv1_001_20260504_205930_drone_4_coordination.csv",
+        "front_head_lv1_001/drones/drone_5_107_pad5/front_head_lv1_001_20260504_205930_drone_5_coordination.csv",
+        "front_head_lv1_001/front_head_lv1_001_20260504_205930_all_coordination.csv",
+        "front_head_lv1_002/drones/drone_1_101_pad1/front_head_lv1_002_20260505_113640_drone_1_coordination.csv",
+        "front_head_lv1_002/drones/drone_2_102_pad2/front_head_lv1_002_20260505_113640_drone_2_coordination.csv",
+        "front_head_lv1_002/drones/drone_3_103_pad3/front_head_lv1_002_20260505_113640_drone_3_coordination.csv",
+        "front_head_lv1_002/drones/drone_4_106_pad4/front_head_lv1_002_20260505_113640_drone_4_coordination.csv",
+        "front_head_lv1_002/drones/drone_5_107_pad5/front_head_lv1_002_20260505_113640_drone_5_coordination.csv",
+        "front_head_lv1_002/front_head_lv1_002_20260505_113640_all_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_1_101_pad1/front_head_lv1_prepare_20260504_205529_drone_1_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_2_102_pad2/front_head_lv1_prepare_20260504_205529_drone_2_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_3_103_pad3/front_head_lv1_prepare_20260504_205529_drone_3_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_4_106_pad4/front_head_lv1_prepare_20260504_205529_drone_4_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_5_107_pad5/front_head_lv1_prepare_20260504_205529_drone_5_coordination.csv",
+        "front_head_lv1_prepare/front_head_lv1_prepare_20260504_205529_all_coordination.csv"
+      ],
+      "battery_files": [
+        "front_head_lv1_001/drones/drone_1_101_pad1/front_head_lv1_001_20260504_205930_drone_1_battery.csv",
+        "front_head_lv1_001/drones/drone_2_102_pad2/front_head_lv1_001_20260504_205930_drone_2_battery.csv",
+        "front_head_lv1_001/drones/drone_3_103_pad3/front_head_lv1_001_20260504_205930_drone_3_battery.csv",
+        "front_head_lv1_001/drones/drone_4_106_pad4/front_head_lv1_001_20260504_205930_drone_4_battery.csv",
+        "front_head_lv1_001/drones/drone_5_107_pad5/front_head_lv1_001_20260504_205930_drone_5_battery.csv",
+        "front_head_lv1_001/front_head_lv1_001_20260504_205930_all_battery.csv",
+        "front_head_lv1_002/drones/drone_1_101_pad1/front_head_lv1_002_20260505_113640_drone_1_battery.csv",
+        "front_head_lv1_002/drones/drone_2_102_pad2/front_head_lv1_002_20260505_113640_drone_2_battery.csv",
+        "front_head_lv1_002/drones/drone_3_103_pad3/front_head_lv1_002_20260505_113640_drone_3_battery.csv",
+        "front_head_lv1_002/drones/drone_4_106_pad4/front_head_lv1_002_20260505_113640_drone_4_battery.csv",
+        "front_head_lv1_002/drones/drone_5_107_pad5/front_head_lv1_002_20260505_113640_drone_5_battery.csv",
+        "front_head_lv1_002/front_head_lv1_002_20260505_113640_all_battery.csv",
+        "front_head_lv1_prepare/drones/drone_1_101_pad1/front_head_lv1_prepare_20260504_205529_drone_1_battery.csv",
+        "front_head_lv1_prepare/drones/drone_2_102_pad2/front_head_lv1_prepare_20260504_205529_drone_2_battery.csv",
+        "front_head_lv1_prepare/drones/drone_3_103_pad3/front_head_lv1_prepare_20260504_205529_drone_3_battery.csv",
+        "front_head_lv1_prepare/drones/drone_4_106_pad4/front_head_lv1_prepare_20260504_205529_drone_4_battery.csv",
+        "front_head_lv1_prepare/drones/drone_5_107_pad5/front_head_lv1_prepare_20260504_205529_drone_5_battery.csv",
+        "front_head_lv1_prepare/front_head_lv1_prepare_20260504_205529_all_battery.csv"
+      ],
+      "image_files": [],
+      "drones": [
+        {
+          "ip": "192.168.0.101",
+          "ip_suffix": "101",
+          "drone_number": "1",
+          "battery_id": "B06",
+          "takeoff_order": "1",
+          "role": "front_1",
+          "mission_pad": "1",
+          "grid_column": "0",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.102",
+          "ip_suffix": "102",
+          "drone_number": "2",
+          "battery_id": "B04",
+          "takeoff_order": "2",
+          "role": "front_2",
+          "mission_pad": "2",
+          "grid_column": "1",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.103",
+          "ip_suffix": "103",
+          "drone_number": "3",
+          "battery_id": "B07",
+          "takeoff_order": "3",
+          "role": "front_3",
+          "mission_pad": "3",
+          "grid_column": "2",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.106",
+          "ip_suffix": "106",
+          "drone_number": "4",
+          "battery_id": "B10",
+          "takeoff_order": "4",
+          "role": "front_4",
+          "mission_pad": "4",
+          "grid_column": "3",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.107",
+          "ip_suffix": "107",
+          "drone_number": "5",
+          "battery_id": "B08",
+          "takeoff_order": "5",
+          "role": "front_5",
+          "mission_pad": "5",
+          "grid_column": "4",
+          "grid_row": "0"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "experiment_id": "front_head_lv1_prepare",
+      "short_id": "prepare",
+      "formation": "front",
+      "wind_direction": "head wind",
+      "wind_speed": "Level1",
+      "status": "planned",
+      "created_at": "2026-05-04T20:42:54",
+      "updated_at": "2026-05-04T20:42:54",
+      "coordination_files": [],
+      "battery_files": [],
+      "image_files": [],
+      "drones": [
+        {
+          "ip": "192.168.0.101",
+          "ip_suffix": "101",
+          "drone_number": "1",
+          "battery_id": "B03",
+          "takeoff_order": "1",
+          "role": "front_1",
+          "mission_pad": "1",
+          "grid_column": "0",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.102",
+          "ip_suffix": "102",
+          "drone_number": "2",
+          "battery_id": "B01",
+          "takeoff_order": "2",
+          "role": "front_2",
+          "mission_pad": "2",
+          "grid_column": "1",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.103",
+          "ip_suffix": "103",
+          "drone_number": "3",
+          "battery_id": "B05",
+          "takeoff_order": "3",
+          "role": "front_3",
+          "mission_pad": "3",
+          "grid_column": "2",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.106",
+          "ip_suffix": "106",
+          "drone_number": "4",
+          "battery_id": "B02",
+          "takeoff_order": "4",
+          "role": "front_4",
+          "mission_pad": "4",
+          "grid_column": "3",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.107",
+          "ip_suffix": "107",
+          "drone_number": "5",
+          "battery_id": "B09",
+          "takeoff_order": "5",
+          "role": "front_5",
+          "mission_pad": "5",
+          "grid_column": "4",
+          "grid_row": "0"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "experiment_id": "front_head_lv1_002",
+      "short_id": "front_head_lv1_002",
+      "formation": "front",
+      "wind_direction": "head wind",
+      "wind_speed": "Level1",
+      "status": "planned",
+      "created_at": "2026-05-05T11:32:58",
+      "updated_at": "2026-05-05T12:28:07",
+      "coordination_files": [
+        "front_head_lv1_001/drones/drone_1_101_pad1/front_head_lv1_001_20260504_205930_drone_1_coordination.csv",
+        "front_head_lv1_001/drones/drone_2_102_pad2/front_head_lv1_001_20260504_205930_drone_2_coordination.csv",
+        "front_head_lv1_001/drones/drone_3_103_pad3/front_head_lv1_001_20260504_205930_drone_3_coordination.csv",
+        "front_head_lv1_001/drones/drone_4_106_pad4/front_head_lv1_001_20260504_205930_drone_4_coordination.csv",
+        "front_head_lv1_001/drones/drone_5_107_pad5/front_head_lv1_001_20260504_205930_drone_5_coordination.csv",
+        "front_head_lv1_001/front_head_lv1_001_20260504_205930_all_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_1_101_pad1/front_head_lv1_prepare_20260504_205529_drone_1_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_2_102_pad2/front_head_lv1_prepare_20260504_205529_drone_2_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_3_103_pad3/front_head_lv1_prepare_20260504_205529_drone_3_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_4_106_pad4/front_head_lv1_prepare_20260504_205529_drone_4_coordination.csv",
+        "front_head_lv1_prepare/drones/drone_5_107_pad5/front_head_lv1_prepare_20260504_205529_drone_5_coordination.csv",
+        "front_head_lv1_prepare/front_head_lv1_prepare_20260504_205529_all_coordination.csv",
+        "front_head_lv1_002/drones/drone_1_101_pad1/front_head_lv1_002_20260505_113640_drone_1_coordination.csv",
+        "front_head_lv1_002/drones/drone_2_102_pad2/front_head_lv1_002_20260505_113640_drone_2_coordination.csv",
+        "front_head_lv1_002/drones/drone_3_103_pad3/front_head_lv1_002_20260505_113640_drone_3_coordination.csv",
+        "front_head_lv1_002/drones/drone_4_106_pad4/front_head_lv1_002_20260505_113640_drone_4_coordination.csv",
+        "front_head_lv1_002/drones/drone_5_107_pad5/front_head_lv1_002_20260505_113640_drone_5_coordination.csv",
+        "front_head_lv1_002/front_head_lv1_002_20260505_113640_all_coordination.csv"
+      ],
+      "battery_files": [
+        "front_head_lv1_001/drones/drone_1_101_pad1/front_head_lv1_001_20260504_205930_drone_1_battery.csv",
+        "front_head_lv1_001/drones/drone_2_102_pad2/front_head_lv1_001_20260504_205930_drone_2_battery.csv",
+        "front_head_lv1_001/drones/drone_3_103_pad3/front_head_lv1_001_20260504_205930_drone_3_battery.csv",
+        "front_head_lv1_001/drones/drone_4_106_pad4/front_head_lv1_001_20260504_205930_drone_4_battery.csv",
+        "front_head_lv1_001/drones/drone_5_107_pad5/front_head_lv1_001_20260504_205930_drone_5_battery.csv",
+        "front_head_lv1_001/front_head_lv1_001_20260504_205930_all_battery.csv",
+        "front_head_lv1_prepare/drones/drone_1_101_pad1/front_head_lv1_prepare_20260504_205529_drone_1_battery.csv",
+        "front_head_lv1_prepare/drones/drone_2_102_pad2/front_head_lv1_prepare_20260504_205529_drone_2_battery.csv",
+        "front_head_lv1_prepare/drones/drone_3_103_pad3/front_head_lv1_prepare_20260504_205529_drone_3_battery.csv",
+        "front_head_lv1_prepare/drones/drone_4_106_pad4/front_head_lv1_prepare_20260504_205529_drone_4_battery.csv",
+        "front_head_lv1_prepare/drones/drone_5_107_pad5/front_head_lv1_prepare_20260504_205529_drone_5_battery.csv",
+        "front_head_lv1_prepare/front_head_lv1_prepare_20260504_205529_all_battery.csv",
+        "front_head_lv1_002/drones/drone_1_101_pad1/front_head_lv1_002_20260505_113640_drone_1_battery.csv",
+        "front_head_lv1_002/drones/drone_2_102_pad2/front_head_lv1_002_20260505_113640_drone_2_battery.csv",
+        "front_head_lv1_002/drones/drone_3_103_pad3/front_head_lv1_002_20260505_113640_drone_3_battery.csv",
+        "front_head_lv1_002/drones/drone_4_106_pad4/front_head_lv1_002_20260505_113640_drone_4_battery.csv",
+        "front_head_lv1_002/drones/drone_5_107_pad5/front_head_lv1_002_20260505_113640_drone_5_battery.csv",
+        "front_head_lv1_002/front_head_lv1_002_20260505_113640_all_battery.csv"
+      ],
+      "image_files": [],
+      "drones": [
+        {
+          "ip": "192.168.0.101",
+          "ip_suffix": "101",
+          "drone_number": "1",
+          "battery_id": "B04",
+          "takeoff_order": "1",
+          "role": "front_1",
+          "mission_pad": "1",
+          "grid_column": "0",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.102",
+          "ip_suffix": "102",
+          "drone_number": "2",
+          "battery_id": "B07",
+          "takeoff_order": "2",
+          "role": "front_2",
+          "mission_pad": "2",
+          "grid_column": "1",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.103",
+          "ip_suffix": "103",
+          "drone_number": "3",
+          "battery_id": "B10",
+          "takeoff_order": "3",
+          "role": "front_3",
+          "mission_pad": "3",
+          "grid_column": "2",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.106",
+          "ip_suffix": "106",
+          "drone_number": "4",
+          "battery_id": "B08",
+          "takeoff_order": "4",
+          "role": "front_4",
+          "mission_pad": "4",
+          "grid_column": "3",
+          "grid_row": "0"
+        },
+        {
+          "ip": "192.168.0.107",
+          "ip_suffix": "107",
+          "drone_number": "5",
+          "battery_id": "B06",
+          "takeoff_order": "5",
+          "role": "front_5",
+          "mission_pad": "5",
+          "grid_column": "4",
+          "grid_row": "0"
+        }
+      ],
+      "notes": ""
+    }
+  ],
+  "batteries": [
+    {
+      "battery_id": "B01"
+    },
+    {
+      "battery_id": "B02"
+    },
+    {
+      "battery_id": "B03"
+    },
+    {
+      "battery_id": "B04"
+    },
+    {
+      "battery_id": "B05"
+    },
+    {
+      "battery_id": "B06"
+    },
+    {
+      "battery_id": "B07"
+    },
+    {
+      "battery_id": "B08"
+    },
+    {
+      "battery_id": "B09"
+    },
+    {
+      "battery_id": "B10"
+    }
+  ]
+}

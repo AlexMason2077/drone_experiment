@@ -1,0 +1,19 @@
+generated_at,reset_trial_id,dataset_id,dataset_label,is_mean,actual_trial_id,display_trial_id,drone_name,drone_ip,drone_role,battery_drop,share_pct,total_drop,charging_time_1_pad,charging_time_2_pads,charging_time_3_pads
+2026-04-29T14:27:59,0,trial_1,Trial 1,False,1,1,drone_left,192.168.0.102,left,11.0,36.666666666666664,30.0,30.0,19.0,11.0
+2026-04-29T14:27:59,0,trial_1,Trial 1,False,1,1,drone_middle,192.168.0.101,middle,10.0,33.33333333333333,30.0,30.0,19.0,11.0
+2026-04-29T14:27:59,0,trial_1,Trial 1,False,1,1,drone_right,192.168.0.103,right,9.0,30.0,30.0,30.0,19.0,11.0
+2026-04-29T14:27:59,0,trial_2,Trial 2,False,2,2,drone_left,192.168.0.102,left,7.0,33.33333333333333,21.0,21.0,13.0,8.0
+2026-04-29T14:27:59,0,trial_2,Trial 2,False,2,2,drone_middle,192.168.0.101,middle,6.0,28.57142857142857,21.0,21.0,13.0,8.0
+2026-04-29T14:27:59,0,trial_2,Trial 2,False,2,2,drone_right,192.168.0.103,right,8.0,38.095238095238095,21.0,21.0,13.0,8.0
+2026-04-29T14:27:59,0,trial_3,Trial 3,False,3,3,drone_left,192.168.0.102,left,7.0,29.166666666666668,24.0,24.0,15.0,9.0
+2026-04-29T14:27:59,0,trial_3,Trial 3,False,3,3,drone_middle,192.168.0.101,middle,8.0,33.33333333333333,24.0,24.0,15.0,9.0
+2026-04-29T14:27:59,0,trial_3,Trial 3,False,3,3,drone_right,192.168.0.103,right,9.0,37.5,24.0,24.0,15.0,9.0
+2026-04-29T14:27:59,0,trial_4,Trial 4,False,4,4,drone_left,192.168.0.102,left,13.0,28.888888888888886,45.0,45.0,25.0,20.0
+2026-04-29T14:27:59,0,trial_4,Trial 4,False,4,4,drone_middle,192.168.0.101,middle,12.0,26.666666666666668,45.0,45.0,25.0,20.0
+2026-04-29T14:27:59,0,trial_4,Trial 4,False,4,4,drone_right,192.168.0.103,right,20.0,44.44444444444444,45.0,45.0,25.0,20.0
+2026-04-29T14:27:59,0,trial_5,Trial 5,False,5,5,drone_left,192.168.0.102,left,16.0,33.33333333333333,48.0,48.0,31.0,17.0
+2026-04-29T14:27:59,0,trial_5,Trial 5,False,5,5,drone_middle,192.168.0.101,middle,15.0,31.25,48.0,48.0,31.0,17.0
+2026-04-29T14:27:59,0,trial_5,Trial 5,False,5,5,drone_right,192.168.0.103,right,17.0,35.41666666666667,48.0,48.0,31.0,17.0
+2026-04-29T14:27:59,0,mean,Mean (5 trials),True,,mean,drone_left,192.168.0.102,left,10.8,32.142857142857146,33.6,33.599999999999994,21.0,12.6
+2026-04-29T14:27:59,0,mean,Mean (5 trials),True,,mean,drone_middle,192.168.0.101,middle,10.2,30.357142857142854,33.6,33.599999999999994,21.0,12.6
+2026-04-29T14:27:59,0,mean,Mean (5 trials),True,,mean,drone_right,192.168.0.103,right,12.6,37.5,33.6,33.599999999999994,21.0,12.6
