@@ -3080,13 +3080,27 @@ INDEX_TEMPLATE = """
       return baselineCells.find((cell) => Number(cell.dataset.col) === col && Number(cell.dataset.row) === row);
     }
 
+    function setBaselineDirection(direction) {
+      baselineDirectionInput.value = direction;
+      baselineDirectionDisplay.value = direction === "down" ? "↓ down" : "↑ up";
+      baselineArrowButtons.forEach((item) => item.classList.toggle("active", item.dataset.baselineDirection === direction));
+    }
+
+    function baselineTargetRow() {
+      if (!selectedBaselineCell) return null;
+      const startRow = Number(selectedBaselineCell.dataset.row);
+      const direction = baselineDirectionInput.value === "down" ? -1 : 1;
+      return startRow + direction * 5;
+    }
+
     function baselinePathFromSelection() {
       if (!selectedBaselineCell) return [];
       const col = Number(selectedBaselineCell.dataset.col);
       const startRow = Number(selectedBaselineCell.dataset.row);
       const direction = baselineDirectionInput.value === "down" ? -1 : 1;
+      const targetRow = baselineTargetRow();
       const path = [];
-      for (let row = startRow; row >= 0 && row <= topMissionRow; row += direction) {
+      for (let row = startRow; row !== targetRow + direction; row += direction) {
         const cell = baselineCellAt(col, row);
         if (cell) path.push(cell);
       }
@@ -3123,7 +3137,12 @@ INDEX_TEMPLATE = """
       baselineStartPadInput.value = selectedBaselineCell.dataset.pad;
       baselineStartColInput.value = selectedBaselineCell.dataset.col;
       baselineStartRowInput.value = selectedBaselineCell.dataset.row;
-      baselinePathPreview.textContent = `Path: ${pads.join(" -> ")}`;
+      const targetRow = baselineTargetRow();
+      if (targetRow < 0 || targetRow > topMissionRow) {
+        baselinePathPreview.textContent = "Select the opposite edge row so the 250cm path stays on mission pads.";
+        return;
+      }
+      baselinePathPreview.textContent = `250cm path: ${pads.join(" -> ")}`;
     }
 
     baselineCells.forEach((cell) => {
@@ -3135,15 +3154,19 @@ INDEX_TEMPLATE = """
 
     baselineArrowButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        const direction = button.dataset.baselineDirection;
-        baselineDirectionInput.value = direction;
-        baselineDirectionDisplay.value = direction === "down" ? "↓ down" : "↑ up";
-        baselineArrowButtons.forEach((item) => item.classList.toggle("active", item === button));
+        setBaselineDirection(button.dataset.baselineDirection);
         renderBaselinePath();
       });
     });
     if (baselineModeInput) {
-      baselineModeInput.addEventListener("change", renderBaselinePath);
+      baselineModeInput.addEventListener("change", () => {
+        if (baselineModeInput.value === "tail_forward_250") {
+          setBaselineDirection("down");
+        } else if (baselineModeInput.value === "head_forward_250") {
+          setBaselineDirection("up");
+        }
+        renderBaselinePath();
+      });
       renderBaselinePath();
     }
 
