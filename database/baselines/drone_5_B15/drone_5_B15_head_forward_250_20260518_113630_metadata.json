@@ -4,7 +4,7 @@
   "experiment_id": "drone_5_B15_head_forward_250_20260518_113630",
   "formation": "single_drone_baseline",
   "wind_direction": "head_forward_250",
-  "wind_speed": "up",
+  "wind_speed": "lv2",
   "drone_number": "5",
   "drone_name": "drone_5",
   "drone_ip": "192.168.0.107",
@@ -27,5 +27,7 @@
   "target_pad": 2,
   "target_row": 5,
   "landing_battery_percent": null,
-  "notes": "lv2"
+  "notes": "lv2",
+  "wind_level": "lv2",
+  "baseline_wind_level": "lv2"
 }
