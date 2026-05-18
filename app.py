@@ -88,6 +88,26 @@ WIND_SPEED_CODES = {
     "Level2": "lv2",
     "Level3": "lv3",
 }
+WIND_LEVEL_ALIASES = {
+    "lv1": "Level1",
+    "lv 1": "Level1",
+    "level1": "Level1",
+    "level 1": "Level1",
+    "l1": "Level1",
+    "1": "Level1",
+    "lv2": "Level2",
+    "lv 2": "Level2",
+    "level2": "Level2",
+    "level 2": "Level2",
+    "l2": "Level2",
+    "2": "Level2",
+    "lv3": "Level3",
+    "lv 3": "Level3",
+    "level3": "Level3",
+    "level 3": "Level3",
+    "l3": "Level3",
+    "3": "Level3",
+}
 
 
 app = Flask(__name__)
@@ -179,6 +199,37 @@ def human_size(num_bytes):
 
 def safe_slug(value):
     return "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in str(value))
+
+
+def normalize_wind_level(value):
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    normalized = text.lower().replace("_", " ")
+    if normalized in {"lv1", "lv 1", "level1", "level 1", "l1", "1"}:
+        return "lv1"
+    if normalized in {"lv2", "lv 2", "level2", "level 2", "l2", "2"}:
+        return "lv2"
+    if normalized in {"lv3", "lv 3", "level3", "level 3", "l3", "3"}:
+        return "lv3"
+    return text if text in {key for key, _ in BASELINE_WIND_LEVELS} else ""
+
+
+def wind_level_from_notes(notes):
+    text = str(notes or "").lower().replace("_", " ")
+    match = re.search(r"(?:^|[^a-z0-9])(?:lv|level|l)\s*([123])\b", text)
+    if match:
+        return f"lv{match.group(1)}"
+    return ""
+
+
+def baseline_wind_level(meta=None, notes=""):
+    meta = meta or {}
+    for key in ("baseline_wind_level", "wind_level"):
+        level = normalize_wind_level(meta.get(key))
+        if level:
+            return level
+    return wind_level_from_notes(notes or meta.get("notes", ""))
 
 
 def classify_file(path):
@@ -648,6 +699,8 @@ def scan_baseline_runs():
         folder = summary_path.parent
         timeseries = folder / f"{baseline_id}_timeseries.csv"
         metadata = folder / f"{baseline_id}_metadata.json"
+        meta = read_json_file(metadata) if metadata.exists() else {}
+        notes = row.get("notes", meta.get("notes", ""))
         plots_dir = folder / "plots"
         plots = []
         if plots_dir.exists():
@@ -665,6 +718,8 @@ def scan_baseline_runs():
             "mode": row.get("mode", ""),
             "wind_level": row.get("wind_level", ""),
             "direction": row.get("direction", ""),
+            "wind_level": baseline_wind_level(meta, notes),
+            "notes": notes,
             "baseline_path": row.get("baseline_path", ""),
             "duration_sec": row.get("duration_sec", ""),
             "battery_start": row.get("battery_start", ""),
@@ -689,6 +744,7 @@ def scan_baseline_runs():
         metadata_candidates = sorted(folder.glob(f"{baseline_id}_metadata.json"), key=lambda item: item.stat().st_mtime, reverse=True)
         metadata = metadata_candidates[0] if metadata_candidates else None
         meta = read_json_file(metadata) if metadata else {}
+        notes = meta.get("notes", "")
         coordination = latest_archive_file(folder, f"{baseline_id}_*_all_coordination.csv")
         plots_dir = folder / "plots"
         plots = []
@@ -712,6 +768,8 @@ def scan_baseline_runs():
             "mode": meta.get("mode", row.get("wind_direction", "")),
             "wind_level": meta.get("wind_level", row.get("wind_level", "")),
             "direction": meta.get("direction", row.get("wind_speed", "")),
+            "wind_level": baseline_wind_level(meta, notes),
+            "notes": notes,
             "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
             "duration_sec": row.get("node_duration_sec", row.get("hover_duration_sec", "")),
             "battery_start": row.get("battery_hover_start", ""),
@@ -776,6 +834,8 @@ def scan_baseline_runs():
             "mode": meta.get("mode", ""),
             "wind_level": meta.get("wind_level", ""),
             "direction": meta.get("direction", ""),
+            "wind_level": baseline_wind_level(meta),
+            "notes": meta.get("notes", ""),
             "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
             "duration_sec": duration or "",
             "battery_start": battery_start,
@@ -804,7 +864,7 @@ def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None, wi
     drone_number = drone_number or []
     battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
     mode = mode or []
-    wind_level = wind_level or []
+    wind_level = [normalize_wind_level(value) for value in (wind_level or []) if normalize_wind_level(value)]
     filtered = []
     for run in runs:
         if not value_matches_filter(run.get("drone_number"), drone_number):
@@ -823,7 +883,7 @@ def baseline_summary_key(drone_number=None, battery_id=None, mode=None, wind_lev
     drone_number = drone_number or []
     battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
     mode = mode or []
-    wind_level = wind_level or []
+    wind_level = [normalize_wind_level(value) for value in (wind_level or []) if normalize_wind_level(value)]
     parts = ["baseline"]
     if mode:
         parts.append("mode_" + "_".join(safe_slug(value) for value in mode))
@@ -1282,6 +1342,7 @@ def start_baseline_process(form):
     start_col = str(form.get("baseline_start_col", "")).strip()
     start_row = str(form.get("baseline_start_row", "")).strip()
     direction = str(form.get("baseline_direction", "up")).strip()
+    wind_level = normalize_wind_level(form.get("baseline_wind_level", ""))
     notes = str(form.get("baseline_notes", "")).strip()
 
     if drone_number not in DRONE_NUMBER_TO_IP_SUFFIX:
@@ -1330,6 +1391,8 @@ def start_baseline_process(form):
     if start_row:
         command.extend(["--start-row", start_row])
     command.extend(["--direction", direction])
+    if wind_level:
+        command.extend(["--wind-level", wind_level])
     if notes:
         command.extend(["--notes", notes])
 
@@ -1364,10 +1427,10 @@ def start_baseline_process(form):
             "ip": ip,
             "battery_id": battery_id,
             "mode": mode,
-            "wind_level": wind_level,
             "direction": direction,
+            "wind_level": wind_level,
         },
-        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode} / {wind_level}"],
+        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode}"],
     )
     thread = threading.Thread(target=monitor_experiment_process, args=(process,), daemon=True)
     thread.start()
@@ -1393,7 +1456,7 @@ def index():
         "drone_number": selected_values(request.args, "baseline_drone"),
         "battery_id": selected_values(request.args, "baseline_battery", normalize_battery_id),
         "mode": selected_values(request.args, "baseline_mode"),
-        "wind_level": selected_values(request.args, "baseline_wind_level"),
+        "wind_level": selected_values(request.args, "baseline_wind_level", normalize_wind_level),
     }
     baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
     baseline_summary_plot = (
@@ -1659,18 +1722,18 @@ BASELINE_WIND_LEVEL_COLORS = {
 
 
 def normalize_baseline_wind_level(value):
-    value = str(value or "").strip()
-    if value.lower() in {"lv1", "level1"}:
-        return "lv1"
-    if value.lower() in {"lv2", "level2"}:
-        return "lv2"
-    return value
+    return normalize_wind_level(value) or str(value or "").strip()
 
 
-def baseline_wind_level(run):
+def baseline_wind_level(run=None, notes=""):
+    run = run or {}
     level = normalize_baseline_wind_level(run.get("wind_level"))
     if not level:
+        level = normalize_baseline_wind_level(run.get("baseline_wind_level"))
+    if not level:
         level = normalize_baseline_wind_level(run.get("wind_speed"))
+    if not level:
+        level = wind_level_from_notes(notes or run.get("notes", ""))
     return level or "unknown"
 
 
@@ -1679,11 +1742,7 @@ def baseline_wind_color(run):
 
 
 def baseline_run_label(run):
-    wind_level = baseline_wind_level(run)
-    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode")]
-    if wind_level != "unknown":
-        label_parts.append(wind_level)
-    label_parts.append(run.get("run_id"))
+    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode"), run.get("run_id")]
     return " ".join(str(part) for part in label_parts if part)
 
 
@@ -2017,7 +2076,7 @@ def generate_baseline_summary():
     drone_number = selected_values(request.form, "baseline_drone")
     battery_id = selected_values(request.form, "baseline_battery", normalize_battery_id)
     mode = selected_values(request.form, "baseline_mode") or ["hover"]
-    wind_level = selected_values(request.form, "baseline_wind_level")
+    wind_level = selected_values(request.form, "baseline_wind_level", normalize_wind_level)
     runs = filter_baseline_runs(
         scan_baseline_runs(),
         drone_number=drone_number,
@@ -3131,6 +3190,9 @@ INDEX_TEMPLATE = """
                 <div class="small">
                   duration {{ run.duration_sec }}s · drop {{ run.battery_drop }}%{% if run.end_reason %} · {{ run.end_reason }}{% endif %}
                 </div>
+                {% if run.notes %}
+                  <div class="small">{{ run.notes }}</div>
+                {% endif %}
                 <div class="record-actions">
                   {% if run.timeseries_relpath %}<a class="badge" href="{{ url_for('file_detail', relpath=run.timeseries_relpath) }}">timeseries</a>{% endif %}
                   {% if run.metadata_relpath %}<a class="badge" href="{{ url_for('file_detail', relpath=run.metadata_relpath) }}">metadata</a>{% endif %}

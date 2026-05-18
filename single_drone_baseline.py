@@ -68,6 +68,10 @@ MODE_LABELS = {
     "side_forward_250": "side wind lateral 250cm",
 }
 WIND_LEVELS = {"lv1", "lv2"}
+WIND_LEVEL_CODES = {
+    "lv1": "lv1",
+    "lv2": "lv2",
+}
 
 MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
@@ -1084,7 +1088,13 @@ def run_baseline(args):
     ip = f"{IP_PREFIX}{DRONE_NUMBER_TO_IP_SUFFIX[drone_number]}"
     drone_name = f"drone_{drone_number}"
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    baseline_id = f"{drone_name}_{battery_id}_{safe_name(args.mode)}_{run_id}"
+    wind_level = args.wind_level or ""
+    wind_tag = WIND_LEVEL_CODES.get(wind_level, safe_name(wind_level).lower()) if wind_level else ""
+    baseline_id_parts = [drone_name, battery_id, safe_name(args.mode)]
+    if wind_tag:
+        baseline_id_parts.append(wind_tag)
+    baseline_id_parts.append(run_id)
+    baseline_id = "_".join(baseline_id_parts)
     baseline_dir = BASELINE_DIR / f"{drone_name}_{battery_id}"
     metadata_path = baseline_dir / f"{baseline_id}_metadata.json"
 
@@ -1102,6 +1112,7 @@ def run_baseline(args):
         "mode": args.mode,
         "wind_level": args.wind_level,
         "direction": args.direction,
+        "baseline_wind_level": wind_level,
         "baseline_path": path_text,
         "start_pad": args.start_pad if args.mode != "hover" else "",
         "mission_pad": args.start_pad if args.mode != "hover" else "",
@@ -1160,6 +1171,7 @@ def run_baseline(args):
         "start_col": start_col,
         "start_row": start_row,
         "direction": args.direction,
+        "baseline_wind_level": wind_level,
         "baseline_path": path_pads,
         "movement_distance_cm": movement_distance_cm if args.mode != "hover" else 0,
         "target_pad": move_config.get("target_pad"),
