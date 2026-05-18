@@ -51,6 +51,7 @@ BASELINE_DIRECTIONS = [
     ("up", "↑"),
     ("down", "↓"),
 ]
+BASELINE_WIND_LEVELS = ["Level1", "Level2", "Level3"]
 MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
     [2, 3, 4, 5, 6, 7],
@@ -83,6 +84,26 @@ WIND_SPEED_CODES = {
     "Level1": "lv1",
     "Level2": "lv2",
     "Level3": "lv3",
+}
+WIND_LEVEL_ALIASES = {
+    "lv1": "Level1",
+    "lv 1": "Level1",
+    "level1": "Level1",
+    "level 1": "Level1",
+    "l1": "Level1",
+    "1": "Level1",
+    "lv2": "Level2",
+    "lv 2": "Level2",
+    "level2": "Level2",
+    "level 2": "Level2",
+    "l2": "Level2",
+    "2": "Level2",
+    "lv3": "Level3",
+    "lv 3": "Level3",
+    "level3": "Level3",
+    "level 3": "Level3",
+    "l3": "Level3",
+    "3": "Level3",
 }
 
 
@@ -175,6 +196,30 @@ def human_size(num_bytes):
 
 def safe_slug(value):
     return "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in str(value))
+
+
+def normalize_wind_level(value):
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    return WIND_LEVEL_ALIASES.get(text.lower().replace("_", " "), text if text in BASELINE_WIND_LEVELS else "")
+
+
+def wind_level_from_notes(notes):
+    text = str(notes or "").lower().replace("_", " ")
+    match = re.search(r"(?:^|[^a-z0-9])(?:lv|level|l)\s*([123])\b", text)
+    if match:
+        return f"Level{match.group(1)}"
+    return ""
+
+
+def baseline_wind_level(meta=None, notes=""):
+    meta = meta or {}
+    for key in ("baseline_wind_level", "wind_level"):
+        level = normalize_wind_level(meta.get(key))
+        if level:
+            return level
+    return wind_level_from_notes(notes or meta.get("notes", ""))
 
 
 def classify_file(path):
@@ -635,6 +680,8 @@ def scan_baseline_runs():
         folder = summary_path.parent
         timeseries = folder / f"{baseline_id}_timeseries.csv"
         metadata = folder / f"{baseline_id}_metadata.json"
+        meta = read_json_file(metadata) if metadata.exists() else {}
+        notes = row.get("notes", meta.get("notes", ""))
         plots_dir = folder / "plots"
         plots = []
         if plots_dir.exists():
@@ -651,6 +698,8 @@ def scan_baseline_runs():
             "battery_id": normalize_battery_id(row.get("battery_id", "")),
             "mode": row.get("mode", ""),
             "direction": row.get("direction", ""),
+            "wind_level": baseline_wind_level(meta, notes),
+            "notes": notes,
             "baseline_path": row.get("baseline_path", ""),
             "duration_sec": row.get("duration_sec", ""),
             "battery_start": row.get("battery_start", ""),
@@ -675,6 +724,7 @@ def scan_baseline_runs():
         metadata_candidates = sorted(folder.glob(f"{baseline_id}_metadata.json"), key=lambda item: item.stat().st_mtime, reverse=True)
         metadata = metadata_candidates[0] if metadata_candidates else None
         meta = read_json_file(metadata) if metadata else {}
+        notes = meta.get("notes", "")
         coordination = latest_archive_file(folder, f"{baseline_id}_*_all_coordination.csv")
         plots_dir = folder / "plots"
         plots = []
@@ -697,6 +747,8 @@ def scan_baseline_runs():
             "battery_id": normalize_battery_id(row.get("battery_id", meta.get("battery_id", ""))),
             "mode": meta.get("mode", row.get("wind_direction", "")),
             "direction": meta.get("direction", row.get("wind_speed", "")),
+            "wind_level": baseline_wind_level(meta, notes),
+            "notes": notes,
             "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
             "duration_sec": row.get("node_duration_sec", row.get("hover_duration_sec", "")),
             "battery_start": row.get("battery_hover_start", ""),
@@ -760,6 +812,8 @@ def scan_baseline_runs():
             "battery_id": normalize_battery_id(meta.get("battery_id", "")),
             "mode": meta.get("mode", ""),
             "direction": meta.get("direction", ""),
+            "wind_level": baseline_wind_level(meta),
+            "notes": meta.get("notes", ""),
             "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
             "duration_sec": duration or "",
             "battery_start": battery_start,
@@ -780,13 +834,15 @@ def baseline_filter_options(runs):
         "drones": sorted({run["drone_number"] for run in runs if run.get("drone_number")}, key=lambda value: int(value)),
         "batteries": sorted({run["battery_id"] for run in runs if run.get("battery_id")}),
         "modes": sorted({run["mode"] for run in runs if run.get("mode")}),
+        "wind_levels": BASELINE_WIND_LEVELS,
     }
 
 
-def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None):
+def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None, wind_level=None):
     drone_number = drone_number or []
     battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
     mode = mode or []
+    wind_level = [normalize_wind_level(value) for value in (wind_level or []) if normalize_wind_level(value)]
     filtered = []
     for run in runs:
         if not value_matches_filter(run.get("drone_number"), drone_number):
@@ -795,17 +851,22 @@ def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None):
             continue
         if not value_matches_filter(run.get("mode"), mode):
             continue
+        if not value_matches_filter(run.get("wind_level"), wind_level):
+            continue
         filtered.append(run)
     return filtered
 
 
-def baseline_summary_key(drone_number=None, battery_id=None, mode=None):
+def baseline_summary_key(drone_number=None, battery_id=None, mode=None, wind_level=None):
     drone_number = drone_number or []
     battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
     mode = mode or []
+    wind_level = [normalize_wind_level(value) for value in (wind_level or []) if normalize_wind_level(value)]
     parts = ["baseline"]
     if mode:
         parts.append("mode_" + "_".join(safe_slug(value) for value in mode))
+    if wind_level:
+        parts.append("wind_" + "_".join(WIND_SPEED_CODES.get(value, safe_slug(value)) for value in wind_level))
     if drone_number:
         parts.append("drone_" + "_".join(safe_slug(value) for value in drone_number))
     if battery_id:
@@ -1258,6 +1319,7 @@ def start_baseline_process(form):
     start_col = str(form.get("baseline_start_col", "")).strip()
     start_row = str(form.get("baseline_start_row", "")).strip()
     direction = str(form.get("baseline_direction", "up")).strip()
+    wind_level = normalize_wind_level(form.get("baseline_wind_level", ""))
     notes = str(form.get("baseline_notes", "")).strip()
 
     if drone_number not in DRONE_NUMBER_TO_IP_SUFFIX:
@@ -1301,6 +1363,8 @@ def start_baseline_process(form):
     if start_row:
         command.extend(["--start-row", start_row])
     command.extend(["--direction", direction])
+    if wind_level:
+        command.extend(["--wind-level", wind_level])
     if notes:
         command.extend(["--notes", notes])
 
@@ -1336,8 +1400,9 @@ def start_baseline_process(form):
             "battery_id": battery_id,
             "mode": mode,
             "direction": direction,
+            "wind_level": wind_level,
         },
-        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode}"],
+        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode} / {wind_level or 'wind unspecified'}"],
     )
     thread = threading.Thread(target=monitor_experiment_process, args=(process,), daemon=True)
     thread.start()
@@ -1363,6 +1428,7 @@ def index():
         "drone_number": selected_values(request.args, "baseline_drone"),
         "battery_id": selected_values(request.args, "baseline_battery", normalize_battery_id),
         "mode": selected_values(request.args, "baseline_mode"),
+        "wind_level": selected_values(request.args, "baseline_wind_level", normalize_wind_level),
     }
     baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
     baseline_summary_plot = (
@@ -1412,6 +1478,7 @@ def index():
         battery_window=EXPERIMENT_BATTERY_WINDOW,
         baseline_modes=BASELINE_MODES,
         baseline_directions=BASELINE_DIRECTIONS,
+        baseline_wind_levels=BASELINE_WIND_LEVELS,
         drone_options=sorted(DRONE_NUMBER_TO_IP_SUFFIX.items(), key=lambda item: int(item[0])),
     )
 
@@ -1618,7 +1685,7 @@ def baseline_time_value(row):
 
 
 def baseline_run_label(run):
-    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode"), run.get("run_id")]
+    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode"), run.get("wind_level"), run.get("run_id")]
     return " ".join(str(part) for part in label_parts if part)
 
 
@@ -1961,13 +2028,15 @@ def generate_baseline_summary():
     drone_number = selected_values(request.form, "baseline_drone")
     battery_id = selected_values(request.form, "baseline_battery", normalize_battery_id)
     mode = selected_values(request.form, "baseline_mode") or ["hover"]
+    wind_level = selected_values(request.form, "baseline_wind_level", normalize_wind_level)
     runs = filter_baseline_runs(
         scan_baseline_runs(),
         drone_number=drone_number,
         battery_id=battery_id,
         mode=mode,
+        wind_level=wind_level,
     )
-    key = baseline_summary_key(drone_number, battery_id, mode)
+    key = baseline_summary_key(drone_number, battery_id, mode, wind_level)
     output_path = BASELINE_DIR / "summary" / "plots" / f"{key}_summary.png"
     try:
         generate_baseline_summary_plot(runs, output_path)
@@ -1977,6 +2046,7 @@ def generate_baseline_summary():
         "baseline_drone": drone_number,
         "baseline_battery": battery_id,
         "baseline_mode": mode,
+        "baseline_wind_level": wind_level,
     }, doseq=True)
     return redirect(url_for("index") + (f"?{query}" if query else ""))
 
@@ -3013,6 +3083,24 @@ INDEX_TEMPLATE = """
                   {% endfor %}
                 </div>
               </details>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Wind Level</span>
+                  <span class="filter-summary">{% if selected_baseline_filters.wind_level %}{{ selected_baseline_filters.wind_level|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_baseline_filters.wind_level %}checked{% endif %}>
+                    <span class="check-text">All wind levels</span>
+                  </label>
+                  {% for wind_level in baseline_filter_options.wind_levels %}
+                    <label class="check-pill">
+                      <input type="checkbox" name="baseline_wind_level" value="{{ wind_level }}" data-filter-option {% if wind_level in selected_baseline_filters.wind_level %}checked{% endif %}>
+                      <span class="check-text">{{ wind_level }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </details>
             </div>
             <button type="submit">Apply baseline filter</button>
           </form>
@@ -3020,6 +3108,7 @@ INDEX_TEMPLATE = """
             {% for drone_number in selected_baseline_filters.drone_number %}<input type="hidden" name="baseline_drone" value="{{ drone_number }}">{% endfor %}
             {% for battery_id in selected_baseline_filters.battery_id %}<input type="hidden" name="baseline_battery" value="{{ battery_id }}">{% endfor %}
             {% for mode in selected_baseline_filters.mode %}<input type="hidden" name="baseline_mode" value="{{ mode }}">{% endfor %}
+            {% for wind_level in selected_baseline_filters.wind_level %}<input type="hidden" name="baseline_wind_level" value="{{ wind_level }}">{% endfor %}
             <button class="secondary" type="submit">Generate baseline summary</button>
           </form>
           {% if baseline_summary_plot %}
@@ -3046,13 +3135,16 @@ INDEX_TEMPLATE = """
                         <span class="file-name">{{ run.baseline_id }}</span>
                       {% endif %}
                     </h3>
-                    <div class="small">drone {{ run.drone_number }} · {{ run.battery_id }} · {{ run.mode }} · {{ run.mtime }}</div>
+                    <div class="small">drone {{ run.drone_number }} · {{ run.battery_id }} · {{ run.mode }}{% if run.wind_level %} · {{ run.wind_level }}{% endif %} · {{ run.mtime }}</div>
                   </div>
                   <span class="badge">{{ run.battery_start }}% -> {{ run.battery_end }}%</span>
                 </div>
                 <div class="small">
                   duration {{ run.duration_sec }}s · drop {{ run.battery_drop }}%{% if run.end_reason %} · {{ run.end_reason }}{% endif %}
                 </div>
+                {% if run.notes %}
+                  <div class="small">{{ run.notes }}</div>
+                {% endif %}
                 <div class="record-actions">
                   {% if run.timeseries_relpath %}<a class="badge" href="{{ url_for('file_detail', relpath=run.timeseries_relpath) }}">timeseries</a>{% endif %}
                   {% if run.metadata_relpath %}<a class="badge" href="{{ url_for('file_detail', relpath=run.metadata_relpath) }}">metadata</a>{% endif %}
@@ -3274,6 +3366,14 @@ INDEX_TEMPLATE = """
               <label>Flight Direction
                 <input id="baselineDirectionDisplay" value="↑ up" readonly>
                 <input id="baselineDirectionInput" type="hidden" name="baseline_direction" value="up">
+              </label>
+              <label>Wind Level
+                <select name="baseline_wind_level">
+                  <option value="">not set</option>
+                  {% for wind_level in baseline_wind_levels %}
+                    <option value="{{ wind_level }}">{{ wind_level }}</option>
+                  {% endfor %}
+                </select>
               </label>
             </div>
             <div id="baselineMissionPadPanel">
