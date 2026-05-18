@@ -51,6 +51,10 @@ BASELINE_DIRECTIONS = [
     ("up", "↑"),
     ("down", "↓"),
 ]
+BASELINE_WIND_LEVELS = [
+    ("lv1", "lv1"),
+    ("lv2", "lv2"),
+]
 MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
     [2, 3, 4, 5, 6, 7],
@@ -200,14 +204,22 @@ def short_experiment_id(raw_id):
     return text
 
 
-def build_full_experiment_id(raw_id, formation, wind_direction, wind_speed):
+def short_new_experiment_id(raw_id):
+    short_id = short_experiment_id(raw_id)
+    if short_id.startswith("new_"):
+        return short_id
+    return f"new_{short_id}"
+
+
+def build_full_experiment_id(raw_id, formation, wind_direction, wind_speed, new_prefix=False):
     text = str(raw_id or "").strip()
     if text and not text.isdigit() and "_" in text:
         return text
     formation_code = (formation or "custom").strip().lower().replace(" ", "_")
     direction_code = WIND_DIRECTION_CODES.get(wind_direction, (wind_direction or "wind").replace(" ", "_"))
     speed_code = WIND_SPEED_CODES.get(wind_speed, (wind_speed or "level").lower())
-    return f"{formation_code}_{direction_code}_{speed_code}_{short_experiment_id(text)}"
+    short_id = short_new_experiment_id(text) if new_prefix else short_experiment_id(text)
+    return f"{formation_code}_{direction_code}_{speed_code}_{short_id}"
 
 
 def normalize_drone_identifier(value):
@@ -383,10 +395,11 @@ def build_experiment_from_form(form):
         formation,
         wind_direction,
         wind_speed,
+        new_prefix=True,
     )
     return {
         "experiment_id": experiment_id,
-        "short_id": short_experiment_id(form.get("experiment_id", "").strip()),
+        "short_id": short_new_experiment_id(form.get("experiment_id", "").strip()),
         "formation": formation,
         "wind_direction": wind_direction,
         "wind_speed": wind_speed,
@@ -650,6 +663,7 @@ def scan_baseline_runs():
             "drone_ip": row.get("drone_ip", ""),
             "battery_id": normalize_battery_id(row.get("battery_id", "")),
             "mode": row.get("mode", ""),
+            "wind_level": row.get("wind_level", ""),
             "direction": row.get("direction", ""),
             "baseline_path": row.get("baseline_path", ""),
             "duration_sec": row.get("duration_sec", ""),
@@ -696,6 +710,7 @@ def scan_baseline_runs():
             "drone_ip": row.get("drone_ip", meta.get("drone_ip", "")),
             "battery_id": normalize_battery_id(row.get("battery_id", meta.get("battery_id", ""))),
             "mode": meta.get("mode", row.get("wind_direction", "")),
+            "wind_level": meta.get("wind_level", row.get("wind_level", "")),
             "direction": meta.get("direction", row.get("wind_speed", "")),
             "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
             "duration_sec": row.get("node_duration_sec", row.get("hover_duration_sec", "")),
@@ -759,6 +774,7 @@ def scan_baseline_runs():
             "drone_ip": meta.get("drone_ip", ""),
             "battery_id": normalize_battery_id(meta.get("battery_id", "")),
             "mode": meta.get("mode", ""),
+            "wind_level": meta.get("wind_level", ""),
             "direction": meta.get("direction", ""),
             "baseline_path": " -> ".join(str(item) for item in meta.get("baseline_path", [])),
             "duration_sec": duration or "",
@@ -780,13 +796,15 @@ def baseline_filter_options(runs):
         "drones": sorted({run["drone_number"] for run in runs if run.get("drone_number")}, key=lambda value: int(value)),
         "batteries": sorted({run["battery_id"] for run in runs if run.get("battery_id")}),
         "modes": sorted({run["mode"] for run in runs if run.get("mode")}),
+        "wind_levels": sorted({run["wind_level"] for run in runs if run.get("wind_level")}),
     }
 
 
-def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None):
+def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None, wind_level=None):
     drone_number = drone_number or []
     battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
     mode = mode or []
+    wind_level = wind_level or []
     filtered = []
     for run in runs:
         if not value_matches_filter(run.get("drone_number"), drone_number):
@@ -795,17 +813,22 @@ def filter_baseline_runs(runs, drone_number=None, battery_id=None, mode=None):
             continue
         if not value_matches_filter(run.get("mode"), mode):
             continue
+        if not value_matches_filter(run.get("wind_level"), wind_level):
+            continue
         filtered.append(run)
     return filtered
 
 
-def baseline_summary_key(drone_number=None, battery_id=None, mode=None):
+def baseline_summary_key(drone_number=None, battery_id=None, mode=None, wind_level=None):
     drone_number = drone_number or []
     battery_id = [normalize_battery_id(value) for value in (battery_id or []) if normalize_battery_id(value)]
     mode = mode or []
+    wind_level = wind_level or []
     parts = ["baseline"]
     if mode:
         parts.append("mode_" + "_".join(safe_slug(value) for value in mode))
+    if wind_level:
+        parts.append("wind_" + "_".join(safe_slug(value) for value in wind_level))
     if drone_number:
         parts.append("drone_" + "_".join(safe_slug(value) for value in drone_number))
     if battery_id:
@@ -1254,6 +1277,7 @@ def start_baseline_process(form):
     drone_number = str(form.get("baseline_drone_number", "")).strip()
     battery_id = normalize_battery_id(form.get("baseline_battery_id", ""))
     mode = str(form.get("baseline_mode", "")).strip()
+    wind_level = str(form.get("baseline_wind_level", "")).strip()
     start_pad = str(form.get("baseline_start_pad", "")).strip()
     start_col = str(form.get("baseline_start_col", "")).strip()
     start_row = str(form.get("baseline_start_row", "")).strip()
@@ -1267,6 +1291,9 @@ def start_baseline_process(form):
     valid_modes = {key for key, _ in BASELINE_MODES}
     if mode not in valid_modes:
         raise ValueError("Choose a valid baseline mode.")
+    valid_wind_levels = {key for key, _ in BASELINE_WIND_LEVELS}
+    if wind_level not in valid_wind_levels:
+        raise ValueError("Choose lv1 or lv2 for the baseline wind level.")
     if direction not in {"up", "down"}:
         raise ValueError("Choose a valid baseline direction.")
 
@@ -1293,6 +1320,8 @@ def start_baseline_process(form):
         battery_id,
         "--mode",
         mode,
+        "--wind-level",
+        wind_level,
     ]
     if start_pad:
         command.extend(["--start-pad", start_pad])
@@ -1335,9 +1364,10 @@ def start_baseline_process(form):
             "ip": ip,
             "battery_id": battery_id,
             "mode": mode,
+            "wind_level": wind_level,
             "direction": direction,
         },
-        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode}"],
+        output=[f"$ {' '.join(command)}", f"Baseline: drone {drone_number} ({ip}) / {battery_id} / {mode} / {wind_level}"],
     )
     thread = threading.Thread(target=monitor_experiment_process, args=(process,), daemon=True)
     thread.start()
@@ -1363,6 +1393,7 @@ def index():
         "drone_number": selected_values(request.args, "baseline_drone"),
         "battery_id": selected_values(request.args, "baseline_battery", normalize_battery_id),
         "mode": selected_values(request.args, "baseline_mode"),
+        "wind_level": selected_values(request.args, "baseline_wind_level"),
     }
     baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
     baseline_summary_plot = (
@@ -1370,7 +1401,7 @@ def index():
         f"{baseline_summary_key(**selected_baseline_filters)}_summary.png"
     )
     baseline_summary_extra_plots = []
-    for suffix in ("consumption_vs_start_battery", "stitched_100_to_40_curve"):
+    for suffix in ("consumption_vs_start_battery", "mean_drop_by_drone"):
         extra_path = baseline_summary_plot.with_name(f"{baseline_summary_plot.stem}_{suffix}.png")
         if extra_path.exists():
             baseline_summary_extra_plots.append(extra_path.relative_to(DATA_DIR).as_posix())
@@ -1412,6 +1443,7 @@ def index():
         battery_window=EXPERIMENT_BATTERY_WINDOW,
         baseline_modes=BASELINE_MODES,
         baseline_directions=BASELINE_DIRECTIONS,
+        baseline_wind_levels=BASELINE_WIND_LEVELS,
         drone_options=sorted(DRONE_NUMBER_TO_IP_SUFFIX.items(), key=lambda item: int(item[0])),
     )
 
@@ -1421,6 +1453,8 @@ def create_experiment():
     files, _ = scan_workspace()
     registry = load_registry()
     experiment = build_experiment_from_form(request.form)
+    if find_experiment_index(registry["experiments"], experiment["experiment_id"]) is not None:
+        abort(400, description=f"Experiment ID already exists: {experiment['experiment_id']}")
     validate_experiment_assignments(experiment)
     auto_attach_files(experiment, files)
     registry["experiments"].append(experiment)
@@ -1617,8 +1651,39 @@ def baseline_time_value(row):
     return None
 
 
+BASELINE_WIND_LEVEL_COLORS = {
+    "lv1": "#2f80a8",
+    "lv2": "#c95b4d",
+    "unknown": "#8b98a5",
+}
+
+
+def normalize_baseline_wind_level(value):
+    value = str(value or "").strip()
+    if value.lower() in {"lv1", "level1"}:
+        return "lv1"
+    if value.lower() in {"lv2", "level2"}:
+        return "lv2"
+    return value
+
+
+def baseline_wind_level(run):
+    level = normalize_baseline_wind_level(run.get("wind_level"))
+    if not level:
+        level = normalize_baseline_wind_level(run.get("wind_speed"))
+    return level or "unknown"
+
+
+def baseline_wind_color(run):
+    return BASELINE_WIND_LEVEL_COLORS.get(baseline_wind_level(run), BASELINE_WIND_LEVEL_COLORS["unknown"])
+
+
 def baseline_run_label(run):
-    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode"), run.get("run_id")]
+    wind_level = baseline_wind_level(run)
+    label_parts = [f"D{run.get('drone_number')}", run.get("battery_id"), run.get("mode")]
+    if wind_level != "unknown":
+        label_parts.append(wind_level)
+    label_parts.append(run.get("run_id"))
     return " ".join(str(part) for part in label_parts if part)
 
 
@@ -1685,6 +1750,7 @@ def generate_baseline_consumption_trend_plot(records, output_path):
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
 
     numeric_records = [
         record for record in records
@@ -1703,37 +1769,42 @@ def generate_baseline_consumption_trend_plot(records, output_path):
     ax_scatter, ax_sequence = axes
 
     groups = sorted({record["group"] for record in numeric_records})
-    colors = plt.cm.tab10.colors
-    for group_index, group in enumerate(groups):
+    for group in groups:
         group_records = [record for record in numeric_records if record["group"] == group]
         starts = [record["start"] for record in group_records]
         drops = [record["drop"] for record in group_records]
-        color = colors[group_index % len(colors)]
-        ax_scatter.scatter(starts, drops, s=55, label=group, color=color, alpha=0.85)
+        colors = [baseline_wind_color(record["run"]) for record in group_records]
+        ax_scatter.scatter(starts, drops, s=55, color=colors, alpha=0.88)
         if len(group_records) >= 2:
             ordered = sorted(group_records, key=lambda record: record["start"], reverse=True)
             ax_scatter.plot(
                 [record["start"] for record in ordered],
                 [record["drop"] for record in ordered],
-                color=color,
-                alpha=0.45,
-                linewidth=1.4,
+                color="#9fb7c9",
+                alpha=0.35,
+                linewidth=1.2,
             )
     ax_scatter.invert_xaxis()
     ax_scatter.set_title("Does each identical flight consume more as start battery gets lower?")
     ax_scatter.set_xlabel("Start battery before flight (%)")
     ax_scatter.set_ylabel("Battery drop for one forward flight (%)")
     ax_scatter.grid(True, alpha=0.25)
-    ax_scatter.legend(fontsize=8, loc="best")
+    wind_levels = sorted({baseline_wind_level(record["run"]) for record in numeric_records})
+    wind_handles = [
+        Line2D([0], [0], marker="o", color="none", markerfacecolor=BASELINE_WIND_LEVEL_COLORS.get(level, BASELINE_WIND_LEVEL_COLORS["unknown"]), markersize=7, label=level)
+        for level in wind_levels
+    ]
+    ax_scatter.legend(handles=wind_handles, title="Wind level", fontsize=8, title_fontsize=8, loc="best")
 
     x_positions = list(range(len(numeric_records)))
     labels = [record["label"] for record in numeric_records]
     starts = [record["start"] for record in numeric_records]
     ends = [record["end"] for record in numeric_records]
     drops = [record["drop"] for record in numeric_records]
-    ax_sequence.vlines(x_positions, ends, starts, color="#9fb7c9", linewidth=5, alpha=0.65, label="start to end range")
-    ax_sequence.scatter(x_positions, starts, color="#2f80a8", s=42, label="start")
-    ax_sequence.scatter(x_positions, ends, color="#c95b4d", s=42, label="end")
+    range_colors = [baseline_wind_color(record["run"]) for record in numeric_records]
+    ax_sequence.vlines(x_positions, ends, starts, color=range_colors, linewidth=5, alpha=0.65, label="start to end range")
+    ax_sequence.scatter(x_positions, starts, color=range_colors, s=42, marker="^", label="start")
+    ax_sequence.scatter(x_positions, ends, color=range_colors, s=42, marker="v", label="end")
     ax_sequence_twin = ax_sequence.twinx()
     ax_sequence_twin.plot(x_positions, drops, color="#216c5f", marker="o", linewidth=1.8, label="drop")
     ax_sequence.set_title("Repeated flights: start/end battery and consumed battery")
@@ -1753,95 +1824,66 @@ def generate_baseline_consumption_trend_plot(records, output_path):
     return output_path
 
 
-def normalized_drop_shape(points, start, end):
-    if not points:
-        if start is not None and end is not None and start > end:
-            return [0.0, 1.0]
-        return []
-    batteries = [point[1] for point in points]
-    series_start = start if start is not None else batteries[0]
-    series_end = end if end is not None else batteries[-1]
-    total_drop = series_start - series_end
-    if total_drop <= 0:
-        return []
-    shape = []
-    last_value = 0.0
-    for battery in batteries:
-        value = max(0.0, min(1.0, (series_start - battery) / total_drop))
-        if value >= last_value:
-            shape.append(value)
-            last_value = value
-    if not shape or shape[0] > 0:
-        shape.insert(0, 0.0)
-    if shape[-1] < 1:
-        shape.append(1.0)
-    return shape
-
-
-def generate_baseline_stitched_100_to_40_curve(records, output_path):
+def generate_baseline_mean_drop_by_drone_plot(records, output_path):
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    usable = [
-        record for record in records
-        if record["drop"] is not None and record["drop"] > 0
-    ]
-    if not usable:
+    grouped = defaultdict(list)
+    for record in records:
+        drop = record.get("drop")
+        if drop is None:
+            continue
+        run = record["run"]
+        drone_number = str(run.get("drone_number") or "").strip()
+        if not drone_number:
+            continue
+        grouped[(drone_number, baseline_wind_level(run))].append(drop)
+    if not grouped:
         return None
 
-    usable.sort(key=lambda record: (
-        record["run"].get("drone_number", ""),
-        record["run"].get("battery_id", ""),
-        record["run"].get("run_id", ""),
-    ))
+    def mean(values):
+        return sum(values) / len(values)
 
-    x_values = [0.0]
-    y_values = [100.0]
-    current_battery = 100.0
-    segment_labels = []
-    for record in usable:
-        if current_battery <= 40:
-            break
-        shape = normalized_drop_shape(record["points"], record["start"], record["end"])
-        if not shape:
-            continue
-        segment_drop = min(record["drop"], current_battery - 40)
-        segment_start_x = x_values[-1]
-        previous_x = x_values[-1]
-        previous_y = y_values[-1]
-        for shape_value in shape[1:]:
-            next_drop = segment_drop * shape_value
-            next_x = segment_start_x + next_drop
-            next_y = 100.0 - next_x
-            if next_y < 40:
-                next_y = 40.0
-                next_x = 60.0
-            if next_x >= previous_x and next_y <= previous_y:
-                x_values.append(next_x)
-                y_values.append(next_y)
-                previous_x = next_x
-                previous_y = next_y
-            if next_y <= 40:
-                break
-        segment_labels.append((segment_start_x, x_values[-1], record["label"]))
-        current_battery = y_values[-1]
+    def sample_std(values):
+        if len(values) < 2:
+            return 0
+        avg = mean(values)
+        return (sum((value - avg) ** 2 for value in values) / (len(values) - 1)) ** 0.5
 
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(x_values, y_values, color="#216c5f", linewidth=2.4, marker="o", markersize=3)
-    for start_x, end_x, label in segment_labels:
-        if end_x <= start_x:
-            continue
-        mid_x = (start_x + end_x) / 2
-        ax.axvspan(start_x, end_x, color="#dcebe7", alpha=0.25, linewidth=0)
-        ax.text(mid_x, 41.2, label, rotation=90, va="bottom", ha="center", fontsize=6, color="#657286")
-    ax.set_title("Stitched battery decline curve: normalized 100% to 40%")
-    ax.set_xlabel("Cumulative consumed battery (%)")
-    ax.set_ylabel("Normalized battery level (%)")
-    ax.set_xlim(0, 60)
-    ax.set_ylim(38, 102)
-    ax.grid(True, alpha=0.28)
+    drone_numbers = sorted({key[0] for key in grouped}, key=lambda value: int(value) if value.isdigit() else 999)
+    wind_levels = sorted({key[1] for key in grouped})
+    x_positions = list(range(len(drone_numbers)))
+
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    if len(wind_levels) <= 1:
+        wind_level = wind_levels[0]
+        means = [mean(grouped.get((drone, wind_level), [0])) for drone in drone_numbers]
+        stds = [sample_std(grouped.get((drone, wind_level), [])) for drone in drone_numbers]
+        color = BASELINE_WIND_LEVEL_COLORS.get(wind_level, BASELINE_WIND_LEVEL_COLORS["unknown"])
+        ax.bar(x_positions, means, yerr=stds, capsize=4, color=color, alpha=0.9, label=wind_level)
+    else:
+        width = min(0.34, 0.8 / len(wind_levels))
+        center_offset = (len(wind_levels) - 1) * width / 2
+        for index, wind_level in enumerate(wind_levels):
+            offsets = [position - center_offset + index * width for position in x_positions]
+            means = []
+            stds = []
+            for drone in drone_numbers:
+                values = grouped.get((drone, wind_level), [])
+                means.append(mean(values) if values else 0)
+                stds.append(sample_std(values))
+            color = BASELINE_WIND_LEVEL_COLORS.get(wind_level, BASELINE_WIND_LEVEL_COLORS["unknown"])
+            ax.bar(offsets, means, width=width, yerr=stds, capsize=4, color=color, alpha=0.9, label=wind_level)
+
+    ax.set_title("Mean battery drop by drone")
+    ax.set_ylabel("Mean battery drop (%)")
+    ax.set_xticks(x_positions)
+    ax.set_xticklabels([f"drone_{drone}" for drone in drone_numbers], rotation=25, ha="right")
+    ax.grid(True, axis="y", linestyle="--", alpha=0.28)
+    if wind_levels:
+        ax.legend(title="Wind level", fontsize=8, title_fontsize=8, loc="best")
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=160)
@@ -1854,6 +1896,7 @@ def generate_baseline_summary_plot(runs, output_path):
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
 
     plot_runs = [run for run in runs if run.get("timeseries_relpath")]
     if not plot_runs:
@@ -1867,6 +1910,7 @@ def generate_baseline_summary_plot(runs, output_path):
     duration_values = []
     error_plotted = False
     modes = sorted({run.get("mode", "") for run in plot_runs if run.get("mode")})
+    wind_levels = sorted({baseline_wind_level(run) for run in plot_runs})
 
     for record in records:
         run = record["run"]
@@ -1890,14 +1934,15 @@ def generate_baseline_summary_plot(runs, output_path):
             if elapsed is not None and position_error is not None:
                 errors.append((elapsed, position_error))
         label = record["label"]
+        color = baseline_wind_color(run)
         if points:
-            ax_battery.plot([p[0] for p in points], [p[1] for p in points], linewidth=1.8, label=label)
+            ax_battery.plot([p[0] for p in points], [p[1] for p in points], color=color, alpha=0.78, linewidth=1.8, label=label)
         if temp_low:
-            ax_temp.plot([p[0] for p in temp_low], [p[1] for p in temp_low], linewidth=1.3, label=f"{label} templ")
+            ax_temp.plot([p[0] for p in temp_low], [p[1] for p in temp_low], color=color, alpha=0.72, linewidth=1.3, label=f"{label} templ")
         if temp_high:
-            ax_temp.plot([p[0] for p in temp_high], [p[1] for p in temp_high], linewidth=1.3, linestyle="--", label=f"{label} temph")
+            ax_temp.plot([p[0] for p in temp_high], [p[1] for p in temp_high], color=color, alpha=0.72, linewidth=1.3, linestyle="--", label=f"{label} temph")
         if errors:
-            ax_error.plot([p[0] for p in errors], [p[1] for p in errors], linewidth=1.5, label=label)
+            ax_error.plot([p[0] for p in errors], [p[1] for p in errors], color=color, alpha=0.78, linewidth=1.5, label=label)
             error_plotted = True
         drop = baseline_float(run.get("battery_drop"))
         duration = baseline_float(run.get("duration_sec"))
@@ -1907,38 +1952,49 @@ def generate_baseline_summary_plot(runs, output_path):
             duration_values.append(duration or 0)
 
     title_mode = ", ".join(modes) if modes else "matched modes"
+    wind_title = ", ".join(wind_levels) if wind_levels else "matched wind levels"
+    wind_handles = [
+        Line2D([0], [0], color=BASELINE_WIND_LEVEL_COLORS.get(level, BASELINE_WIND_LEVEL_COLORS["unknown"]), linewidth=3, label=level)
+        for level in wind_levels
+    ]
     if modes == ["hover"]:
         ax_battery.axhline(10, color="#a23b3b", linestyle="--", linewidth=1, label="10% landing threshold")
-    ax_battery.set_title(f"Baseline battery percentage: {title_mode}")
+    ax_battery.set_title(f"Baseline battery percentage: {title_mode} / {wind_title}")
     ax_battery.set_xlabel("Flight time (s)")
     ax_battery.set_ylabel("Battery (%)")
     ax_battery.grid(True, alpha=0.25)
-    ax_battery.legend(fontsize=7, loc="best")
+    if wind_handles:
+        ax_battery.legend(handles=wind_handles, title="Wind level", fontsize=7, title_fontsize=7, loc="best")
 
     ax_temp.set_title("Baseline temperature")
     ax_temp.set_xlabel("Flight time (s)")
     ax_temp.set_ylabel("Temperature (C)")
     ax_temp.grid(True, alpha=0.25)
-    ax_temp.legend(fontsize=7, loc="best")
+    if wind_handles:
+        ax_temp.legend(handles=wind_handles, title="Wind level", fontsize=7, title_fontsize=7, loc="best")
 
     if drop_values:
         x_positions = list(range(len(drop_values)))
-        ax_drop.bar(x_positions, drop_values, color="#216c5f", alpha=0.85, label="battery drop (%)")
+        bar_colors = [baseline_wind_color(record["run"]) for record in records if baseline_float(record["run"].get("battery_drop")) is not None]
+        ax_drop.bar(x_positions, drop_values, color=bar_colors, alpha=0.85, label="battery drop (%)")
         ax_drop.set_xticks(x_positions)
         ax_drop.set_xticklabels(drop_labels, rotation=35, ha="right", fontsize=8)
         ax_drop.set_ylabel("Battery drop (%)")
         ax_drop.set_title("Baseline total battery drop and duration")
         ax_duration = ax_drop.twinx()
-        ax_duration.plot(x_positions, duration_values, color="#2f80a8", marker="o", linewidth=1.8, label="duration (s)")
+        ax_duration.plot(x_positions, duration_values, color="#3d4b59", marker="o", linewidth=1.8, label="duration (s)")
         ax_duration.set_ylabel("Duration (s)")
         ax_drop.grid(True, axis="y", alpha=0.25)
+        if wind_handles:
+            ax_drop.legend(handles=wind_handles, title="Wind level", fontsize=7, title_fontsize=7, loc="best")
 
     ax_error.set_title("Baseline position error")
     ax_error.set_xlabel("Flight time (s)")
     ax_error.set_ylabel("Position error (cm)")
     ax_error.grid(True, alpha=0.25)
     if error_plotted:
-        ax_error.legend(fontsize=7, loc="best")
+        if wind_handles:
+            ax_error.legend(handles=wind_handles, title="Wind level", fontsize=7, title_fontsize=7, loc="best")
     else:
         ax_error.text(0.5, 0.5, "No position-error series available for these runs.", ha="center", va="center", transform=ax_error.transAxes, color="#657286")
 
@@ -1950,9 +2006,9 @@ def generate_baseline_summary_plot(runs, output_path):
         records,
         output_path.with_name(f"{output_path.stem}_consumption_vs_start_battery.png"),
     )
-    generate_baseline_stitched_100_to_40_curve(
+    generate_baseline_mean_drop_by_drone_plot(
         records,
-        output_path.with_name(f"{output_path.stem}_stitched_100_to_40_curve.png"),
+        output_path.with_name(f"{output_path.stem}_mean_drop_by_drone.png"),
     )
 
 
@@ -1961,13 +2017,15 @@ def generate_baseline_summary():
     drone_number = selected_values(request.form, "baseline_drone")
     battery_id = selected_values(request.form, "baseline_battery", normalize_battery_id)
     mode = selected_values(request.form, "baseline_mode") or ["hover"]
+    wind_level = selected_values(request.form, "baseline_wind_level")
     runs = filter_baseline_runs(
         scan_baseline_runs(),
         drone_number=drone_number,
         battery_id=battery_id,
         mode=mode,
+        wind_level=wind_level,
     )
-    key = baseline_summary_key(drone_number, battery_id, mode)
+    key = baseline_summary_key(drone_number, battery_id, mode, wind_level)
     output_path = BASELINE_DIR / "summary" / "plots" / f"{key}_summary.png"
     try:
         generate_baseline_summary_plot(runs, output_path)
@@ -1977,6 +2035,7 @@ def generate_baseline_summary():
         "baseline_drone": drone_number,
         "baseline_battery": battery_id,
         "baseline_mode": mode,
+        "baseline_wind_level": wind_level,
     }, doseq=True)
     return redirect(url_for("index") + (f"?{query}" if query else ""))
 
@@ -3013,6 +3072,24 @@ INDEX_TEMPLATE = """
                   {% endfor %}
                 </div>
               </details>
+              <details class="filter-group" data-filter-group>
+                <summary>
+                  <span class="filter-group-title">Wind Level</span>
+                  <span class="filter-summary">{% if selected_baseline_filters.wind_level %}{{ selected_baseline_filters.wind_level|join(', ') }}{% else %}All{% endif %}</span>
+                </summary>
+                <div class="check-list">
+                  <label class="check-pill">
+                    <input type="checkbox" data-filter-all {% if not selected_baseline_filters.wind_level %}checked{% endif %}>
+                    <span class="check-text">All wind levels</span>
+                  </label>
+                  {% for wind_level in baseline_filter_options.wind_levels %}
+                    <label class="check-pill">
+                      <input type="checkbox" name="baseline_wind_level" value="{{ wind_level }}" data-filter-option {% if wind_level in selected_baseline_filters.wind_level %}checked{% endif %}>
+                      <span class="check-text">{{ wind_level }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </details>
             </div>
             <button type="submit">Apply baseline filter</button>
           </form>
@@ -3020,6 +3097,7 @@ INDEX_TEMPLATE = """
             {% for drone_number in selected_baseline_filters.drone_number %}<input type="hidden" name="baseline_drone" value="{{ drone_number }}">{% endfor %}
             {% for battery_id in selected_baseline_filters.battery_id %}<input type="hidden" name="baseline_battery" value="{{ battery_id }}">{% endfor %}
             {% for mode in selected_baseline_filters.mode %}<input type="hidden" name="baseline_mode" value="{{ mode }}">{% endfor %}
+            {% for wind_level in selected_baseline_filters.wind_level %}<input type="hidden" name="baseline_wind_level" value="{{ wind_level }}">{% endfor %}
             <button class="secondary" type="submit">Generate baseline summary</button>
           </form>
           {% if baseline_summary_plot %}
@@ -3046,7 +3124,7 @@ INDEX_TEMPLATE = """
                         <span class="file-name">{{ run.baseline_id }}</span>
                       {% endif %}
                     </h3>
-                    <div class="small">drone {{ run.drone_number }} · {{ run.battery_id }} · {{ run.mode }} · {{ run.mtime }}</div>
+                    <div class="small">drone {{ run.drone_number }} · {{ run.battery_id }} · {{ run.mode }}{% if run.wind_level %} · {{ run.wind_level }}{% endif %} · {{ run.mtime }}</div>
                   </div>
                   <span class="badge">{{ run.battery_start }}% -> {{ run.battery_end }}%</span>
                 </div>
@@ -3136,7 +3214,7 @@ INDEX_TEMPLATE = """
         <form method="post" action="{{ url_for('create_experiment') }}">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <label>Experiment ID
-              <input name="experiment_id" placeholder="e.g. column_001">
+              <input name="experiment_id" placeholder="e.g. 001 -> front_head_lv1_new_001">
             </label>
             <label>Selected Formation
               <input id="formationDisplay" value="front" readonly>
@@ -3216,7 +3294,7 @@ INDEX_TEMPLATE = """
                 <span class="small" id="frontFormationNote">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
                 <span class="small">column: first column, bottom to top = 1, 2, 3, 4, 5</span>
                 <span class="small">drone #: 1->101, 2->109, 3->103, 4->106, 5->107</span>
-                <span class="small">battery: choose five unique charged batteries B01-B15</span>
+                <span class="small">default battery order: B11, B10, B13, B14, B15</span>
               </div>
             </div>
           </div>
@@ -3268,6 +3346,14 @@ INDEX_TEMPLATE = """
                 <select id="baselineModeInput" name="baseline_mode" required>
                   {% for mode, label in baseline_modes %}
                     <option value="{{ mode }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>Wind Level
+                <select name="baseline_wind_level" required>
+                  <option value="">level</option>
+                  {% for wind_level, label in baseline_wind_levels %}
+                    <option value="{{ wind_level }}">{{ label }}</option>
                   {% endfor %}
                 </select>
               </label>
@@ -3367,6 +3453,7 @@ INDEX_TEMPLATE = """
               <h3>
                 <a class="file-name" href="{{ url_for('experiment_detail', experiment_id=exp.experiment_id) }}">{{ exp.experiment_id }}</a>
                 {% if exp.is_outlier %}<span class="badge outlier">outlier</span>{% endif %}
+                {% for tag in exp.tags or [] %}<span class="badge">{{ tag }}</span>{% endfor %}
               </h3>
                   <div class="small">
                     {{ exp.formation or 'formation not set' }}
@@ -3551,7 +3638,8 @@ INDEX_TEMPLATE = """
     const windDirectionButtons = document.querySelectorAll(".wind-option");
     const padCells = Array.from(document.querySelectorAll("#missionGrid .pad-cell"));
     const frontFormationNote = document.getElementById("frontFormationNote");
-    const recommendedBatteryOrder = ["B02", "B04", "B06", "B07", "B10"];
+    const recommendedDroneOrder = ["1", "2", "3", "4", "5"];
+    const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B15"];
     const topMissionRow = Math.max(...padCells.map((cell) => Number(cell.dataset.row)));
 
     function isFrontTailWind() {
@@ -3635,6 +3723,7 @@ INDEX_TEMPLATE = """
         cell.classList.add("active");
         input.disabled = false;
         input.required = true;
+        input.value = recommendedDroneOrder[index] || "";
         battery.disabled = false;
         battery.required = true;
         battery.value = recommendedBatteryOrder[index] || "";
@@ -4144,7 +4233,8 @@ EXPERIMENT_TEMPLATE = """
       <h1>{{ experiment.experiment_id }}</h1>
       <div class="small">
         {{ experiment.formation }} · {{ experiment.wind_direction }} · {{ experiment.wind_speed }}
-        {% if experiment.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
+                {% if experiment.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
+                {% for tag in experiment.tags or [] %}<span class="badge">{{ tag }}</span>{% endfor %}
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
@@ -4317,6 +4407,7 @@ CONDITION_TEMPLATE = """
             <a class="trial-card {% if trial.is_outlier %}outlier{% endif %}" href="{{ url_for('experiment_detail', experiment_id=trial.experiment_id) }}">
               <h3>{{ trial.experiment_id }}</h3>
               {% if trial.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
+              {% for tag in trial.tags or [] %}<span class="badge">{{ tag }}</span>{% endfor %}
               <div class="small">Trial {{ trial.short_id or trial.experiment_id.rsplit('_', 1)[-1] }}</div>
               <div class="small">{{ trial.status }} · {{ trial.created_at }}</div>
             </a>

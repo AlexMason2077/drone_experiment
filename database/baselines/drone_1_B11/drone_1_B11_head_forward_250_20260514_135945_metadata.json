@@ -21,5 +21,7 @@
   ],
   "movement_distance_cm": 250,
   "landing_battery_percent": null,
-  "notes": ""
+  "notes": "",
+  "wind_level": "lv1",
+  "wind_speed": "lv1"
 }

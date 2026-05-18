@@ -67,6 +67,7 @@ MODE_LABELS = {
     "tail_forward_250": "tail wind forward 250cm",
     "side_forward_250": "side wind lateral 250cm",
 }
+WIND_LEVELS = {"lv1", "lv2"}
 
 MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
@@ -84,6 +85,7 @@ BASELINE_COLUMNS = [
     "drone_ip",
     "battery_id",
     "mode",
+    "wind_level",
     "direction",
     "baseline_path",
     "phase",
@@ -121,6 +123,7 @@ SUMMARY_COLUMNS = [
     "drone_ip",
     "battery_id",
     "mode",
+    "wind_level",
     "direction",
     "baseline_path",
     "start_timestamp",
@@ -1049,6 +1052,8 @@ def run_baseline(args):
         raise ValueError(f"Unknown drone number: {drone_number}")
     if args.mode not in MODE_LABELS:
         raise ValueError(f"Unknown baseline mode: {args.mode}")
+    if args.wind_level not in WIND_LEVELS:
+        raise ValueError(f"Unknown baseline wind level: {args.wind_level}")
     if args.direction not in {"up", "down"}:
         raise ValueError(f"Unknown baseline direction: {args.direction}")
 
@@ -1095,6 +1100,7 @@ def run_baseline(args):
         "takeoff_order": 1,
         "role": "single_baseline",
         "mode": args.mode,
+        "wind_level": args.wind_level,
         "direction": args.direction,
         "baseline_path": path_text,
         "start_pad": args.start_pad if args.mode != "hover" else "",
@@ -1142,7 +1148,8 @@ def run_baseline(args):
         "experiment_id": baseline_id,
         "formation": "single_drone_baseline",
         "wind_direction": args.mode,
-        "wind_speed": args.direction if args.mode != "hover" else "",
+        "wind_speed": args.wind_level,
+        "wind_level": args.wind_level,
         "drone_number": drone_number,
         "drone_name": drone_name,
         "drone_ip": ip,
@@ -1165,7 +1172,7 @@ def run_baseline(args):
         "experiment_id": baseline_id,
         "formation": "single_drone_baseline",
         "wind_direction": args.mode,
-        "wind_speed": args.direction if args.mode != "hover" else "",
+        "wind_speed": args.wind_level,
     }
 
     tello = Tello(host=ip)
@@ -1186,6 +1193,7 @@ def run_baseline(args):
     print(f"  drone       : {drone_name} ({ip})", flush=True)
     print(f"  battery     : {battery_id}", flush=True)
     print(f"  mode        : {MODE_LABELS[args.mode]}", flush=True)
+    print(f"  wind level  : {args.wind_level}", flush=True)
     if args.mode == "hover":
         print(f"  hover rule  : no mission pad; land at {HOVER_LANDING_BATTERY_PERCENT}% battery", flush=True)
     else:
@@ -1370,6 +1378,7 @@ def parse_args():
     parser.add_argument("--drone-number", required=True, choices=sorted(DRONE_NUMBER_TO_IP_SUFFIX))
     parser.add_argument("--battery-id", required=True)
     parser.add_argument("--mode", required=True, choices=sorted(MODE_LABELS))
+    parser.add_argument("--wind-level", required=True, choices=sorted(WIND_LEVELS))
     parser.add_argument("--start-pad", type=int, choices=range(1, 9), default=None)
     parser.add_argument("--start-col", type=int, default=None)
     parser.add_argument("--start-row", type=int, default=None)
