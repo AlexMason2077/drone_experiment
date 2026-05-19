@@ -49,6 +49,9 @@ NODE_FORWARD_DISTANCE_CM = 250
 NODE_SEGMENT_DISTANCE_CM = ROW_SPACING_CM
 LONG_GO_RESPONSE_TIMEOUT_SEC = 40
 PRE_NODE_SETTLE_SEC = 2.0
+SAME_COLUMN_COLLISION_GAP_CM = 30
+SAME_COLUMN_FRONT_RELEASE_PROGRESS_CM = 15
+SAME_COLUMN_SAFETY_TIMEOUT_SEC = 10.0
 BATTERY_WINDOW_LOW_PERCENT = 40
 BATTERY_WINDOW_HIGH_PERCENT = 75
 DISCHARGE_HOVER_HEIGHT_CM = 80
@@ -62,6 +65,13 @@ MISSION_PAD_COLUMNS = [
     [3, 4, 5, 6, 7, 8],
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
+]
+DIAMOND_MISSION_PAD_COLUMNS = [
+    [],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [2, 3, 4, 5, 6, 7, 8, 1],
+    [3, 4, 5, 6, 7, 8, 1, 2],
+    [],
 ]
 
 COORDINATION_COLUMNS = [
@@ -215,10 +225,16 @@ def clamp(value, low, high):
     return max(low, min(high, value))
 
 
-def lane_pad_sequence(grid_column, min_rows=None):
-    start_pad = MISSION_PAD_COLUMNS[grid_column][0]
+def mission_pad_columns_for_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    return DIAMOND_MISSION_PAD_COLUMNS if formation == "diamond" else MISSION_PAD_COLUMNS
+
+
+def lane_pad_sequence(grid_column, min_rows=None, columns=None):
+    columns = columns or MISSION_PAD_COLUMNS
+    start_pad = columns[grid_column][0]
     start_idx = PAD_SEQUENCE.index(start_pad)
-    row_count = min_rows or len(PAD_SEQUENCE)
+    row_count = min_rows or len(columns[grid_column])
     return [PAD_SEQUENCE[(start_idx + offset) % len(PAD_SEQUENCE)] for offset in range(row_count)]
 
 
@@ -239,14 +255,14 @@ def node_direction_for_experiment(experiment):
 def pad_at_physical_row(config, row_idx):
     if row_idx < 0:
         raise ValueError(f"row_idx cannot be negative: {row_idx}")
-    lane = lane_pad_sequence(config["grid_column"], min_rows=row_idx + 1)
+    lane = lane_pad_sequence(config["grid_column"], min_rows=row_idx + 1, columns=config.get("mission_pad_columns"))
     return lane[row_idx]
 
 
-def pad_at_column_row(grid_column, row_idx):
+def pad_at_column_row(grid_column, row_idx, columns=None):
     if row_idx < 0:
         raise ValueError(f"row_idx cannot be negative: {row_idx}")
-    lane = lane_pad_sequence(grid_column, min_rows=row_idx + 1)
+    lane = lane_pad_sequence(grid_column, min_rows=row_idx + 1, columns=columns)
     return lane[row_idx]
 
 
@@ -256,6 +272,7 @@ def build_tello_configs(experiment):
         raise ValueError(f"Expected exactly 5 drones in experiment record, got {len(drones)}.")
 
     node_direction = node_direction_for_experiment(experiment)
+    mission_pad_columns = mission_pad_columns_for_experiment(experiment)
     default_steps = int(round(NODE_FORWARD_DISTANCE_CM / ROW_SPACING_CM))
     configs = []
     seen_ips = set()
@@ -278,13 +295,13 @@ def build_tello_configs(experiment):
 
         grid_column = int_field(drone.get("grid_column"), "grid_column")
         grid_row = int_field(drone.get("grid_row"), "grid_row")
-        if grid_column < 0 or grid_column >= len(MISSION_PAD_COLUMNS):
+        if grid_column < 0 or grid_column >= len(mission_pad_columns):
             raise ValueError(f"grid_column out of range for {ip}: {grid_column}")
-        if grid_row < 0 or grid_row >= len(MISSION_PAD_COLUMNS[grid_column]):
+        if grid_row < 0 or grid_row >= len(mission_pad_columns[grid_column]):
             raise ValueError(f"grid_row out of range for {ip}: {grid_row}")
 
         mission_pad = int_field(drone.get("mission_pad"), "mission_pad")
-        expected_pad = MISSION_PAD_COLUMNS[grid_column][grid_row]
+        expected_pad = mission_pad_columns[grid_column][grid_row]
         if mission_pad != expected_pad:
             raise ValueError(
                 f"Mission pad mismatch for {ip}: record pad={mission_pad}, "
@@ -301,7 +318,7 @@ def build_tello_configs(experiment):
             target_row = max(0, grid_row - default_steps)
         else:
             target_row = grid_row + default_steps
-        target_pad = pad_at_column_row(grid_column, target_row)
+        target_pad = pad_at_column_row(grid_column, target_row, columns=mission_pad_columns)
         node_distance = abs(target_row - grid_row) * ROW_SPACING_CM
 
         configs.append({
@@ -311,6 +328,7 @@ def build_tello_configs(experiment):
             "takeoff_order": int_field(drone.get("takeoff_order", idx + 1), "takeoff_order"),
             "role": str(drone.get("role") or f"drone_{idx + 1}"),
             "mission_pad": mission_pad,
+            "mission_pad_columns": mission_pad_columns,
             "target_pad": target_pad,
             "grid_column": grid_column,
             "grid_row": grid_row,
@@ -555,7 +573,11 @@ def get_state_safe(tello):
 def pad_origin_for_detection(config, mid):
     min_row = min(config["grid_row"], config["target_grid_row"]) - 1
     max_row = max(config["grid_row"], config["target_grid_row"]) + 1
-    column = lane_pad_sequence(config["grid_column"], min_rows=max(max_row + 2, len(PAD_SEQUENCE)))
+    column = lane_pad_sequence(
+        config["grid_column"],
+        min_rows=max(max_row + 2, len(PAD_SEQUENCE)),
+        columns=config.get("mission_pad_columns"),
+    )
     candidate_rows = [
         row_idx
         for row_idx, pad_id in enumerate(column)
@@ -608,6 +630,10 @@ def wait_for_pad(tello, pad_id, timeout=8.0, interval=0.15):
 
 def wait_for_expected_pad(tello, config, timeout=8.0, interval=0.15):
     return wait_for_pad(tello, config["mission_pad"], timeout=timeout, interval=interval)
+
+
+def is_no_valid_marker_error(exc):
+    return "no valid marker" in str(exc).lower()
 
 
 def run_swarm_parallel_checked(swarm, label, command_func):
@@ -681,7 +707,17 @@ def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance
             local_x = max(-500, min(500, int(round(config["target_x"] - origin_x))))
             local_y = max(-500, min(500, int(round(pad_y - origin_y))))
             local_z = max(20, min(500, int(round(TAKEOFF_HEIGHT_CM))))
-            tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
+            try:
+                tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
+            except Exception as exc:
+                if is_no_valid_marker_error(exc):
+                    print(
+                        f"  {config['name']} lost marker m{state['mid']} during correction; reacquiring marker.",
+                        flush=True,
+                    )
+                    time.sleep(0.3)
+                    continue
+                raise
             time.sleep(0.5)
         if row_idx != config["grid_row"] and not wait_for_pad(tello, expected_pad, timeout=4.0):
             raise RuntimeError(
@@ -718,7 +754,17 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
         local_x = max(-500, min(500, int(round(config["target_x"] - origin_x))))
         local_y = max(-500, min(500, int(round(next_pad_y - origin_y))))
         local_z = max(20, min(500, int(round(TAKEOFF_HEIGHT_CM))))
-        tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
+        try:
+            tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
+        except Exception as exc:
+            if is_no_valid_marker_error(exc):
+                print(
+                    f"  {config['name']} lost marker m{state['mid']} during segment; reacquiring marker.",
+                    flush=True,
+                )
+                time.sleep(0.3)
+                continue
+            raise
         time.sleep(0.5)
 
     if not wait_for_pad(tello, expected_pad, timeout=4.0):
@@ -737,6 +783,63 @@ def fly_continuous_node_to_node(tello, config, speed=NODE_FLIGHT_SPEED_CM_S):
         int(config["mission_pad"]),
     )
     tello.send_control_command(command, timeout=LONG_GO_RESPONSE_TIMEOUT_SEC)
+
+
+def nearest_same_column_ahead(index, configs, current_rows):
+    config = configs[index]
+    direction = config["node_row_direction"]
+    candidates = []
+    for other_index, other_config in enumerate(configs):
+        if other_index == index or other_config["grid_column"] != config["grid_column"]:
+            continue
+        row_gap = (current_rows[other_index] - current_rows[index]) * direction
+        if row_gap > 0:
+            candidates.append((row_gap, other_index))
+    if not candidates:
+        return None
+    return min(candidates)[1]
+
+
+def wait_for_same_column_clearance(swarm, configs, index, current_rows):
+    ahead_index = nearest_same_column_ahead(index, configs, current_rows)
+    if ahead_index is None:
+        return
+
+    config = configs[index]
+    ahead_config = configs[ahead_index]
+    direction = config["node_row_direction"]
+    ahead_start_y = current_rows[ahead_index] * ROW_SPACING_CM
+    deadline = time.time() + SAME_COLUMN_SAFETY_TIMEOUT_SEC
+    reported_wait = False
+
+    while time.time() < deadline:
+        ahead_state = get_state_safe(swarm.tellos[ahead_index])
+        ahead_x, ahead_y, _ = to_global(ahead_config, ahead_state)
+        own_state = get_state_safe(swarm.tellos[index])
+        own_x, own_y, _ = to_global(config, own_state)
+
+        ahead_progress = None if ahead_y is None else (ahead_y - ahead_start_y) * direction
+        gap = None if ahead_y is None or own_y is None else (ahead_y - own_y) * direction
+
+        front_released = ahead_progress is not None and ahead_progress >= SAME_COLUMN_FRONT_RELEASE_PROGRESS_CM
+        collision_clear = gap is None or gap >= SAME_COLUMN_COLLISION_GAP_CM
+        if front_released and collision_clear:
+            return
+
+        if not reported_wait:
+            gap_text = "unknown" if gap is None else f"{gap:.1f}cm"
+            print(
+                f"  {config['name']} waiting: {ahead_config['name']} is ahead in the same column "
+                f"(gap={gap_text}).",
+                flush=True,
+            )
+            reported_wait = True
+        time.sleep(0.2)
+
+    print(
+        f"  {config['name']} safety wait timed out; proceeding with marker-based control.",
+        flush=True,
+    )
 
 
 def fly_node_to_node(swarm, configs):
@@ -771,15 +874,20 @@ def fly_node_to_node(swarm, configs):
     for segment_index in range(segments):
         set_phase_all(f"node_segment_{segment_index + 1}_of_{segments}")
         print(f"  Segment {segment_index + 1}/{segments}", flush=True)
-        run_swarm_parallel_checked(
-            swarm,
-            f"Node segment {segment_index + 1}",
-            lambda i, tello: fly_synchronized_node_segment(
+
+        def fly_segment_with_safety(i, tello):
+            wait_for_same_column_clearance(swarm, configs, i, current_rows)
+            fly_synchronized_node_segment(
                 tello,
                 configs[i],
                 current_rows[i],
                 speed=NODE_FLIGHT_SPEED_CM_S,
             )
+
+        run_swarm_parallel_checked(
+            swarm,
+            f"Node segment {segment_index + 1}",
+            fly_segment_with_safety,
         )
         for i, config in enumerate(configs):
             current_rows[i] += config["node_row_direction"]

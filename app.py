@@ -62,6 +62,21 @@ MISSION_PAD_COLUMNS = [
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
 ]
+DIAMOND_MISSION_PAD_COLUMNS = [
+    [],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [2, 3, 4, 5, 6, 7, 8, 1],
+    [3, 4, 5, 6, 7, 8, 1, 2],
+    [],
+]
+MISSION_PAD_LAYOUTS = {
+    "standard": MISSION_PAD_COLUMNS,
+    "diamond": DIAMOND_MISSION_PAD_COLUMNS,
+}
+
+
+def mission_pad_layout_for_formation(formation):
+    return DIAMOND_MISSION_PAD_COLUMNS if str(formation or "").strip().lower() == "diamond" else MISSION_PAD_COLUMNS
 
 
 def python_executable():
@@ -1484,6 +1499,9 @@ def index():
         base_dir=BASE_DIR,
         data_dir=DATA_DIR,
         mission_pad_columns=MISSION_PAD_COLUMNS,
+        mission_pad_layouts=MISSION_PAD_LAYOUTS,
+        max_mission_cols=max(len(columns) for columns in MISSION_PAD_LAYOUTS.values()),
+        max_mission_rows=max(len(column) for columns in MISSION_PAD_LAYOUTS.values() for column in columns),
         experiment_scripts=EXPERIMENT_SCRIPTS,
         run_state=public_run_state(),
         stats=stats,
@@ -1598,13 +1616,15 @@ def experiment_detail(experiment_id):
             selected_drone = card
     if selected_drone is None and drone_cards:
         selected_drone = drone_cards[0]
+    mission_pad_columns = mission_pad_layout_for_formation(experiment.get("formation"))
     return render_template_string(
         EXPERIMENT_TEMPLATE,
         experiment=experiment,
         archive=archive,
         drone_cards=drone_cards,
         selected_drone=selected_drone,
-        mission_pad_columns=MISSION_PAD_COLUMNS,
+        mission_pad_columns=mission_pad_columns,
+        mission_pad_row_count=max(len(column) for column in mission_pad_columns),
         display_battery_id=display_battery_id,
     )
 
@@ -2492,6 +2512,7 @@ INDEX_TEMPLATE = """
       gap: 7px;
       opacity: 0.36;
     }
+    .pad-cell[hidden] { display: none !important; }
     .pad-cell.active {
       opacity: 1;
       border-color: #8abeb2;
@@ -3319,14 +3340,18 @@ INDEX_TEMPLATE = """
               <button class="formation-option" type="button" data-formation="diamond">diamond</button>
             </div>
             <div class="mission-board" style="margin-top:10px;">
-              <div class="mission-grid" id="missionGrid">
-                {% for display_row in range(mission_pad_columns[0]|length - 1, -1, -1) %}
-                  {% for col in range(5) %}
-                    {% set pad_id = mission_pad_columns[col][display_row] %}
+              <div class="mission-grid" id="missionGrid" style="grid-template-columns: repeat({{ max_mission_cols }}, minmax(74px, 1fr));">
+                {% for display_row in range(max_mission_rows - 1, -1, -1) %}
+                  {% for col in range(max_mission_cols) %}
+                    {% set standard_pad = mission_pad_layouts.standard[col][display_row] if col < mission_pad_layouts.standard|length and display_row < mission_pad_layouts.standard[col]|length else '' %}
+                    {% set diamond_pad = mission_pad_layouts.diamond[col][display_row] if col < mission_pad_layouts.diamond|length and display_row < mission_pad_layouts.diamond[col]|length else '' %}
+                    {% set pad_id = standard_pad %}
                     <div class="pad-cell"
                          data-col="{{ col }}"
                          data-row="{{ display_row }}"
                          data-pad="{{ pad_id }}"
+                         data-standard-pad="{{ standard_pad }}"
+                         data-diamond-pad="{{ diamond_pad }}"
                          data-front-active="{{ 'true' if display_row == 0 else 'false' }}"
                          data-column-active="{{ 'true' if col == 0 else 'false' }}">
                       <div class="pad-title">
@@ -3698,11 +3723,12 @@ INDEX_TEMPLATE = """
     const windDirectionInput = document.getElementById("windDirectionInput");
     const windDirectionDisplay = document.getElementById("windDirectionDisplay");
     const windDirectionButtons = document.querySelectorAll(".wind-option");
+    const missionGrid = document.getElementById("missionGrid");
     const padCells = Array.from(document.querySelectorAll("#missionGrid .pad-cell"));
     const frontFormationNote = document.getElementById("frontFormationNote");
     const recommendedDroneOrder = ["1", "2", "3", "4", "5"];
     const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B15"];
-    const topMissionRow = Math.max(...padCells.map((cell) => Number(cell.dataset.row)));
+    const standardTopMissionRow = Math.max(...padCells.filter((cell) => cell.dataset.standardPad).map((cell) => Number(cell.dataset.row)));
 
     function isFrontTailWind() {
       return formationInput.value === "front" && windDirectionInput && windDirectionInput.value === "tail wind";
@@ -3711,7 +3737,9 @@ INDEX_TEMPLATE = """
     function isFormationCell(cell, formation) {
       const col = Number(cell.dataset.col);
       const row = Number(cell.dataset.row);
-      if (formation === "front") return row === (isFrontTailWind() ? topMissionRow : 0);
+      const layoutPad = formation === "diamond" ? cell.dataset.diamondPad : cell.dataset.standardPad;
+      if (!layoutPad) return false;
+      if (formation === "front") return row === (isFrontTailWind() ? standardTopMissionRow : 0);
       if (formation === "column") return col === 0;
       if (formation === "echalon") return row === 0;
       if (formation === "vee") {
@@ -3753,16 +3781,31 @@ INDEX_TEMPLATE = """
     function setFormation(formation) {
       formationInput.value = formation;
       formationDisplay.value = formation;
+      const isDiamond = formation === "diamond";
+      if (missionGrid) {
+        missionGrid.style.gridTemplateColumns = "repeat(5, minmax(74px, 1fr))";
+      }
       if (frontFormationNote) {
-        frontFormationNote.textContent = isFrontTailWind()
-          ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"
-          : "front: bottom row, left to right = 1, 2, 3, 4, 5";
+        if (isDiamond) {
+          frontFormationNote.textContent = "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
+        } else {
+          frontFormationNote.textContent = isFrontTailWind()
+            ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"
+            : "front: bottom row, left to right = 1, 2, 3, 4, 5";
+        }
       }
       formationButtons.forEach((button) => {
         button.classList.toggle("active", button.dataset.formation === formation);
       });
 
       padCells.forEach((cell) => {
+        const layoutPad = isDiamond ? cell.dataset.diamondPad : cell.dataset.standardPad;
+        cell.hidden = !layoutPad && !isDiamond;
+        cell.dataset.pad = layoutPad || "";
+        const padLabel = cell.querySelector(".pad-id");
+        const padHidden = cell.querySelector(`input[name="pad_id_${cell.dataset.col}_${cell.dataset.row}"]`);
+        if (padLabel) padLabel.textContent = layoutPad || "";
+        if (padHidden) padHidden.value = layoutPad || "";
         const input = cell.querySelector('select[name^="pad_ip_"]');
         const battery = cell.querySelector('select[name^="pad_battery_"]');
         const order = cell.querySelector(`input[name="pad_order_${cell.dataset.col}_${cell.dataset.row}"]`);
@@ -4315,10 +4358,10 @@ EXPERIMENT_TEMPLATE = """
         <div class="small">Click a drone rectangle to inspect its battery and position archive.</div>
       </div>
       <div class="body">
-        <div class="mission-grid">
-          {% for display_row in range(mission_pad_columns[0]|length - 1, -1, -1) %}
-            {% for col in range(5) %}
-              {% set pad_id = mission_pad_columns[col][display_row] %}
+        <div class="mission-grid" style="grid-template-columns:repeat({{ mission_pad_columns|length }}, minmax(72px,1fr));">
+          {% for display_row in range(mission_pad_row_count - 1, -1, -1) %}
+            {% for col in range(mission_pad_columns|length) %}
+              {% set pad_id = mission_pad_columns[col][display_row] if display_row < mission_pad_columns[col]|length else '' %}
               {% set matched = namespace(drone=None) %}
               {% for drone in drone_cards %}
                 {% if drone.grid_column|string == col|string and drone.grid_row|string == display_row|string %}
