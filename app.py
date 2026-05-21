@@ -99,10 +99,12 @@ WIND_DIRECTION_CODES = {
     "side wind": "side",
 }
 WIND_SPEED_CODES = {
+    "no wind": "no_wind",
     "Level1": "lv1",
     "Level2": "lv2",
     "Level3": "lv3",
 }
+WIND_SPEED_OPTIONS = ["no wind", "Level1", "Level2", "Level3"]
 WIND_LEVEL_ALIASES = {
     "lv1": "Level1",
     "lv 1": "Level1",
@@ -640,10 +642,11 @@ def summarize_condition_archive(condition_key):
 
 
 def experiment_filter_options(experiments):
+    wind_speeds = {exp.get("wind_speed", "") for exp in experiments if exp.get("wind_speed")}
     return {
         "formations": FORMATION_OPTIONS,
         "wind_directions": sorted({exp.get("wind_direction", "") for exp in experiments if exp.get("wind_direction")}),
-        "wind_speeds": sorted({exp.get("wind_speed", "") for exp in experiments if exp.get("wind_speed")}),
+        "wind_speeds": WIND_SPEED_OPTIONS + sorted(wind_speeds - set(WIND_SPEED_OPTIONS)),
     }
 
 
@@ -1522,6 +1525,7 @@ def index():
         display_battery_id=display_battery_id,
         battery_options=BATTERY_OPTIONS,
         battery_window=EXPERIMENT_BATTERY_WINDOW,
+        wind_speed_options=WIND_SPEED_OPTIONS,
         baseline_modes=BASELINE_MODES,
         baseline_directions=BASELINE_DIRECTIONS,
         baseline_wind_levels=BASELINE_WIND_LEVELS,
@@ -3319,9 +3323,9 @@ INDEX_TEMPLATE = """
             </label>
             <label>Wind Speed
               <select name="wind_speed">
-                <option value="Level1">Level1</option>
-                <option value="Level2">Level2</option>
-                <option value="Level3">Level3</option>
+                {% for wind_speed in wind_speed_options %}
+                  <option value="{{ wind_speed }}">{{ wind_speed }}</option>
+                {% endfor %}
               </select>
             </label>
           </div>
@@ -3592,7 +3596,7 @@ INDEX_TEMPLATE = """
                     </label>
                     <label>Wind Speed
                       <select name="wind_speed">
-                        {% for wind_speed in ['Level1', 'Level2', 'Level3'] %}
+                        {% for wind_speed in wind_speed_options %}
                           <option value="{{ wind_speed }}" {% if exp.wind_speed == wind_speed %}selected{% endif %}>{{ wind_speed }}</option>
                         {% endfor %}
                       </select>

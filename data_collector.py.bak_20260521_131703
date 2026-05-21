@@ -1275,54 +1275,6 @@ def land_all_with_tolerance(swarm, configs):
             time.sleep(0.5)
 
 
-def land_each_drone_when_target_pad_detected(swarm, configs, timeout=6.0):
-    landed_batteries = {}
-    errors = []
-    lock = threading.Lock()
-
-    def worker(idx, tello):
-        config = configs[idx]
-        try:
-            set_phase(idx, "verify_target_pad")
-            if not wait_for_pad(tello, config["target_pad"], timeout=timeout):
-                raise RuntimeError(
-                    f"{config['name']} failed to detect target mission pad {config['target_pad']} "
-                    "after node-to-node flight."
-                )
-
-            print(
-                f"{config['name']} detected target mission pad {config['target_pad']}; landing this drone now.",
-                flush=True,
-            )
-            try:
-                battery = str(tello.get_battery())
-            except Exception as exc:
-                battery = ""
-                print(f"  Warning: {config['name']} battery read before landing failed: {exc}", flush=True)
-
-            set_phase(idx, "landing")
-            tello.land()
-            with lock:
-                landed_batteries[config["ip"]] = battery
-            print(f"  {config['name']} landing command accepted.", flush=True)
-        except Exception as exc:
-            with lock:
-                errors.append((idx, exc))
-
-    threads = []
-    for idx, tello in enumerate(swarm.tellos):
-        thread = threading.Thread(target=worker, args=(idx, tello), daemon=True)
-        threads.append(thread)
-        thread.start()
-    for thread in threads:
-        thread.join()
-
-    if errors:
-        details = "; ".join(f"{configs[idx]['name']}: {exc}" for idx, exc in errors)
-        raise RuntimeError(f"Target-pad landing failed: {details}")
-    return landed_batteries
-
-
 def print_plan(configs, experiment):
     print("\nExperiment loaded:", flush=True)
     print(f"  experiment_id : {experiment['experiment_id']}", flush=True)
@@ -1474,9 +1426,15 @@ def run_collection(experiment_id):
         print("Node-to-node logging started.", flush=True)
         fly_node_to_node(swarm, configs)
 
-        print("Landing each drone as soon as its target mission pad is detected.", flush=True)
-        landing_attempted = True
-        landed_batteries = land_each_drone_when_target_pad_detected(swarm, configs)
+        set_phase_all("verify_target_pad")
+        for idx, tello in enumerate(swarm.tellos):
+            config = configs[idx]
+            if not wait_for_pad(tello, config["target_pad"], timeout=6.0):
+                raise RuntimeError(
+                    f"{config['name']} failed to detect target mission pad {config['target_pad']} "
+                    f"after node-to-node flight."
+                )
+            print(f"{config['name']} detected target mission pad {config['target_pad']}.", flush=True)
 
         logging_active = False
         if logger_thread:
@@ -1484,8 +1442,8 @@ def run_collection(experiment_id):
 
         node_end_timestamp = datetime.now().isoformat(timespec="milliseconds")
         node_duration = round(time.time() - node_start_time, 3)
-        for config in configs:
-            hover_end_batteries[config["ip"]] = landed_batteries.get(config["ip"], "")
+        for idx, tello in enumerate(swarm.tellos):
+            hover_end_batteries[configs[idx]["ip"]] = str(tello.get_battery())
         save_battery_rows(
             battery_path,
             drone_paths,
@@ -1510,6 +1468,10 @@ def run_collection(experiment_id):
             run_id,
         )
 
+        set_phase_all("landing")
+        print("Landing all five drones...", flush=True)
+        landing_attempted = True
+        land_all_with_tolerance(swarm, configs)
         time.sleep(1.5)
         run_completed = True
         print("Experiment finished.", flush=True)
