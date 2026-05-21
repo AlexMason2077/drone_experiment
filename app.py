@@ -3738,6 +3738,10 @@ INDEX_TEMPLATE = """
       return formationInput.value === "front" && windDirectionInput && windDirectionInput.value === "tail wind";
     }
 
+    function isDiamondTailWind() {
+      return formationInput.value === "diamond" && windDirectionInput && windDirectionInput.value === "tail wind";
+    }
+
     function isFormationCell(cell, formation) {
       const col = Number(cell.dataset.col);
       const row = Number(cell.dataset.row);
@@ -3752,9 +3756,10 @@ INDEX_TEMPLATE = """
                (row === 2 && ["4", "5", "6"].includes(cell.dataset.pad));
       }
       if (formation === "diamond") {
-        return (row === 0 && col === 2) ||
-               (row === 1 && col >= 1 && col <= 3) ||
-               (row === 2 && col === 2);
+        const rowOffset = isDiamondTailWind() ? 5 : 0;
+        return (row === rowOffset && col === 2) ||
+               (row === rowOffset + 1 && col >= 1 && col <= 3) ||
+               (row === rowOffset + 2 && col === 2);
       }
       return false;
     }
@@ -3791,7 +3796,9 @@ INDEX_TEMPLATE = """
       }
       if (frontFormationNote) {
         if (isDiamond) {
-          frontFormationNote.textContent = "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
+          frontFormationNote.textContent = isDiamondTailWind()
+            ? "diamond + tail wind: starts at rows 6-8 in diamond shape; flies back 5 cells to rows 1-3."
+            : "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
         } else {
           frontFormationNote.textContent = isFrontTailWind()
             ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"

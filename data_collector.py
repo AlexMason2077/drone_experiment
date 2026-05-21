@@ -247,7 +247,7 @@ def target_pad_for_start(mission_pad, forward_distance_cm=NODE_FORWARD_DISTANCE_
 def node_direction_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
-    if formation == "front" and wind_direction == "tail wind":
+    if formation in {"front", "diamond"} and wind_direction == "tail wind":
         return -1
     return 1
 
