@@ -3779,6 +3779,12 @@ INDEX_TEMPLATE = """
         ));
       }
       if (formation === "diamond") {
+        if (isDiamondTailWind()) {
+          return activeCells.sort((a, b) => (
+            Number(b.dataset.row) - Number(a.dataset.row) ||
+            Number(a.dataset.col) - Number(b.dataset.col)
+          ));
+        }
         return activeCells.sort((a, b) => (
           Number(a.dataset.row) - Number(b.dataset.row) ||
           Number(a.dataset.col) - Number(b.dataset.col)

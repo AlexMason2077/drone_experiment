@@ -54,7 +54,6 @@ SAME_COLUMN_FRONT_RELEASE_PROGRESS_CM = 15
 SAME_COLUMN_SAFETY_TIMEOUT_SEC = 10.0
 BATTERY_WINDOW_LOW_PERCENT = 40
 BATTERY_WINDOW_HIGH_PERCENT = 75
-DISCHARGE_HOVER_HEIGHT_CM = 80
 DISCHARGE_CHECK_INTERVAL_SEC = 8.0
 DISCHARGE_MAX_DURATION_SEC = 900.0
 PAD_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -1180,22 +1179,20 @@ def discharge_high_battery_drones(swarm, configs, high_battery):
     for idx in high_indices:
         set_phase(idx, "battery_discharge_takeoff")
 
-    print("Taking off high-battery drones for discharge hover. No experiment data will be recorded.", flush=True)
+    print(
+        "Taking off high-battery drones for discharge hover. "
+        "Mission pads are not required in discharge mode, and no experiment data will be recorded.",
+        flush=True,
+    )
     run_selected_parallel(indexed_tellos, "Battery discharge takeoff", lambda idx, tello: tello.takeoff())
     time.sleep(2.5)
 
     for idx in high_indices:
-        set_phase(idx, "battery_discharge_climb")
+        set_phase(idx, "battery_discharge_hover")
     run_selected_parallel(
         indexed_tellos,
-        "Battery discharge climb",
-        lambda idx, tello: tello.go_xyz_speed_mid(
-            0,
-            0,
-            DISCHARGE_HOVER_HEIGHT_CM,
-            TAKEOFF_CLIMB_SPEED_CM_S,
-            configs[idx]["mission_pad"],
-        ),
+        "Battery discharge hover hold",
+        lambda idx, tello: tello.send_rc_control(0, 0, 0, 0),
     )
     time.sleep(1.0)
 
