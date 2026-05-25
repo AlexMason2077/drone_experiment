@@ -49,10 +49,12 @@ NODE_FORWARD_DISTANCE_CM = 250
 NODE_SEGMENT_DISTANCE_CM = ROW_SPACING_CM
 LONG_GO_RESPONSE_TIMEOUT_SEC = 40
 PRE_NODE_SETTLE_SEC = 2.0
+TAKEOFF_HEIGHT_ADJUST_MIN_CM = 20
 SAME_COLUMN_COLLISION_GAP_CM = 30
 SAME_COLUMN_FRONT_RELEASE_PROGRESS_CM = 15
 SAME_COLUMN_SAFETY_TIMEOUT_SEC = 10.0
-BATTERY_WINDOW_LOW_PERCENT = 40
+VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
+BATTERY_WINDOW_LOW_PERCENT = 20
 BATTERY_WINDOW_HIGH_PERCENT = 75
 DISCHARGE_CHECK_INTERVAL_SEC = 8.0
 DISCHARGE_MAX_DURATION_SEC = 900.0
@@ -64,6 +66,20 @@ MISSION_PAD_COLUMNS = [
     [3, 4, 5, 6, 7, 8],
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
+]
+VEE_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6],
+    [5, 6, 7, 8, 1, 2],
+    [3, 4, 5, 6, 7, 8],
+    [5, 6, 7, 8, 1, 2],
+    [1, 2, 3, 4, 7, 8],
+]
+VEE_COLUMN_ORIGINS_CM = [
+    (0.0, 0.0),
+    (25 * math.sqrt(2), 25 * math.sqrt(2)),
+    (50 * math.sqrt(2), 50 * math.sqrt(2)),
+    (75 * math.sqrt(2), 25 * math.sqrt(2)),
+    (100 * math.sqrt(2), 0.0),
 ]
 DIAMOND_MISSION_PAD_COLUMNS = [
     [],
@@ -226,15 +242,32 @@ def clamp(value, low, high):
 
 def mission_pad_columns_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
-    return DIAMOND_MISSION_PAD_COLUMNS if formation == "diamond" else MISSION_PAD_COLUMNS
+    if formation == "diamond":
+        return DIAMOND_MISSION_PAD_COLUMNS
+    if formation == "vee":
+        return VEE_MISSION_PAD_COLUMNS
+    return MISSION_PAD_COLUMNS
+
+
+def position_at_column_row(formation, grid_column, row_idx):
+    if formation == "vee":
+        origin_x, origin_y = VEE_COLUMN_ORIGINS_CM[grid_column]
+        return origin_x, origin_y + row_idx * ROW_SPACING_CM
+    return grid_column * COLUMN_SPACING_CM, row_idx * ROW_SPACING_CM
 
 
 def lane_pad_sequence(grid_column, min_rows=None, columns=None):
     columns = columns or MISSION_PAD_COLUMNS
-    start_pad = columns[grid_column][0]
-    start_idx = PAD_SEQUENCE.index(start_pad)
-    row_count = min_rows or len(columns[grid_column])
-    return [PAD_SEQUENCE[(start_idx + offset) % len(PAD_SEQUENCE)] for offset in range(row_count)]
+    configured_lane = list(columns[grid_column])
+    row_count = min_rows or len(configured_lane)
+    if row_count <= len(configured_lane):
+        return configured_lane[:row_count]
+    start_idx = PAD_SEQUENCE.index(configured_lane[-1])
+    extension = [
+        PAD_SEQUENCE[(start_idx + offset) % len(PAD_SEQUENCE)]
+        for offset in range(1, row_count - len(configured_lane) + 1)
+    ]
+    return configured_lane + extension
 
 
 def target_pad_for_start(mission_pad, forward_distance_cm=NODE_FORWARD_DISTANCE_CM):
@@ -270,6 +303,7 @@ def build_tello_configs(experiment):
     if len(drones) != 5:
         raise ValueError(f"Expected exactly 5 drones in experiment record, got {len(drones)}.")
 
+    formation = str(experiment.get("formation", "")).strip().lower()
     node_direction = node_direction_for_experiment(experiment)
     mission_pad_columns = mission_pad_columns_for_experiment(experiment)
     default_steps = int(round(NODE_FORWARD_DISTANCE_CM / ROW_SPACING_CM))
@@ -311,14 +345,14 @@ def build_tello_configs(experiment):
         if position_key in seen_positions:
             raise ValueError(f"Two drones are assigned to the same grid position: {position_key}")
         seen_positions.add(position_key)
-        start_x = grid_column * COLUMN_SPACING_CM
-        start_y = grid_row * ROW_SPACING_CM
+        start_x, start_y = position_at_column_row(formation, grid_column, grid_row)
         if node_direction < 0:
             target_row = max(0, grid_row - default_steps)
         else:
             target_row = grid_row + default_steps
         target_pad = pad_at_column_row(grid_column, target_row, columns=mission_pad_columns)
         node_distance = abs(target_row - grid_row) * ROW_SPACING_CM
+        target_x, target_y = position_at_column_row(formation, grid_column, target_row)
 
         configs.append({
             "name": f"drone_{idx + 1}",
@@ -328,6 +362,7 @@ def build_tello_configs(experiment):
             "role": str(drone.get("role") or f"drone_{idx + 1}"),
             "mission_pad": mission_pad,
             "mission_pad_columns": mission_pad_columns,
+            "formation": formation,
             "target_pad": target_pad,
             "grid_column": grid_column,
             "grid_row": grid_row,
@@ -336,8 +371,8 @@ def build_tello_configs(experiment):
             "node_segment_count": abs(target_row - grid_row),
             "start_x": start_x,
             "start_y": start_y,
-            "target_x": start_x,
-            "target_y": target_row * ROW_SPACING_CM,
+            "target_x": target_x,
+            "target_y": target_y,
             "target_z": TAKEOFF_HEIGHT_CM,
             "node_forward_distance_cm": node_distance,
             "node_speed_cm_s": NODE_FLIGHT_SPEED_CM_S,
@@ -585,7 +620,7 @@ def pad_origin_for_detection(config, mid):
     if not candidate_rows:
         return None, None
     detected_row = candidate_rows[0]
-    return config["grid_column"] * COLUMN_SPACING_CM, detected_row * ROW_SPACING_CM
+    return position_at_column_row(config.get("formation", ""), config["grid_column"], detected_row)
 
 
 def to_global(config, state):
@@ -659,6 +694,32 @@ def run_swarm_parallel_checked(swarm, label, command_func):
 
 
 def coordinate_climb_on_start_pads(swarm, configs):
+    if any(config.get("formation") == "vee" for config in configs):
+        print(
+            f"Stabilizing vee takeoff height near {TAKEOFF_HEIGHT_CM} cm without mission-pad-relative climb commands...",
+            flush=True,
+        )
+        set_phase_all("coordinate_climb")
+
+        def adjust_height(_idx, tello):
+            state = get_state_safe(tello)
+            measured_height = state["tof"] or state["h"]
+            if measured_height <= 0:
+                raise RuntimeError("No valid downward height reading available for vee takeoff stabilization.")
+            current_height = int(round(measured_height))
+            height_delta = TAKEOFF_HEIGHT_CM - current_height
+            if abs(height_delta) < TAKEOFF_HEIGHT_ADJUST_MIN_CM:
+                return
+            distance = max(TAKEOFF_HEIGHT_ADJUST_MIN_CM, min(500, abs(height_delta)))
+            if height_delta > 0:
+                tello.move_up(distance)
+            else:
+                tello.move_down(distance)
+
+        run_swarm_parallel_checked(swarm, "Takeoff height stabilization", adjust_height)
+        time.sleep(1.0)
+        return
+
     print(f"Climbing all drones to {TAKEOFF_HEIGHT_CM} cm above their start mission pads...", flush=True)
     set_phase_all("coordinate_climb")
     run_swarm_parallel_checked(
@@ -676,14 +737,37 @@ def coordinate_climb_on_start_pads(swarm, configs):
 
 
 def is_valid_column_detection(config, x_global):
-    return abs(x_global - config["target_x"]) <= COLUMN_SPACING_CM * 0.75
+    tolerance = COLUMN_SPACING_CM * 0.75
+    if config.get("formation") == "vee":
+        tolerance = VEE_COLUMN_DETECTION_TOLERANCE_CM
+    return abs(x_global - config["target_x"]) <= tolerance
+
+
+def wait_for_segment_target(tello, config, target_pad, target_x, target_y, tolerance=8, timeout=4.0, interval=0.15):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        state = get_state_safe(tello)
+        if state["mid"] != target_pad:
+            time.sleep(interval)
+            continue
+        x_global, y_global, _ = to_global(config, state)
+        if (
+            x_global is not None
+            and y_global is not None
+            and is_valid_column_detection(config, x_global)
+            and abs(target_x - x_global) <= tolerance
+            and abs(target_y - y_global) <= tolerance
+        ):
+            return True
+        time.sleep(interval)
+    return False
 
 
 def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance=8, max_corrections=3):
     step = config["node_row_direction"]
     stop_row = config["target_grid_row"] + step
     for row_idx in range(config["grid_row"], stop_row, step):
-        pad_y = row_idx * ROW_SPACING_CM
+        target_x, pad_y = position_at_column_row(config.get("formation", ""), config["grid_column"], row_idx)
         expected_pad = pad_at_physical_row(config, row_idx)
         for _ in range(max_corrections):
             state = get_state_safe(tello)
@@ -697,13 +781,13 @@ def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance
             if not is_valid_column_detection(config, x_global):
                 time.sleep(0.3)
                 continue
-            if abs(pad_y - y_global) <= tolerance and abs(config["target_x"] - x_global) <= tolerance:
+            if abs(pad_y - y_global) <= tolerance and abs(target_x - x_global) <= tolerance:
                 break
             origin_x, origin_y = pad_origin_for_detection(config, state["mid"])
             if origin_x is None or origin_y is None:
                 time.sleep(0.3)
                 continue
-            local_x = max(-500, min(500, int(round(config["target_x"] - origin_x))))
+            local_x = max(-500, min(500, int(round(target_x - origin_x))))
             local_y = max(-500, min(500, int(round(pad_y - origin_y))))
             local_z = max(20, min(500, int(round(TAKEOFF_HEIGHT_CM))))
             try:
@@ -726,12 +810,17 @@ def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance
 
 def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_SPEED_CM_S, tolerance=8, max_corrections=3):
     next_row = current_row + config["node_row_direction"]
-    next_pad_y = next_row * ROW_SPACING_CM
+    next_pad_x, next_pad_y = position_at_column_row(config.get("formation", ""), config["grid_column"], next_row)
+    current_pad = pad_at_physical_row(config, current_row)
     expected_pad = pad_at_physical_row(config, next_row)
+    allowed_pads = {current_pad, expected_pad}
 
     for _ in range(max_corrections):
         state = get_state_safe(tello)
         if state["mid"] == -1:
+            time.sleep(0.3)
+            continue
+        if state["mid"] not in allowed_pads:
             time.sleep(0.3)
             continue
         x_global, y_global, _ = to_global(config, state)
@@ -742,7 +831,7 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
             time.sleep(0.3)
             continue
 
-        if abs(next_pad_y - y_global) <= tolerance and abs(config["target_x"] - x_global) <= tolerance:
+        if abs(next_pad_y - y_global) <= tolerance and abs(next_pad_x - x_global) <= tolerance:
             break
 
         origin_x, origin_y = pad_origin_for_detection(config, state["mid"])
@@ -750,9 +839,12 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
             time.sleep(0.3)
             continue
 
-        local_x = max(-500, min(500, int(round(config["target_x"] - origin_x))))
+        local_x = max(-500, min(500, int(round(next_pad_x - origin_x))))
         local_y = max(-500, min(500, int(round(next_pad_y - origin_y))))
         local_z = max(20, min(500, int(round(TAKEOFF_HEIGHT_CM))))
+        if local_y * config["node_row_direction"] < 0:
+            time.sleep(0.3)
+            continue
         try:
             tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
         except Exception as exc:
@@ -766,7 +858,15 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
             raise
         time.sleep(0.5)
 
-    if not wait_for_pad(tello, expected_pad, timeout=4.0):
+    if not wait_for_segment_target(
+        tello,
+        config,
+        expected_pad,
+        next_pad_x,
+        next_pad_y,
+        tolerance=tolerance,
+        timeout=4.0,
+    ):
         raise RuntimeError(
             f"{config['name']} failed to detect mission pad {expected_pad} after synchronized segment."
         )
@@ -807,7 +907,11 @@ def wait_for_same_column_clearance(swarm, configs, index, current_rows):
     config = configs[index]
     ahead_config = configs[ahead_index]
     direction = config["node_row_direction"]
-    ahead_start_y = current_rows[ahead_index] * ROW_SPACING_CM
+    _, ahead_start_y = position_at_column_row(
+        ahead_config.get("formation", ""),
+        ahead_config["grid_column"],
+        current_rows[ahead_index],
+    )
     deadline = time.time() + SAME_COLUMN_SAFETY_TIMEOUT_SEC
     reported_wait = False
 

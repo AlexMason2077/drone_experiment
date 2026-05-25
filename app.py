@@ -62,6 +62,13 @@ MISSION_PAD_COLUMNS = [
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
 ]
+VEE_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6],
+    [5, 6, 7, 8, 1, 2],
+    [3, 4, 5, 6, 7, 8],
+    [5, 6, 7, 8, 1, 2],
+    [1, 2, 3, 4, 7, 8],
+]
 DIAMOND_MISSION_PAD_COLUMNS = [
     [],
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -71,12 +78,18 @@ DIAMOND_MISSION_PAD_COLUMNS = [
 ]
 MISSION_PAD_LAYOUTS = {
     "standard": MISSION_PAD_COLUMNS,
+    "vee": VEE_MISSION_PAD_COLUMNS,
     "diamond": DIAMOND_MISSION_PAD_COLUMNS,
 }
 
 
 def mission_pad_layout_for_formation(formation):
-    return DIAMOND_MISSION_PAD_COLUMNS if str(formation or "").strip().lower() == "diamond" else MISSION_PAD_COLUMNS
+    formation = str(formation or "").strip().lower()
+    if formation == "diamond":
+        return DIAMOND_MISSION_PAD_COLUMNS
+    if formation == "vee":
+        return VEE_MISSION_PAD_COLUMNS
+    return MISSION_PAD_COLUMNS
 
 
 def python_executable():
@@ -3348,6 +3361,7 @@ INDEX_TEMPLATE = """
                 {% for display_row in range(max_mission_rows - 1, -1, -1) %}
                   {% for col in range(max_mission_cols) %}
                     {% set standard_pad = mission_pad_layouts.standard[col][display_row] if col < mission_pad_layouts.standard|length and display_row < mission_pad_layouts.standard[col]|length else '' %}
+                    {% set vee_pad = mission_pad_layouts.vee[col][display_row] if col < mission_pad_layouts.vee|length and display_row < mission_pad_layouts.vee[col]|length else '' %}
                     {% set diamond_pad = mission_pad_layouts.diamond[col][display_row] if col < mission_pad_layouts.diamond|length and display_row < mission_pad_layouts.diamond[col]|length else '' %}
                     {% set pad_id = standard_pad %}
                     <div class="pad-cell"
@@ -3355,6 +3369,7 @@ INDEX_TEMPLATE = """
                          data-row="{{ display_row }}"
                          data-pad="{{ pad_id }}"
                          data-standard-pad="{{ standard_pad }}"
+                         data-vee-pad="{{ vee_pad }}"
                          data-diamond-pad="{{ diamond_pad }}"
                          data-front-active="{{ 'true' if display_row == 0 else 'false' }}"
                          data-column-active="{{ 'true' if col == 0 else 'false' }}">
@@ -3391,7 +3406,7 @@ INDEX_TEMPLATE = """
           </div>
           <div>
             <h3>Mission Pad Layout</h3>
-            <div class="small" style="margin-top:6px;">
+            <div class="small" id="experimentMissionLayoutText" style="margin-top:6px;">
               Columns left to right:
               {% for column in mission_pad_columns %}
                 {{ column|join('-') }}{% if not loop.last %} · {% endif %}
@@ -3730,6 +3745,7 @@ INDEX_TEMPLATE = """
     const missionGrid = document.getElementById("missionGrid");
     const padCells = Array.from(document.querySelectorAll("#missionGrid .pad-cell"));
     const frontFormationNote = document.getElementById("frontFormationNote");
+    const experimentMissionLayoutText = document.getElementById("experimentMissionLayoutText");
     const recommendedDroneOrder = ["1", "2", "3", "4", "5"];
     const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B15"];
     const standardTopMissionRow = Math.max(...padCells.filter((cell) => cell.dataset.standardPad).map((cell) => Number(cell.dataset.row)));
@@ -3745,15 +3761,15 @@ INDEX_TEMPLATE = """
     function isFormationCell(cell, formation) {
       const col = Number(cell.dataset.col);
       const row = Number(cell.dataset.row);
-      const layoutPad = formation === "diamond" ? cell.dataset.diamondPad : cell.dataset.standardPad;
+      const layoutPad = formation === "diamond"
+        ? cell.dataset.diamondPad
+        : (formation === "vee" ? cell.dataset.veePad : cell.dataset.standardPad);
       if (!layoutPad) return false;
       if (formation === "front") return row === (isFrontTailWind() ? standardTopMissionRow : 0);
       if (formation === "column") return col === 0;
       if (formation === "echalon") return row === 0;
       if (formation === "vee") {
-        return (row === 0 && cell.dataset.pad === "4") ||
-               (row === 1 && cell.dataset.pad === "5") ||
-               (row === 2 && ["4", "5", "6"].includes(cell.dataset.pad));
+        return row === 0;
       }
       if (formation === "diamond") {
         const rowOffset = isDiamondTailWind() ? 5 : 0;
@@ -3805,10 +3821,21 @@ INDEX_TEMPLATE = """
           frontFormationNote.textContent = isDiamondTailWind()
             ? "diamond + tail wind: starts at rows 6-8 in diamond shape; flies back 5 cells to rows 1-3."
             : "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
+        } else if (formation === "vee") {
+          frontFormationNote.textContent = "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
         } else {
           frontFormationNote.textContent = isFrontTailWind()
             ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"
             : "front: bottom row, left to right = 1, 2, 3, 4, 5";
+        }
+      }
+      if (experimentMissionLayoutText) {
+        if (formation === "vee") {
+          experimentMissionLayoutText.textContent = "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
+        } else if (isDiamond) {
+          experimentMissionLayoutText.textContent = "Diamond uses the middle three columns: 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1 · 3-4-5-6-7-8-1-2";
+        } else {
+          experimentMissionLayoutText.textContent = "Columns left to right: 1-2-3-4-5-6 · 2-3-4-5-6-7 · 3-4-5-6-7-8 · 4-5-6-7-8-1 · 5-6-7-8-1-2";
         }
       }
       formationButtons.forEach((button) => {
@@ -3816,7 +3843,9 @@ INDEX_TEMPLATE = """
       });
 
       padCells.forEach((cell) => {
-        const layoutPad = isDiamond ? cell.dataset.diamondPad : cell.dataset.standardPad;
+        const layoutPad = isDiamond
+          ? cell.dataset.diamondPad
+          : (formation === "vee" ? cell.dataset.veePad : cell.dataset.standardPad);
         cell.hidden = !layoutPad && !isDiamond;
         cell.dataset.pad = layoutPad || "";
         const padLabel = cell.querySelector(".pad-id");
