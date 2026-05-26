@@ -279,6 +279,8 @@ def target_pad_for_start(mission_pad, forward_distance_cm=NODE_FORWARD_DISTANCE_
 def node_direction_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    # Vee tail-wind runs keep the same pad layout and +Y flight path as head-wind runs.
+    # The fan is physically moved to the tail side, so no coordinate reversal is needed.
     if formation in {"front", "diamond"} and wind_direction == "tail wind":
         return -1
     return 1
