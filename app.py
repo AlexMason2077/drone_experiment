@@ -62,6 +62,13 @@ MISSION_PAD_COLUMNS = [
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
 ]
+COLUMN_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6, 7, 8, 3, 4],
+    [],
+    [],
+    [],
+    [],
+]
 VEE_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
     [5, 6, 7, 8, 1, 2],
@@ -78,6 +85,7 @@ DIAMOND_MISSION_PAD_COLUMNS = [
 ]
 MISSION_PAD_LAYOUTS = {
     "standard": MISSION_PAD_COLUMNS,
+    "column": COLUMN_MISSION_PAD_COLUMNS,
     "vee": VEE_MISSION_PAD_COLUMNS,
     "diamond": DIAMOND_MISSION_PAD_COLUMNS,
 }
@@ -85,6 +93,8 @@ MISSION_PAD_LAYOUTS = {
 
 def mission_pad_layout_for_formation(formation):
     formation = str(formation or "").strip().lower()
+    if formation == "column":
+        return COLUMN_MISSION_PAD_COLUMNS
     if formation == "diamond":
         return DIAMOND_MISSION_PAD_COLUMNS
     if formation == "vee":
@@ -579,6 +589,16 @@ def trial_number_from_experiment_id(experiment_id):
     if len(parts) == 2 and parts[1].isdigit():
         return parts[1]
     return ""
+
+
+def is_new_experiment(exp):
+    experiment_id = str(exp.get("experiment_id") or "")
+    short_id = str(exp.get("short_id") or "")
+    return "_new_" in experiment_id or short_id.startswith("new_")
+
+
+def filter_new_experiments(experiments):
+    return [exp for exp in experiments if is_new_experiment(exp)]
 
 
 def group_experiments_by_condition(experiments):
@@ -1500,6 +1520,7 @@ def index():
         if extra_path.exists():
             baseline_summary_extra_plots.append(extra_path.relative_to(DATA_DIR).as_posix())
     data_experiments = filter_experiments(all_experiments, **selected_filters)
+    condition_experiments = filter_new_experiments(data_experiments)
     filter_active = True
     matched_ids = {exp.get("experiment_id") for exp in data_experiments}
     categories = all_categories
@@ -1524,7 +1545,7 @@ def index():
         categories=categories,
         experiments=all_experiments,
         data_experiments=data_experiments,
-        condition_groups=group_experiments_by_condition(data_experiments),
+        condition_groups=group_experiments_by_condition(condition_experiments),
         all_experiment_count=len(all_experiments),
         selected_filters=selected_filters,
         filter_options=experiment_filter_options(all_experiments),
@@ -1712,10 +1733,10 @@ def generate_filtered_condition_plots():
         "wind_direction": selected_values(request.form, "wind_direction"),
         "wind_speed": selected_values(request.form, "wind_speed"),
     }
-    experiments = filter_experiments(registry["experiments"], **selected_filters)
+    experiments = filter_new_experiments(filter_experiments(registry["experiments"], **selected_filters))
     groups = group_experiments_by_condition(experiments)
     if not groups:
-        abort(400, description="No condition groups match the selected filters.")
+        abort(400, description="No new condition groups match the selected filters.")
 
     script_path = BASE_DIR / "plot_generate.py"
     errors = []
@@ -2517,6 +2538,10 @@ INDEX_TEMPLATE = """
       display: grid;
       grid-template-columns: repeat(5, minmax(74px, 1fr));
       gap: 8px;
+    }
+    .mission-grid.column-layout {
+      grid-template-columns: minmax(120px, 180px) !important;
+      justify-content: center;
     }
     .pad-cell {
       min-height: 84px;
@@ -3361,6 +3386,7 @@ INDEX_TEMPLATE = """
                 {% for display_row in range(max_mission_rows - 1, -1, -1) %}
                   {% for col in range(max_mission_cols) %}
                     {% set standard_pad = mission_pad_layouts.standard[col][display_row] if col < mission_pad_layouts.standard|length and display_row < mission_pad_layouts.standard[col]|length else '' %}
+                    {% set column_pad = mission_pad_layouts.column[col][display_row] if col < mission_pad_layouts.column|length and display_row < mission_pad_layouts.column[col]|length else '' %}
                     {% set vee_pad = mission_pad_layouts.vee[col][display_row] if col < mission_pad_layouts.vee|length and display_row < mission_pad_layouts.vee[col]|length else '' %}
                     {% set diamond_pad = mission_pad_layouts.diamond[col][display_row] if col < mission_pad_layouts.diamond|length and display_row < mission_pad_layouts.diamond[col]|length else '' %}
                     {% set pad_id = standard_pad %}
@@ -3369,6 +3395,7 @@ INDEX_TEMPLATE = """
                          data-row="{{ display_row }}"
                          data-pad="{{ pad_id }}"
                          data-standard-pad="{{ standard_pad }}"
+                         data-column-pad="{{ column_pad }}"
                          data-vee-pad="{{ vee_pad }}"
                          data-diamond-pad="{{ diamond_pad }}"
                          data-front-active="{{ 'true' if display_row == 0 else 'false' }}"
@@ -3398,7 +3425,7 @@ INDEX_TEMPLATE = """
               </div>
               <div class="board-note">
                 <span class="small" id="frontFormationNote">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
-                <span class="small">column: first column, bottom to top = 1, 2, 3, 4, 5</span>
+                <span class="small">column: left lane = 1, 2, 3, 4, 5, 6, 7, 8, 3, 4</span>
                 <span class="small">drone #: 1->101, 2->109, 3->103, 4->106, 5->107</span>
                 <span class="small">default battery order: B11, B10, B13, B14, B15</span>
               </div>
@@ -3758,15 +3785,23 @@ INDEX_TEMPLATE = """
       return formationInput.value === "diamond" && windDirectionInput && windDirectionInput.value === "tail wind";
     }
 
+    function isColumnHeadWind() {
+      return formationInput.value === "column" && windDirectionInput && windDirectionInput.value === "head wind";
+    }
+
     function isFormationCell(cell, formation) {
       const col = Number(cell.dataset.col);
       const row = Number(cell.dataset.row);
       const layoutPad = formation === "diamond"
         ? cell.dataset.diamondPad
-        : (formation === "vee" ? cell.dataset.veePad : cell.dataset.standardPad);
+        : (formation === "vee"
+          ? cell.dataset.veePad
+          : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
       if (!layoutPad) return false;
       if (formation === "front") return row === (isFrontTailWind() ? standardTopMissionRow : 0);
-      if (formation === "column") return col === 0;
+      if (formation === "column") {
+        return col === 0 && (isColumnHeadWind() ? row >= 5 && row <= 9 : row >= 0 && row <= 4);
+      }
       if (formation === "echalon") return row === 0;
       if (formation === "vee") {
         return row === 0;
@@ -3786,7 +3821,11 @@ INDEX_TEMPLATE = """
         return activeCells.sort((a, b) => Number(a.dataset.col) - Number(b.dataset.col));
       }
       if (formation === "column") {
-        return activeCells.sort((a, b) => Number(a.dataset.row) - Number(b.dataset.row));
+        return activeCells.sort((a, b) => (
+          isColumnHeadWind()
+            ? Number(b.dataset.row) - Number(a.dataset.row)
+            : Number(a.dataset.row) - Number(b.dataset.row)
+        ));
       }
       if (formation === "vee") {
         return activeCells.sort((a, b) => (
@@ -3814,7 +3853,10 @@ INDEX_TEMPLATE = """
       formationDisplay.value = formation;
       const isDiamond = formation === "diamond";
       if (missionGrid) {
-        missionGrid.style.gridTemplateColumns = "repeat(5, minmax(74px, 1fr))";
+        missionGrid.classList.toggle("column-layout", formation === "column");
+        missionGrid.style.gridTemplateColumns = formation === "column"
+          ? "minmax(120px, 180px)"
+          : "repeat(5, minmax(74px, 1fr))";
       }
       if (frontFormationNote) {
         if (isDiamond) {
@@ -3823,6 +3865,10 @@ INDEX_TEMPLATE = """
             : "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
         } else if (formation === "vee") {
           frontFormationNote.textContent = "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
+        } else if (formation === "column") {
+          frontFormationNote.textContent = isColumnHeadWind()
+            ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
+            : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.";
         } else {
           frontFormationNote.textContent = isFrontTailWind()
             ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"
@@ -3832,6 +3878,8 @@ INDEX_TEMPLATE = """
       if (experimentMissionLayoutText) {
         if (formation === "vee") {
           experimentMissionLayoutText.textContent = "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
+        } else if (formation === "column") {
+          experimentMissionLayoutText.textContent = "Column uses the left lane only: 1-2-3-4-5-6-7-8-3-4";
         } else if (isDiamond) {
           experimentMissionLayoutText.textContent = "Diamond uses the middle three columns: 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1 · 3-4-5-6-7-8-1-2";
         } else {
@@ -3845,7 +3893,9 @@ INDEX_TEMPLATE = """
       padCells.forEach((cell) => {
         const layoutPad = isDiamond
           ? cell.dataset.diamondPad
-          : (formation === "vee" ? cell.dataset.veePad : cell.dataset.standardPad);
+          : (formation === "vee"
+            ? cell.dataset.veePad
+            : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
         cell.hidden = !layoutPad && !isDiamond;
         cell.dataset.pad = layoutPad || "";
         const padLabel = cell.querySelector(".pad-id");

@@ -67,6 +67,13 @@ MISSION_PAD_COLUMNS = [
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
 ]
+COLUMN_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6, 7, 8, 3, 4],
+    [],
+    [],
+    [],
+    [],
+]
 VEE_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
     [5, 6, 7, 8, 1, 2],
@@ -242,6 +249,8 @@ def clamp(value, low, high):
 
 def mission_pad_columns_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
+    if formation == "column":
+        return COLUMN_MISSION_PAD_COLUMNS
     if formation == "diamond":
         return DIAMOND_MISSION_PAD_COLUMNS
     if formation == "vee":
@@ -279,6 +288,8 @@ def target_pad_for_start(mission_pad, forward_distance_cm=NODE_FORWARD_DISTANCE_
 def node_direction_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    if formation == "column":
+        return -1 if wind_direction == "head wind" else 1
     # Vee tail-wind runs keep the same pad layout and +Y flight path as head-wind runs.
     # The fan is physically moved to the tail side, so no coordinate reversal is needed.
     if formation in {"front", "diamond"} and wind_direction == "tail wind":
