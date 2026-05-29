@@ -50,9 +50,9 @@ NODE_SEGMENT_DISTANCE_CM = ROW_SPACING_CM
 LONG_GO_RESPONSE_TIMEOUT_SEC = 40
 PRE_NODE_SETTLE_SEC = 2.0
 TAKEOFF_HEIGHT_ADJUST_MIN_CM = 20
-SAME_COLUMN_COLLISION_GAP_CM = 30
-SAME_COLUMN_FRONT_RELEASE_PROGRESS_CM = 15
-SAME_COLUMN_SAFETY_TIMEOUT_SEC = 10.0
+GROUP_PAD_WAIT_REPORT_INTERVAL_SEC = 3.0
+SEGMENT_TARGET_TIMEOUT_SEC = 8.0
+SEGMENT_STAGGER_DELAY_SEC = 0.2
 VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
 BATTERY_WINDOW_LOW_PERCENT = 20
 BATTERY_WINDOW_HIGH_PERCENT = 75
@@ -617,7 +617,7 @@ def get_state_safe(tello):
     }
 
 
-def pad_origin_for_detection(config, mid):
+def pad_origin_for_detection(config, mid, preferred_row=None):
     min_row = min(config["grid_row"], config["target_grid_row"]) - 1
     max_row = max(config["grid_row"], config["target_grid_row"]) + 1
     column = lane_pad_sequence(
@@ -632,15 +632,18 @@ def pad_origin_for_detection(config, mid):
     ]
     if not candidate_rows:
         return None, None
-    detected_row = candidate_rows[0]
+    if preferred_row is not None:
+        detected_row = min(candidate_rows, key=lambda row_idx: abs(row_idx - preferred_row))
+    else:
+        detected_row = candidate_rows[0]
     return position_at_column_row(config.get("formation", ""), config["grid_column"], detected_row)
 
 
-def to_global(config, state):
+def to_global(config, state, preferred_row=None):
     mid = state["mid"]
     if mid == -1:
         return None, None, None
-    origin_x, origin_y = pad_origin_for_detection(config, mid)
+    origin_x, origin_y = pad_origin_for_detection(config, mid, preferred_row=preferred_row)
     if origin_x is None or origin_y is None:
         return None, None, None
     return origin_x + state["x"], origin_y + state["y"], state["z"]
@@ -756,14 +759,26 @@ def is_valid_column_detection(config, x_global):
     return abs(x_global - config["target_x"]) <= tolerance
 
 
-def wait_for_segment_target(tello, config, target_pad, target_x, target_y, tolerance=8, timeout=4.0, interval=0.15):
+def hold_position(tello, config, context, state=None):
+    try:
+        tello.send_rc_control(0, 0, 0, 0)
+    except Exception as exc:
+        print(
+            f"  Warning: {config['name']} hover hold during {context} returned error: {exc}",
+            flush=True,
+        )
+    return state
+
+
+def wait_for_segment_target(tello, config, target_pad, target_x, target_y, target_row=None, tolerance=8, timeout=4.0, interval=0.15):
     deadline = time.time() + timeout
     while time.time() < deadline:
+        hold_position(tello, config, "target pad verification")
         state = get_state_safe(tello)
         if state["mid"] != target_pad:
             time.sleep(interval)
             continue
-        x_global, y_global, _ = to_global(config, state)
+        x_global, y_global, _ = to_global(config, state, preferred_row=target_row)
         if (
             x_global is not None
             and y_global is not None
@@ -836,7 +851,8 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
         if state["mid"] not in allowed_pads:
             time.sleep(0.3)
             continue
-        x_global, y_global, _ = to_global(config, state)
+        preferred_row = next_row if state["mid"] == expected_pad else current_row
+        x_global, y_global, _ = to_global(config, state, preferred_row=preferred_row)
         if x_global is None or y_global is None:
             time.sleep(0.3)
             continue
@@ -847,7 +863,7 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
         if abs(next_pad_y - y_global) <= tolerance and abs(next_pad_x - x_global) <= tolerance:
             break
 
-        origin_x, origin_y = pad_origin_for_detection(config, state["mid"])
+        origin_x, origin_y = pad_origin_for_detection(config, state["mid"], preferred_row=preferred_row)
         if origin_x is None or origin_y is None:
             time.sleep(0.3)
             continue
@@ -877,12 +893,50 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
         expected_pad,
         next_pad_x,
         next_pad_y,
+        target_row=next_row,
         tolerance=tolerance,
-        timeout=4.0,
+        timeout=SEGMENT_TARGET_TIMEOUT_SEC,
     ):
         raise RuntimeError(
             f"{config['name']} failed to detect mission pad {expected_pad} after synchronized segment."
         )
+
+
+def wait_for_all_segment_start_pads(swarm, configs, current_rows):
+    last_report = 0.0
+    hover_error_reported = set()
+
+    while True:
+        waiting = []
+        for index, tello in enumerate(swarm.tellos):
+            config = configs[index]
+            expected_pad = pad_at_physical_row(config, current_rows[index])
+            state = get_state_safe(tello)
+            if state["mid"] != expected_pad:
+                waiting.append((config["name"], expected_pad, state["mid"]))
+            try:
+                tello.send_rc_control(0, 0, 0, 0)
+            except Exception as exc:
+                if index not in hover_error_reported:
+                    print(
+                        f"  Warning: {config['name']} hover hold while waiting for group pad lock returned error: {exc}",
+                        flush=True,
+                    )
+                    hover_error_reported.add(index)
+
+        if not waiting:
+            print("  All drones detected their current mission pads; starting segment together.", flush=True)
+            return
+
+        now = time.time()
+        if now - last_report >= GROUP_PAD_WAIT_REPORT_INTERVAL_SEC:
+            waiting_text = "; ".join(
+                f"{name} needs m{expected_pad} sees m{seen_pad}"
+                for name, expected_pad, seen_pad in waiting
+            )
+            print(f"  Waiting for all current pads: {waiting_text}", flush=True)
+            last_report = now
+        time.sleep(0.2)
 
 
 def fly_continuous_node_to_node(tello, config, speed=NODE_FLIGHT_SPEED_CM_S):
@@ -897,65 +951,58 @@ def fly_continuous_node_to_node(tello, config, speed=NODE_FLIGHT_SPEED_CM_S):
     tello.send_control_command(command, timeout=LONG_GO_RESPONSE_TIMEOUT_SEC)
 
 
-def nearest_same_column_ahead(index, configs, current_rows):
-    config = configs[index]
-    direction = config["node_row_direction"]
-    candidates = []
-    for other_index, other_config in enumerate(configs):
-        if other_index == index or other_config["grid_column"] != config["grid_column"]:
-            continue
-        row_gap = (current_rows[other_index] - current_rows[index]) * direction
-        if row_gap > 0:
-            candidates.append((row_gap, other_index))
-    if not candidates:
-        return None
-    return min(candidates)[1]
-
-
-def wait_for_same_column_clearance(swarm, configs, index, current_rows):
-    ahead_index = nearest_same_column_ahead(index, configs, current_rows)
-    if ahead_index is None:
-        return
-
-    config = configs[index]
-    ahead_config = configs[ahead_index]
-    direction = config["node_row_direction"]
-    _, ahead_start_y = position_at_column_row(
-        ahead_config.get("formation", ""),
-        ahead_config["grid_column"],
-        current_rows[ahead_index],
+def segment_launch_order(configs, current_rows):
+    return sorted(
+        range(len(configs)),
+        key=lambda index: (
+            current_rows[index] * configs[index]["node_row_direction"],
+            -configs[index]["takeoff_order"],
+        ),
+        reverse=True,
     )
-    deadline = time.time() + SAME_COLUMN_SAFETY_TIMEOUT_SEC
-    reported_wait = False
 
-    while time.time() < deadline:
-        ahead_state = get_state_safe(swarm.tellos[ahead_index])
-        ahead_x, ahead_y, _ = to_global(ahead_config, ahead_state)
-        own_state = get_state_safe(swarm.tellos[index])
-        own_x, own_y, _ = to_global(config, own_state)
 
-        ahead_progress = None if ahead_y is None else (ahead_y - ahead_start_y) * direction
-        gap = None if ahead_y is None or own_y is None else (ahead_y - own_y) * direction
-
-        front_released = ahead_progress is not None and ahead_progress >= SAME_COLUMN_FRONT_RELEASE_PROGRESS_CM
-        collision_clear = gap is None or gap >= SAME_COLUMN_COLLISION_GAP_CM
-        if front_released and collision_clear:
-            return
-
-        if not reported_wait:
-            gap_text = "unknown" if gap is None else f"{gap:.1f}cm"
-            print(
-                f"  {config['name']} waiting: {ahead_config['name']} is ahead in the same column "
-                f"(gap={gap_text}).",
-                flush=True,
-            )
-            reported_wait = True
-        time.sleep(0.2)
-
+def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
+    errors = []
+    errors_lock = threading.Lock()
+    launch_order = segment_launch_order(configs, current_rows)
+    order_text = " -> ".join(configs[index]["name"] for index in launch_order)
     print(
-        f"  {config['name']} safety wait timed out; proceeding with marker-based control.",
+        f"  Segment {segment_index + 1} launch order with {SEGMENT_STAGGER_DELAY_SEC:.1f}s stagger: {order_text}",
         flush=True,
     )
+
+    def worker(release_order, index):
+        config = configs[index]
+        delay = release_order * SEGMENT_STAGGER_DELAY_SEC
+        deadline = time.time() + delay
+        while time.time() < deadline:
+            try:
+                swarm.tellos[index].send_rc_control(0, 0, 0, 0)
+            except Exception:
+                pass
+            time.sleep(0.05)
+        try:
+            fly_synchronized_node_segment(
+                swarm.tellos[index],
+                config,
+                current_rows[index],
+                speed=NODE_FLIGHT_SPEED_CM_S,
+            )
+        except Exception as exc:
+            with errors_lock:
+                errors.append((index, exc))
+
+    threads = []
+    for release_order, index in enumerate(launch_order):
+        thread = threading.Thread(target=worker, args=(release_order, index), daemon=True)
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+    if errors:
+        details = "; ".join(f"{configs[index]['name']}: {exc}" for index, exc in errors)
+        raise RuntimeError(f"Node segment {segment_index + 1} failed: {details}")
 
 
 def fly_node_to_node(swarm, configs):
@@ -990,21 +1037,8 @@ def fly_node_to_node(swarm, configs):
     for segment_index in range(segments):
         set_phase_all(f"node_segment_{segment_index + 1}_of_{segments}")
         print(f"  Segment {segment_index + 1}/{segments}", flush=True)
-
-        def fly_segment_with_safety(i, tello):
-            wait_for_same_column_clearance(swarm, configs, i, current_rows)
-            fly_synchronized_node_segment(
-                tello,
-                configs[i],
-                current_rows[i],
-                speed=NODE_FLIGHT_SPEED_CM_S,
-            )
-
-        run_swarm_parallel_checked(
-            swarm,
-            f"Node segment {segment_index + 1}",
-            fly_segment_with_safety,
-        )
+        wait_for_all_segment_start_pads(swarm, configs, current_rows)
+        run_staggered_node_segment(swarm, configs, current_rows, segment_index)
         for i, config in enumerate(configs):
             current_rows[i] += config["node_row_direction"]
             print(
