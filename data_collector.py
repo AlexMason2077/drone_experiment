@@ -53,6 +53,8 @@ TAKEOFF_HEIGHT_ADJUST_MIN_CM = 20
 GROUP_PAD_WAIT_REPORT_INTERVAL_SEC = 3.0
 SEGMENT_TARGET_TIMEOUT_SEC = 8.0
 SEGMENT_STAGGER_DELAY_SEC = 0.2
+COLUMN_WIND_STAGGER_DELAY_SEC = 0.5
+COLUMN_WIND_STAGGER_DELAYS_SEC = [0.0, 1.0, 1.7, 2.4, 3.0]
 VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
 BATTERY_WINDOW_LOW_PERCENT = 20
 BATTERY_WINDOW_HIGH_PERCENT = 75
@@ -376,6 +378,8 @@ def build_tello_configs(experiment):
             "mission_pad": mission_pad,
             "mission_pad_columns": mission_pad_columns,
             "formation": formation,
+            "wind_direction": str(experiment.get("wind_direction", "")).strip().lower(),
+            "wind_speed": str(experiment.get("wind_speed", "")).strip().lower(),
             "target_pad": target_pad,
             "grid_column": grid_column,
             "grid_row": grid_row,
@@ -962,19 +966,56 @@ def segment_launch_order(configs, current_rows):
     )
 
 
+def segment_stagger_delay(configs):
+    if not configs:
+        return SEGMENT_STAGGER_DELAY_SEC
+    formation = str(configs[0].get("formation", "")).strip().lower()
+    wind_direction = str(configs[0].get("wind_direction", "")).strip().lower()
+    wind_speed = str(configs[0].get("wind_speed", "")).strip().lower()
+    has_wind = wind_direction and wind_direction != "no wind" and wind_speed != "no wind"
+    if formation == "column" and has_wind:
+        return COLUMN_WIND_STAGGER_DELAY_SEC
+    return SEGMENT_STAGGER_DELAY_SEC
+
+
+def segment_stagger_delays(configs, launch_count):
+    if not configs:
+        return [release_order * SEGMENT_STAGGER_DELAY_SEC for release_order in range(launch_count)]
+    formation = str(configs[0].get("formation", "")).strip().lower()
+    wind_direction = str(configs[0].get("wind_direction", "")).strip().lower()
+    wind_speed = str(configs[0].get("wind_speed", "")).strip().lower()
+    has_wind = wind_direction and wind_direction != "no wind" and wind_speed != "no wind"
+    if formation == "column" and has_wind:
+        delays = list(COLUMN_WIND_STAGGER_DELAYS_SEC[:launch_count])
+        while len(delays) < launch_count:
+            delays.append(delays[-1] + COLUMN_WIND_STAGGER_DELAY_SEC)
+        return delays
+    stagger_delay = segment_stagger_delay(configs)
+    return [release_order * stagger_delay for release_order in range(launch_count)]
+
+
 def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
     errors = []
     errors_lock = threading.Lock()
     launch_order = segment_launch_order(configs, current_rows)
+    stagger_delays = segment_stagger_delays(configs, len(launch_order))
     order_text = " -> ".join(configs[index]["name"] for index in launch_order)
+    delay_text = ", ".join(
+        f"{configs[index]['name']}={stagger_delays[release_order]:.1f}s"
+        for release_order, index in enumerate(launch_order)
+    )
     print(
-        f"  Segment {segment_index + 1} launch order with {SEGMENT_STAGGER_DELAY_SEC:.1f}s stagger: {order_text}",
+        f"  Segment {segment_index + 1} launch order: {order_text}",
+        flush=True,
+    )
+    print(
+        f"  Segment {segment_index + 1} launch delays: {delay_text}",
         flush=True,
     )
 
     def worker(release_order, index):
         config = configs[index]
-        delay = release_order * SEGMENT_STAGGER_DELAY_SEC
+        delay = stagger_delays[release_order]
         deadline = time.time() + delay
         while time.time() < deadline:
             try:
