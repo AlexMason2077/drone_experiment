@@ -55,6 +55,10 @@ SEGMENT_TARGET_TIMEOUT_SEC = 8.0
 SEGMENT_STAGGER_DELAY_SEC = 0.2
 COLUMN_WIND_STAGGER_DELAY_SEC = 0.5
 COLUMN_WIND_STAGGER_DELAYS_SEC = [0.0, 1.0, 1.7, 2.4, 3.0]
+COLUMN_TARGET_SPACING_CM = 50.0
+COLUMN_SAFETY_RELEASE_SPACING_CM = COLUMN_TARGET_SPACING_CM + 5.0
+COLUMN_SAFETY_WAIT_TIMEOUT_SEC = 20.0
+COLUMN_SAFETY_REPORT_INTERVAL_SEC = 2.0
 VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
 BATTERY_WINDOW_LOW_PERCENT = 20
 BATTERY_WINDOW_HIGH_PERCENT = 75
@@ -994,6 +998,84 @@ def segment_stagger_delays(configs, launch_count):
     return [release_order * stagger_delay for release_order in range(launch_count)]
 
 
+def is_column_spacing_gate_enabled(configs):
+    if not configs:
+        return False
+    return str(configs[0].get("formation", "")).strip().lower() == "column"
+
+
+def observed_segment_y(tello, config, current_row):
+    state = get_state_safe(tello)
+    if state["mid"] == -1:
+        return None
+
+    next_row = current_row + config["node_row_direction"]
+    current_pad = pad_at_physical_row(config, current_row)
+    next_pad = pad_at_physical_row(config, next_row)
+    if state["mid"] == next_pad:
+        preferred_row = next_row
+    elif state["mid"] == current_pad:
+        preferred_row = current_row
+    else:
+        preferred_row = current_row
+
+    x_global, y_global, _ = to_global(config, state, preferred_row=preferred_row)
+    if x_global is None or y_global is None:
+        return None
+    if not is_valid_column_detection(config, x_global):
+        return None
+    return y_global
+
+
+def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, follower_index):
+    if not is_column_spacing_gate_enabled(configs) or release_order == 0:
+        return
+
+    leader_index = launch_order[release_order - 1]
+    leader_config = configs[leader_index]
+    follower_config = configs[follower_index]
+    direction = follower_config["node_row_direction"]
+    deadline = time.time() + COLUMN_SAFETY_WAIT_TIMEOUT_SEC
+    last_report = 0.0
+
+    while True:
+        leader_y = observed_segment_y(swarm.tellos[leader_index], leader_config, current_rows[leader_index])
+        follower_y = observed_segment_y(swarm.tellos[follower_index], follower_config, current_rows[follower_index])
+
+        if leader_y is not None and follower_y is not None:
+            spacing = direction * (leader_y - follower_y)
+            if spacing >= COLUMN_SAFETY_RELEASE_SPACING_CM:
+                return
+        else:
+            spacing = None
+
+        try:
+            swarm.tellos[follower_index].send_rc_control(0, 0, 0, 0)
+        except Exception:
+            pass
+
+        now = time.time()
+        if now >= deadline:
+            spacing_text = "unknown" if spacing is None else f"{spacing:.1f}cm"
+            raise RuntimeError(
+                f"{follower_config['name']} was not released because "
+                f"{leader_config['name']} did not clear "
+                f"{COLUMN_SAFETY_RELEASE_SPACING_CM:.0f}cm in column; "
+                f"spacing={spacing_text}."
+            )
+        if now - last_report >= COLUMN_SAFETY_REPORT_INTERVAL_SEC:
+            spacing_text = "unknown" if spacing is None else f"{spacing:.1f}cm"
+            print(
+                f"    {follower_config['name']} holding: waiting for "
+                f"{leader_config['name']} to clear "
+                f"{COLUMN_SAFETY_RELEASE_SPACING_CM:.0f}cm in column; "
+                f"spacing={spacing_text}.",
+                flush=True,
+            )
+            last_report = now
+        time.sleep(0.1)
+
+
 def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
     errors = []
     errors_lock = threading.Lock()
@@ -1024,6 +1106,7 @@ def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
                 pass
             time.sleep(0.05)
         try:
+            wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
             fly_synchronized_node_segment(
                 swarm.tellos[index],
                 config,
