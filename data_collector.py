@@ -108,6 +108,7 @@ COORDINATION_COLUMNS = [
     "formation",
     "wind_direction",
     "wind_speed",
+    "inter_drone_distance_cm",
     "drone_name",
     "drone_ip",
     "battery_id",
@@ -166,6 +167,7 @@ BATTERY_COLUMNS = [
     "formation",
     "wind_direction",
     "wind_speed",
+    "inter_drone_distance_cm",
     "drone_name",
     "drone_ip",
     "battery_id",
@@ -194,6 +196,7 @@ BATTERY_TIMESERIES_COLUMNS = [
     "formation",
     "wind_direction",
     "wind_speed",
+    "inter_drone_distance_cm",
     "drone_name",
     "drone_ip",
     "battery_id",
@@ -249,6 +252,10 @@ def int_field(value, field_name):
         raise ValueError(f"Invalid {field_name}: {value}") from exc
 
 
+def experiment_inter_drone_distance_cm(experiment):
+    return int_field(experiment.get("inter_drone_distance_cm", 50), "inter_drone_distance_cm")
+
+
 def clamp(value, low, high):
     return max(low, min(high, value))
 
@@ -264,11 +271,27 @@ def mission_pad_columns_for_experiment(experiment):
     return MISSION_PAD_COLUMNS
 
 
-def position_at_column_row(formation, grid_column, row_idx):
+def experiment_column_spacing_cm(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    if (
+        formation == "front"
+        and wind_direction == "head wind"
+        and experiment_inter_drone_distance_cm(experiment) == 75
+    ):
+        return 75
+    return COLUMN_SPACING_CM
+
+
+def config_column_spacing_cm(config):
+    return int(config.get("column_spacing_cm") or COLUMN_SPACING_CM)
+
+
+def position_at_column_row(formation, grid_column, row_idx, column_spacing_cm=COLUMN_SPACING_CM):
     if formation == "vee":
         origin_x, origin_y = VEE_COLUMN_ORIGINS_CM[grid_column]
         return origin_x, origin_y + row_idx * ROW_SPACING_CM
-    return grid_column * COLUMN_SPACING_CM, row_idx * ROW_SPACING_CM
+    return grid_column * column_spacing_cm, row_idx * ROW_SPACING_CM
 
 
 def lane_pad_sequence(grid_column, min_rows=None, columns=None):
@@ -325,6 +348,7 @@ def build_tello_configs(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     node_direction = node_direction_for_experiment(experiment)
     mission_pad_columns = mission_pad_columns_for_experiment(experiment)
+    column_spacing_cm = experiment_column_spacing_cm(experiment)
     default_steps = int(round(NODE_FORWARD_DISTANCE_CM / ROW_SPACING_CM))
     configs = []
     seen_ips = set()
@@ -364,14 +388,14 @@ def build_tello_configs(experiment):
         if position_key in seen_positions:
             raise ValueError(f"Two drones are assigned to the same grid position: {position_key}")
         seen_positions.add(position_key)
-        start_x, start_y = position_at_column_row(formation, grid_column, grid_row)
+        start_x, start_y = position_at_column_row(formation, grid_column, grid_row, column_spacing_cm)
         if node_direction < 0:
             target_row = max(0, grid_row - default_steps)
         else:
             target_row = grid_row + default_steps
         target_pad = pad_at_column_row(grid_column, target_row, columns=mission_pad_columns)
         node_distance = abs(target_row - grid_row) * ROW_SPACING_CM
-        target_x, target_y = position_at_column_row(formation, grid_column, target_row)
+        target_x, target_y = position_at_column_row(formation, grid_column, target_row, column_spacing_cm)
 
         configs.append({
             "name": f"drone_{idx + 1}",
@@ -384,6 +408,8 @@ def build_tello_configs(experiment):
             "formation": formation,
             "wind_direction": str(experiment.get("wind_direction", "")).strip().lower(),
             "wind_speed": str(experiment.get("wind_speed", "")).strip().lower(),
+            "inter_drone_distance_cm": experiment_inter_drone_distance_cm(experiment),
+            "column_spacing_cm": column_spacing_cm,
             "target_pad": target_pad,
             "grid_column": grid_column,
             "grid_row": grid_row,
@@ -644,7 +670,12 @@ def pad_origin_for_detection(config, mid, preferred_row=None):
         detected_row = min(candidate_rows, key=lambda row_idx: abs(row_idx - preferred_row))
     else:
         detected_row = candidate_rows[0]
-    return position_at_column_row(config.get("formation", ""), config["grid_column"], detected_row)
+    return position_at_column_row(
+        config.get("formation", ""),
+        config["grid_column"],
+        detected_row,
+        config_column_spacing_cm(config),
+    )
 
 
 def to_global(config, state, preferred_row=None):
@@ -803,7 +834,12 @@ def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance
     step = config["node_row_direction"]
     stop_row = config["target_grid_row"] + step
     for row_idx in range(config["grid_row"], stop_row, step):
-        target_x, pad_y = position_at_column_row(config.get("formation", ""), config["grid_column"], row_idx)
+        target_x, pad_y = position_at_column_row(
+            config.get("formation", ""),
+            config["grid_column"],
+            row_idx,
+            config_column_spacing_cm(config),
+        )
         expected_pad = pad_at_physical_row(config, row_idx)
         for _ in range(max_corrections):
             state = get_state_safe(tello)
@@ -846,7 +882,12 @@ def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance
 
 def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_SPEED_CM_S, tolerance=8, max_corrections=3):
     next_row = current_row + config["node_row_direction"]
-    next_pad_x, next_pad_y = position_at_column_row(config.get("formation", ""), config["grid_column"], next_row)
+    next_pad_x, next_pad_y = position_at_column_row(
+        config.get("formation", ""),
+        config["grid_column"],
+        next_row,
+        config_column_spacing_cm(config),
+    )
     current_pad = pad_at_physical_row(config, current_row)
     expected_pad = pad_at_physical_row(config, next_row)
     allowed_pads = {current_pad, expected_pad}
@@ -1228,6 +1269,7 @@ def logger_loop(
                 experiment.get("formation", ""),
                 experiment.get("wind_direction", ""),
                 experiment.get("wind_speed", ""),
+                experiment_inter_drone_distance_cm(experiment),
                 config["name"],
                 config["ip"],
                 config["battery_id"],
@@ -1292,6 +1334,7 @@ def logger_loop(
                 experiment.get("formation", ""),
                 experiment.get("wind_direction", ""),
                 experiment.get("wind_speed", ""),
+                experiment_inter_drone_distance_cm(experiment),
                 config["name"],
                 config["ip"],
                 config["battery_id"],
@@ -1324,6 +1367,7 @@ def save_battery_rows(path, drone_paths, configs, experiment, run_id, node_start
             experiment.get("formation", ""),
             experiment.get("wind_direction", ""),
             experiment.get("wind_speed", ""),
+            experiment_inter_drone_distance_cm(experiment),
             config["name"],
             config["ip"],
             config["battery_id"],
@@ -1600,6 +1644,8 @@ def print_plan(configs, experiment):
     print(f"  experiment_id : {experiment['experiment_id']}", flush=True)
     print(f"  formation     : {experiment.get('formation', '')}", flush=True)
     print(f"  wind          : {experiment.get('wind_direction', '')} / {experiment.get('wind_speed', '')}", flush=True)
+    print(f"  distance      : {experiment_inter_drone_distance_cm(experiment)} cm", flush=True)
+    print(f"  x spacing     : {experiment_column_spacing_cm(experiment)} cm", flush=True)
     for config in configs:
         print(
             f"  order={config['takeoff_order']} ip={config['ip']} battery={config['battery_id']} role={config['role']} "

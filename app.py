@@ -41,6 +41,7 @@ BATTERY_OPTIONS = [f"B{i:02d}" for i in range(1, 16)]
 EXPERIMENT_BATTERY_WINDOW = {"low": 40, "high": 75}
 RECOMMENDED_EXPERIMENT_BATTERIES = {"B02", "B04", "B06", "B07", "B10"}
 FORMATION_OPTIONS = ["front", "column", "vee", "echalon", "diamond"]
+INTER_DRONE_DISTANCE_OPTIONS_CM = [50, 75]
 BASELINE_MODES = [
     ("hover", "hover baseline"),
     ("head_forward_250", "head wind forward 250cm"),
@@ -302,15 +303,41 @@ def short_new_experiment_id(raw_id):
     return f"new_{short_id}"
 
 
-def build_full_experiment_id(raw_id, formation, wind_direction, wind_speed, new_prefix=False):
-    text = str(raw_id or "").strip()
-    if text and not text.isdigit() and "_" in text:
+def normalize_inter_drone_distance_cm(value):
+    try:
+        distance = int(str(value or 50).strip())
+    except ValueError:
+        distance = 50
+    if distance not in INTER_DRONE_DISTANCE_OPTIONS_CM:
+        distance = 50
+    return str(distance)
+
+
+def apply_distance_to_experiment_id(experiment_id, formation, inter_drone_distance_cm):
+    text = str(experiment_id or "").strip()
+    if not text:
         return text
     formation_code = (formation or "custom").strip().lower().replace(" ", "_")
+    parts = text.split("_")
+    distance_code = normalize_inter_drone_distance_cm(inter_drone_distance_cm)
+    if parts and parts[0] == formation_code:
+        if len(parts) > 1 and parts[1] in {"50", "75"}:
+            parts[1] = distance_code
+            return "_".join(parts)
+        return "_".join([parts[0], distance_code] + parts[1:])
+    return text
+
+
+def build_full_experiment_id(raw_id, formation, wind_direction, wind_speed, inter_drone_distance_cm=50, new_prefix=False):
+    text = str(raw_id or "").strip()
+    if text and not text.isdigit() and "_" in text:
+        return apply_distance_to_experiment_id(text, formation, inter_drone_distance_cm)
+    formation_code = (formation or "custom").strip().lower().replace(" ", "_")
+    distance_code = normalize_inter_drone_distance_cm(inter_drone_distance_cm)
     direction_code = WIND_DIRECTION_CODES.get(wind_direction, (wind_direction or "wind").replace(" ", "_"))
     speed_code = WIND_SPEED_CODES.get(wind_speed, (wind_speed or "level").lower())
     short_id = short_new_experiment_id(text) if new_prefix else short_experiment_id(text)
-    return f"{formation_code}_{direction_code}_{speed_code}_{short_id}"
+    return f"{formation_code}_{distance_code}_{direction_code}_{speed_code}_{short_id}"
 
 
 def normalize_drone_identifier(value):
@@ -481,11 +508,13 @@ def build_experiment_from_form(form):
     formation = form.get("formation", "").strip()
     wind_direction = form.get("wind_direction", "").strip()
     wind_speed = form.get("wind_speed", "").strip()
+    inter_drone_distance_cm = form.get("inter_drone_distance_cm", "50").strip() or "50"
     experiment_id = build_full_experiment_id(
         form.get("experiment_id", "").strip(),
         formation,
         wind_direction,
         wind_speed,
+        inter_drone_distance_cm,
         new_prefix=True,
     )
     return {
@@ -494,6 +523,7 @@ def build_experiment_from_form(form):
         "formation": formation,
         "wind_direction": wind_direction,
         "wind_speed": wind_speed,
+        "inter_drone_distance_cm": inter_drone_distance_cm,
         "status": form.get("status", "planned").strip() or "planned",
         "created_at": now,
         "updated_at": now,
@@ -614,6 +644,7 @@ def group_experiments_by_condition(experiments):
             "formation": first.get("formation", ""),
             "wind_direction": first.get("wind_direction", ""),
             "wind_speed": first.get("wind_speed", ""),
+            "inter_drone_distance_cm": first.get("inter_drone_distance_cm", 50),
             "trial_count": len(trials),
             "included_trial_count": sum(1 for trial in trials if not trial.get("is_outlier")),
             "outlier_count": sum(1 for trial in trials if trial.get("is_outlier")),
@@ -988,16 +1019,22 @@ def update_experiment_from_form(experiment, form):
     formation = form.get("formation", experiment.get("formation", "")).strip()
     wind_direction = form.get("wind_direction", experiment.get("wind_direction", "")).strip()
     wind_speed = form.get("wind_speed", experiment.get("wind_speed", "")).strip()
+    inter_drone_distance_cm = form.get(
+        "inter_drone_distance_cm",
+        experiment.get("inter_drone_distance_cm", "50"),
+    ).strip() or "50"
     experiment["experiment_id"] = build_full_experiment_id(
         form.get("experiment_id", experiment.get("experiment_id", "")).strip(),
         formation,
         wind_direction,
         wind_speed,
+        inter_drone_distance_cm,
     )
     experiment["short_id"] = short_experiment_id(form.get("experiment_id", experiment.get("short_id", "")).strip())
     experiment["formation"] = formation
     experiment["wind_direction"] = wind_direction
     experiment["wind_speed"] = wind_speed
+    experiment["inter_drone_distance_cm"] = inter_drone_distance_cm
     experiment["status"] = form.get("status", experiment.get("status", "planned")).strip() or "planned"
     experiment["notes"] = form.get("notes", experiment.get("notes", "")).strip()
     experiment["drones"] = build_edit_drones_from_form(form)
@@ -1560,6 +1597,7 @@ def index():
         battery_options=BATTERY_OPTIONS,
         battery_window=EXPERIMENT_BATTERY_WINDOW,
         wind_speed_options=WIND_SPEED_OPTIONS,
+        inter_drone_distance_options_cm=INTER_DRONE_DISTANCE_OPTIONS_CM,
         baseline_modes=BASELINE_MODES,
         baseline_directions=BASELINE_DIRECTIONS,
         baseline_wind_levels=BASELINE_WIND_LEVELS,
@@ -1595,6 +1633,7 @@ def update_experiment(experiment_id):
         request.form.get("formation", experiments[idx].get("formation", "")).strip(),
         request.form.get("wind_direction", experiments[idx].get("wind_direction", "")).strip(),
         request.form.get("wind_speed", experiments[idx].get("wind_speed", "")).strip(),
+        request.form.get("inter_drone_distance_cm", experiments[idx].get("inter_drone_distance_cm", 50)).strip(),
     )
     duplicate_idx = find_experiment_index(experiments, new_id)
     if new_id and duplicate_idx is not None and duplicate_idx != idx:
@@ -3367,6 +3406,13 @@ INDEX_TEMPLATE = """
               </select>
             </label>
           </div>
+          <label>Inter-drone Distance
+            <select name="inter_drone_distance_cm">
+              {% for distance_cm in inter_drone_distance_options_cm %}
+                <option value="{{ distance_cm }}" {% if distance_cm == 50 %}selected{% endif %}>{{ distance_cm }} cm</option>
+              {% endfor %}
+            </select>
+          </label>
           <div class="formation-toolbar wind-toolbar" style="margin-top:8px;">
             <button class="wind-option active" type="button" data-wind-direction="head wind">head wind</button>
             <button class="wind-option" type="button" data-wind-direction="tail wind">tail wind</button>
@@ -3593,6 +3639,7 @@ INDEX_TEMPLATE = """
                     {% if exp.wind_direction or exp.wind_speed %}
                       · {{ exp.wind_direction or 'wind direction not set' }} · {{ exp.wind_speed or 'wind speed not set' }}
                     {% endif %}
+                    · distance {{ exp.inter_drone_distance_cm or 50 }}cm
                     · {{ exp.created_at }}
                   </div>
                 </div>
@@ -3640,6 +3687,13 @@ INDEX_TEMPLATE = """
                       <select name="wind_speed">
                         {% for wind_speed in wind_speed_options %}
                           <option value="{{ wind_speed }}" {% if exp.wind_speed == wind_speed %}selected{% endif %}>{{ wind_speed }}</option>
+                        {% endfor %}
+                      </select>
+                    </label>
+                    <label>Inter-drone Distance
+                      <select name="inter_drone_distance_cm">
+                        {% for distance_cm in inter_drone_distance_options_cm %}
+                          <option value="{{ distance_cm }}" {% if (exp.inter_drone_distance_cm or 50)|int == distance_cm %}selected{% endif %}>{{ distance_cm }} cm</option>
                         {% endfor %}
                       </select>
                     </label>
@@ -4433,7 +4487,7 @@ EXPERIMENT_TEMPLATE = """
     <div>
       <h1>{{ experiment.experiment_id }}</h1>
       <div class="small">
-        {{ experiment.formation }} · {{ experiment.wind_direction }} · {{ experiment.wind_speed }}
+        {{ experiment.formation }} · {{ experiment.wind_direction }} · {{ experiment.wind_speed }} · distance {{ experiment.inter_drone_distance_cm or 50 }}cm
                 {% if experiment.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
                 {% for tag in experiment.tags or [] %}<span class="badge">{{ tag }}</span>{% endfor %}
       </div>
@@ -4584,7 +4638,7 @@ CONDITION_TEMPLATE = """
     <div>
       <h1>{{ condition.condition_key }}</h1>
       <div class="small">
-        {{ condition.formation }} · {{ condition.wind_direction }} · {{ condition.wind_speed }}
+        {{ condition.formation }} · {{ condition.wind_direction }} · {{ condition.wind_speed }} · distance {{ condition.inter_drone_distance_cm or 50 }}cm
         · {{ condition.included_trial_count }} used / {{ condition.trial_count }} trial(s)
         {% if condition.outlier_count %}· {{ condition.outlier_count }} outlier excluded{% endif %}
       </div>
