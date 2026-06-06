@@ -273,12 +273,7 @@ def mission_pad_columns_for_experiment(experiment):
 
 def experiment_column_spacing_cm(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
-    wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
-    if (
-        formation == "front"
-        and wind_direction == "head wind"
-        and experiment_inter_drone_distance_cm(experiment) == 75
-    ):
+    if formation == "front" and experiment_inter_drone_distance_cm(experiment) == 75:
         return 75
     return COLUMN_SPACING_CM
 
@@ -333,7 +328,7 @@ def node_direction_for_experiment(experiment):
         return -1
     # Vee tail-wind runs keep the same pad layout and +Y flight path as head-wind runs.
     # The fan is physically moved to the tail side, so no coordinate reversal is needed.
-    if formation in {"front", "diamond"} and wind_direction == "tail wind":
+    if formation == "diamond" and wind_direction == "tail wind":
         return -1
     return 1
 
@@ -1054,6 +1049,8 @@ def segment_stagger_delays(configs, launch_count):
     if not configs:
         return [release_order * SEGMENT_STAGGER_DELAY_SEC for release_order in range(launch_count)]
     formation = str(configs[0].get("formation", "")).strip().lower()
+    if formation == "front":
+        return [0.0] * launch_count
     wind_direction = str(configs[0].get("wind_direction", "")).strip().lower()
     wind_speed = str(configs[0].get("wind_speed", "")).strip().lower()
     has_wind = wind_direction and wind_direction != "no wind" and wind_speed != "no wind"
@@ -1147,6 +1144,9 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
 def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
     errors = []
     errors_lock = threading.Lock()
+    work_done_count = [0]
+    work_done_lock = threading.Lock()
+    all_work_done = threading.Event()
     launch_order = segment_launch_order(configs, current_rows)
     stagger_delays = segment_stagger_delays(configs, len(launch_order))
     order_text = " -> ".join(configs[index]["name"] for index in launch_order)
@@ -1184,6 +1184,15 @@ def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
         except Exception as exc:
             with errors_lock:
                 errors.append((index, exc))
+        with work_done_lock:
+            work_done_count[0] += 1
+            if work_done_count[0] >= len(launch_order):
+                all_work_done.set()
+        while not all_work_done.wait(timeout=0.1):
+            try:
+                swarm.tellos[index].send_rc_control(0, 0, 0, 0)
+            except Exception:
+                pass
 
     threads = []
     for release_order, index in enumerate(launch_order):
@@ -1423,7 +1432,6 @@ def save_battery_rows(path, drone_paths, configs, experiment, run_id, node_start
 def read_battery_window_status(swarm, configs, label):
     print(f"\n{label}", flush=True)
     readings = {}
-    low_battery = []
     high_battery = []
     for idx, tello in enumerate(swarm.tellos):
         config = configs[idx]
@@ -1439,23 +1447,9 @@ def read_battery_window_status(swarm, configs, label):
             f"  {config['name']} ({config['ip']}, battery {config['battery_id']}): {battery_value}%",
             flush=True,
         )
-        if battery_value < BATTERY_WINDOW_LOW_PERCENT:
-            low_battery.append((config, battery_value))
-        elif battery_value > BATTERY_WINDOW_HIGH_PERCENT:
+        if battery_value > BATTERY_WINDOW_HIGH_PERCENT:
             high_battery.append((idx, config, battery_value))
 
-    if low_battery:
-        print("\nPreflight battery window check failed:", flush=True)
-        for config, battery_value in low_battery:
-            print(
-                f"  {config['name']} ip={config['ip']} battery_id={config['battery_id']} "
-                f"battery={battery_value}% < {BATTERY_WINDOW_LOW_PERCENT}%",
-                flush=True,
-            )
-        raise RuntimeError(
-            f"Takeoff blocked: {len(low_battery)} drone(s) are below "
-            f"{BATTERY_WINDOW_LOW_PERCENT}% battery."
-        )
     return readings, high_battery
 
 
