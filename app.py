@@ -3407,7 +3407,7 @@ INDEX_TEMPLATE = """
             </label>
           </div>
           <label>Inter-drone Distance
-            <select name="inter_drone_distance_cm">
+            <select id="interDroneDistanceInput" name="inter_drone_distance_cm">
               {% for distance_cm in inter_drone_distance_options_cm %}
                 <option value="{{ distance_cm }}" {% if distance_cm == 50 %}selected{% endif %}>{{ distance_cm }} cm</option>
               {% endfor %}
@@ -3825,6 +3825,7 @@ INDEX_TEMPLATE = """
     const windDirectionButtons = document.querySelectorAll(".wind-option");
     const missionGrid = document.getElementById("missionGrid");
     const padCells = Array.from(document.querySelectorAll("#missionGrid .pad-cell"));
+    const interDroneDistanceInput = document.getElementById("interDroneDistanceInput");
     const frontFormationNote = document.getElementById("frontFormationNote");
     const experimentMissionLayoutText = document.getElementById("experimentMissionLayoutText");
     const recommendedDroneOrder = ["1", "2", "3", "4", "5"];
@@ -3833,6 +3834,18 @@ INDEX_TEMPLATE = """
 
     function isFrontTailWind() {
       return formationInput.value === "front" && windDirectionInput && windDirectionInput.value === "tail wind";
+    }
+
+    function isFrontHeadWind75cm() {
+      return formationInput.value === "front" &&
+             windDirectionInput &&
+             windDirectionInput.value === "head wind" &&
+             interDroneDistanceInput &&
+             interDroneDistanceInput.value === "75";
+    }
+
+    function isFrontReversePath() {
+      return isFrontTailWind() || isFrontHeadWind75cm();
     }
 
     function isDiamondTailWind() {
@@ -3852,7 +3865,7 @@ INDEX_TEMPLATE = """
           ? cell.dataset.veePad
           : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
       if (!layoutPad) return false;
-      if (formation === "front") return row === (isFrontTailWind() ? standardTopMissionRow : 0);
+      if (formation === "front") return row === (isFrontReversePath() ? standardTopMissionRow : 0);
       if (formation === "column") {
         return col === 0 && (isColumnHeadWind() ? row >= 5 && row <= 9 : row >= 0 && row <= 4);
       }
@@ -3924,8 +3937,10 @@ INDEX_TEMPLATE = """
             ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
             : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.";
         } else {
-          frontFormationNote.textContent = isFrontTailWind()
-            ? "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5"
+          frontFormationNote.textContent = isFrontReversePath()
+            ? (isFrontHeadWind75cm()
+              ? "front + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5; x spacing = 75cm."
+              : "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5")
             : "front: bottom row, left to right = 1, 2, 3, 4, 5";
         }
       }
@@ -4003,6 +4018,11 @@ INDEX_TEMPLATE = """
         setFormation(formationInput.value);
       });
     });
+    if (interDroneDistanceInput) {
+      interDroneDistanceInput.addEventListener("change", () => {
+        setFormation(formationInput.value);
+      });
+    }
 
     setFormation("front");
 

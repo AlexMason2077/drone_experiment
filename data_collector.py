@@ -51,7 +51,6 @@ LONG_GO_RESPONSE_TIMEOUT_SEC = 40
 PRE_NODE_SETTLE_SEC = 2.0
 TAKEOFF_HEIGHT_ADJUST_MIN_CM = 20
 GROUP_PAD_WAIT_REPORT_INTERVAL_SEC = 3.0
-SEGMENT_TARGET_TIMEOUT_SEC = 8.0
 SEGMENT_STAGGER_DELAY_SEC = 0.2
 COLUMN_WIND_STAGGER_DELAY_SEC = 0.5
 COLUMN_WIND_STAGGER_DELAYS_SEC = [0.0, 1.0, 1.7, 2.4, 3.0]
@@ -60,6 +59,7 @@ COLUMN_SAFETY_RELEASE_SPACING_CM = COLUMN_TARGET_SPACING_CM + 5.0
 COLUMN_SAFETY_WAIT_TIMEOUT_SEC = 20.0
 COLUMN_SAFETY_REPORT_INTERVAL_SEC = 2.0
 VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
+SEGMENT_TARGET_REPORT_INTERVAL_SEC = 3.0
 BATTERY_WINDOW_LOW_PERCENT = 20
 BATTERY_WINDOW_HIGH_PERCENT = 75
 DISCHARGE_CHECK_INTERVAL_SEC = 8.0
@@ -283,6 +283,16 @@ def experiment_column_spacing_cm(experiment):
     return COLUMN_SPACING_CM
 
 
+def is_front_head_75cm_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    return (
+        formation == "front"
+        and wind_direction == "head wind"
+        and experiment_inter_drone_distance_cm(experiment) == 75
+    )
+
+
 def config_column_spacing_cm(config):
     return int(config.get("column_spacing_cm") or COLUMN_SPACING_CM)
 
@@ -319,6 +329,8 @@ def node_direction_for_experiment(experiment):
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
     if formation == "column":
         return -1 if wind_direction == "head wind" else 1
+    if is_front_head_75cm_experiment(experiment):
+        return -1
     # Vee tail-wind runs keep the same pad layout and +Y flight path as head-wind runs.
     # The fan is physically moved to the tail side, so no coordinate reversal is needed.
     if formation in {"front", "diamond"} and wind_direction == "tail wind":
@@ -809,12 +821,20 @@ def hold_position(tello, config, context, state=None):
     return state
 
 
-def wait_for_segment_target(tello, config, target_pad, target_x, target_y, target_row=None, tolerance=8, timeout=4.0, interval=0.15):
-    deadline = time.time() + timeout
-    while time.time() < deadline:
+def wait_for_segment_target(tello, config, target_pad, target_x, target_y, target_row=None, tolerance=8, interval=0.15):
+    last_report = 0.0
+    while True:
         hold_position(tello, config, "target pad verification")
         state = get_state_safe(tello)
         if state["mid"] != target_pad:
+            now = time.time()
+            if now - last_report >= SEGMENT_TARGET_REPORT_INTERVAL_SEC:
+                print(
+                    f"    {config['name']} waiting for target pad m{target_pad}; "
+                    f"currently sees m{state['mid']}. Press Stop to abort/land.",
+                    flush=True,
+                )
+                last_report = now
             time.sleep(interval)
             continue
         x_global, y_global, _ = to_global(config, state, preferred_row=target_row)
@@ -826,8 +846,16 @@ def wait_for_segment_target(tello, config, target_pad, target_x, target_y, targe
             and abs(target_y - y_global) <= tolerance
         ):
             return True
+        now = time.time()
+        if now - last_report >= SEGMENT_TARGET_REPORT_INTERVAL_SEC:
+            print(
+                f"    {config['name']} sees target pad m{target_pad} but position is "
+                f"global=({x_global},{y_global}), target=({target_x},{target_y}). "
+                "Press Stop to abort/land.",
+                flush=True,
+            )
+            last_report = now
         time.sleep(interval)
-    return False
 
 
 def advance_to_target_pad(tello, config, speed=NODE_FLIGHT_SPEED_CM_S, tolerance=8, max_corrections=3):
@@ -944,7 +972,6 @@ def fly_synchronized_node_segment(tello, config, current_row, speed=NODE_FLIGHT_
         next_pad_y,
         target_row=next_row,
         tolerance=tolerance,
-        timeout=SEGMENT_TARGET_TIMEOUT_SEC,
     ):
         raise RuntimeError(
             f"{config['name']} failed to detect mission pad {expected_pad} after synchronized segment."
@@ -1591,8 +1618,8 @@ def land_all_with_tolerance(swarm, configs):
             time.sleep(0.5)
 
 
-def land_each_drone_when_target_pad_detected(swarm, configs, timeout=6.0):
-    landed_batteries = {}
+def wait_for_each_drone_target_pad_and_record_battery(swarm, configs):
+    target_batteries = {}
     errors = []
     lock = threading.Lock()
 
@@ -1600,27 +1627,29 @@ def land_each_drone_when_target_pad_detected(swarm, configs, timeout=6.0):
         config = configs[idx]
         try:
             set_phase(idx, "verify_target_pad")
-            if not wait_for_pad(tello, config["target_pad"], timeout=timeout):
-                raise RuntimeError(
-                    f"{config['name']} failed to detect target mission pad {config['target_pad']} "
-                    "after node-to-node flight."
+            while not wait_for_pad(tello, config["target_pad"], timeout=3.0):
+                hold_position(tello, config, "final target pad verification")
+                print(
+                    f"  {config['name']} waiting for final target mission pad "
+                    f"{config['target_pad']}. Press Stop to abort/land.",
+                    flush=True,
                 )
 
             print(
-                f"{config['name']} detected target mission pad {config['target_pad']}; landing this drone now.",
+                f"{config['name']} detected target mission pad {config['target_pad']}; "
+                "recording battery before automatic landing.",
                 flush=True,
             )
             try:
                 battery = str(tello.get_battery())
             except Exception as exc:
                 battery = ""
-                print(f"  Warning: {config['name']} battery read before landing failed: {exc}", flush=True)
+                print(f"  Warning: {config['name']} battery read at target pad failed: {exc}", flush=True)
 
-            set_phase(idx, "landing")
-            tello.land()
+            set_phase(idx, "target_pad_hold")
+            hold_position(tello, config, "target pad hold")
             with lock:
-                landed_batteries[config["ip"]] = battery
-            print(f"  {config['name']} landing command accepted.", flush=True)
+                target_batteries[config["ip"]] = battery
         except Exception as exc:
             with lock:
                 errors.append((idx, exc))
@@ -1635,8 +1664,23 @@ def land_each_drone_when_target_pad_detected(swarm, configs, timeout=6.0):
 
     if errors:
         details = "; ".join(f"{configs[idx]['name']}: {exc}" for idx, exc in errors)
-        raise RuntimeError(f"Target-pad landing failed: {details}")
-    return landed_batteries
+        raise RuntimeError(f"Target-pad verification failed: {details}")
+    return target_batteries
+
+
+def hold_all_until_stop(swarm, configs, reason):
+    set_phase_all("holding_until_stop")
+    print(
+        f"{reason} All drones will keep hovering. Press Stop in the GUI to land.",
+        flush=True,
+    )
+    while True:
+        for idx, tello in enumerate(swarm.tellos):
+            try:
+                tello.send_rc_control(0, 0, 0, 0)
+            except Exception as exc:
+                print(f"  Warning: {configs[idx]['name']} hover hold returned error: {exc}", flush=True)
+        time.sleep(0.5)
 
 
 def print_plan(configs, experiment):
@@ -1695,7 +1739,6 @@ def run_collection(experiment_id):
     swarm = TelloSwarm.fromIps([config["ip"] for config in configs])
     logger_thread = None
     experiment_start_time = time.time()
-    landing_attempted = False
     takeoff_started = False
 
     try:
@@ -1792,9 +1835,8 @@ def run_collection(experiment_id):
         print("Node-to-node logging started.", flush=True)
         fly_node_to_node(swarm, configs)
 
-        print("Landing each drone as soon as its target mission pad is detected.", flush=True)
-        landing_attempted = True
-        landed_batteries = land_each_drone_when_target_pad_detected(swarm, configs)
+        print("Verifying final target mission pads before automatic landing.", flush=True)
+        target_batteries = wait_for_each_drone_target_pad_and_record_battery(swarm, configs)
 
         logging_active = False
         if logger_thread:
@@ -1803,7 +1845,7 @@ def run_collection(experiment_id):
         node_end_timestamp = datetime.now().isoformat(timespec="milliseconds")
         node_duration = round(time.time() - node_start_time, 3)
         for config in configs:
-            hover_end_batteries[config["ip"]] = landed_batteries.get(config["ip"], "")
+            hover_end_batteries[config["ip"]] = target_batteries.get(config["ip"], "")
         save_battery_rows(
             battery_path,
             drone_paths,
@@ -1830,14 +1872,18 @@ def run_collection(experiment_id):
 
         time.sleep(1.5)
         run_completed = True
+        print("Experiment data saved. Landing all drones now.", flush=True)
+        land_all_with_tolerance(swarm, configs)
         print("Experiment finished.", flush=True)
 
     except (ExperimentStopped, KeyboardInterrupt) as exc:
         logging_active = False
         print(f"\nExperiment stopped: {exc}", flush=True)
         if takeoff_started:
-            landing_attempted = True
             safe_land_all(swarm, configs)
+        if run_completed:
+            print("Experiment data was already saved; keeping output files.", flush=True)
+            return True
         cleanup_failed_run_outputs(experiment_dir, output_files)
         cleanup_done = True
         return False
@@ -1846,8 +1892,14 @@ def run_collection(experiment_id):
         logging_active = False
         print(f"\nERROR: {exc}", flush=True)
         if takeoff_started:
-            landing_attempted = True
-            safe_land_all(swarm, configs)
+            try:
+                hold_all_until_stop(swarm, configs, "Error occurred.")
+            except (ExperimentStopped, KeyboardInterrupt) as stop_exc:
+                print(f"\nExperiment stopped after error: {stop_exc}", flush=True)
+                safe_land_all(swarm, configs)
+                cleanup_failed_run_outputs(experiment_dir, output_files)
+                cleanup_done = True
+                return False
         cleanup_failed_run_outputs(experiment_dir, output_files)
         cleanup_done = True
         raise
@@ -1856,7 +1908,7 @@ def run_collection(experiment_id):
         logging_active = False
         if logger_thread:
             logger_thread.join(timeout=2.0)
-        if not landing_attempted:
+        if not takeoff_started:
             for tello in swarm.tellos:
                 try:
                     tello.end()
