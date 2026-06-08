@@ -3844,8 +3844,12 @@ INDEX_TEMPLATE = """
              interDroneDistanceInput.value === "75";
     }
 
+    function isFrontTailWind75cm() {
+      return isFrontTailWind() && interDroneDistanceInput && interDroneDistanceInput.value === "75";
+    }
+
     function isFrontReversePath() {
-      return isFrontTailWind() || isFrontHeadWind75cm();
+      return isFrontHeadWind75cm();
     }
 
     function isDiamondTailWind() {
@@ -3937,11 +3941,11 @@ INDEX_TEMPLATE = """
             ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
             : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.";
         } else {
-          frontFormationNote.textContent = isFrontReversePath()
-            ? (isFrontHeadWind75cm()
-              ? "front + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5; x spacing = 75cm."
-              : "front + tail wind: top row, left to right = 6, 7, 8, 1, 2; flies back to 1, 2, 3, 4, 5")
-            : "front: bottom row, left to right = 1, 2, 3, 4, 5";
+          frontFormationNote.textContent = isFrontHeadWind75cm()
+            ? "front + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5; x spacing = 75cm."
+            : isFrontTailWind75cm()
+              ? "front + tail wind + 75cm: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2; x spacing = 75cm."
+              : "front: bottom row, left to right = 1, 2, 3, 4, 5";
         }
       }
       if (experimentMissionLayoutText) {
