@@ -113,6 +113,8 @@ EXPERIMENT_SCRIPTS = {
     "column": "data_collector.py",
     "vee": "data_collector.py",
     "echalon": "data_collector.py",
+    "echelon": "data_collector.py",
+    "echolon": "data_collector.py",
     "diamond": "data_collector.py",
 }
 TAKEOFF_PROMPT = "Press Enter to take off"
@@ -3844,6 +3846,18 @@ INDEX_TEMPLATE = """
              interDroneDistanceInput.value === "75";
     }
 
+    function isEchalonFormation() {
+      return formationInput.value === "echalon";
+    }
+
+    function isEchalonHeadWind75cm() {
+      return isEchalonFormation() &&
+             windDirectionInput &&
+             windDirectionInput.value === "head wind" &&
+             interDroneDistanceInput &&
+             interDroneDistanceInput.value === "75";
+    }
+
     function isFrontTailWind75cm() {
       return isFrontTailWind() && interDroneDistanceInput && interDroneDistanceInput.value === "75";
     }
@@ -3870,10 +3884,10 @@ INDEX_TEMPLATE = """
           : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
       if (!layoutPad) return false;
       if (formation === "front") return row === (isFrontReversePath() ? standardTopMissionRow : 0);
+      if (formation === "echalon") return row === (isEchalonHeadWind75cm() ? standardTopMissionRow : 0);
       if (formation === "column") {
         return col === 0 && (isColumnHeadWind() ? row >= 5 && row <= 9 : row >= 0 && row <= 4);
       }
-      if (formation === "echalon") return row === 0;
       if (formation === "vee") {
         return row === 0;
       }
@@ -3940,6 +3954,10 @@ INDEX_TEMPLATE = """
           frontFormationNote.textContent = isColumnHeadWind()
             ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
             : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.";
+        } else if (formation === "echalon") {
+          frontFormationNote.textContent = isEchalonHeadWind75cm()
+            ? "echalon + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5."
+            : "echalon + tail/side wind + 75cm: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2.";
         } else {
           frontFormationNote.textContent = isFrontHeadWind75cm()
             ? "front + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5; x spacing = 75cm."
@@ -3955,6 +3973,8 @@ INDEX_TEMPLATE = """
           experimentMissionLayoutText.textContent = "Column uses the left lane only: 1-2-3-4-5-6-7-8-3-4";
         } else if (isDiamond) {
           experimentMissionLayoutText.textContent = "Diamond uses the middle three columns: 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1 · 3-4-5-6-7-8-1-2";
+        } else if (formation === "echalon") {
+          experimentMissionLayoutText.textContent = "Echalon uses front mission-pad order with custom 75cm diagonal origins; each lane keeps 50cm mission-pad row spacing.";
         } else {
           experimentMissionLayoutText.textContent = "Columns left to right: 1-2-3-4-5-6 · 2-3-4-5-6-7 · 3-4-5-6-7-8 · 4-5-6-7-8-1 · 5-6-7-8-1-2";
         }

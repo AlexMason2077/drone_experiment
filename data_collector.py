@@ -99,6 +99,13 @@ VEE_COLUMN_ORIGINS_CM = [
     (75 * math.sqrt(2), 25 * math.sqrt(2)),
     (100 * math.sqrt(2), 0.0),
 ]
+ECHALON_COLUMN_ORIGINS_CM = [
+    (0.0, 150 * math.sqrt(2)),
+    (35 * math.sqrt(2), 115 * math.sqrt(2)),
+    (75 * math.sqrt(2), 75 * math.sqrt(2)),
+    (115 * math.sqrt(2), 35 * math.sqrt(2)),
+    (150 * math.sqrt(2), 0.0),
+]
 DIAMOND_MISSION_PAD_COLUMNS = [
     [],
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -283,11 +290,15 @@ def experiment_column_spacing_cm(experiment):
     return COLUMN_SPACING_CM
 
 
+def is_echalon_formation(formation):
+    return str(formation or "").strip().lower() in {"echalon", "echelon", "echolon"}
+
+
 def is_front_head_75cm_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
     return (
-        formation == "front"
+        (formation == "front" or is_echalon_formation(formation))
         and wind_direction == "head wind"
         and experiment_inter_drone_distance_cm(experiment) == 75
     )
@@ -300,6 +311,9 @@ def config_column_spacing_cm(config):
 def position_at_column_row(formation, grid_column, row_idx, column_spacing_cm=COLUMN_SPACING_CM):
     if formation == "vee":
         origin_x, origin_y = VEE_COLUMN_ORIGINS_CM[grid_column]
+        return origin_x, origin_y + row_idx * ROW_SPACING_CM
+    if is_echalon_formation(formation):
+        origin_x, origin_y = ECHALON_COLUMN_ORIGINS_CM[grid_column]
         return origin_x, origin_y + row_idx * ROW_SPACING_CM
     return grid_column * column_spacing_cm, row_idx * ROW_SPACING_CM
 
@@ -1377,8 +1391,12 @@ def fly_front_segment(
     max_corrections=3,
 ):
     next_row = current_row + config["node_row_direction"]
-    next_pad_y = next_row * ROW_SPACING_CM
-    next_pad_x = config["target_x"]
+    next_pad_x, next_pad_y = position_at_column_row(
+        config.get("formation", ""),
+        config["grid_column"],
+        next_row,
+        config_column_spacing_cm(config),
+    )
     expected_pad = pad_at_physical_row(config, next_row)
     last_report = 0.0
     last_nudge = 0.0
@@ -1540,7 +1558,8 @@ def fly_node_to_node(swarm, configs):
             flush=True,
         )
 
-    is_front = str(configs[0].get("formation", "")).strip().lower() == "front"
+    formation = str(configs[0].get("formation", "")).strip().lower()
+    is_front = formation == "front" or is_echalon_formation(formation)
     current_rows = [config["grid_row"] for config in configs]
     for segment_index in range(segments):
         set_phase_all(f"node_segment_{segment_index + 1}_of_{segments}")
@@ -1917,15 +1936,26 @@ def safe_land_all(swarm, configs):
 
 
 def land_all_with_tolerance(swarm, configs):
-    for idx, tello in enumerate(swarm.tellos):
+    errors = []
+    errors_lock = threading.Lock()
+
+    def worker(idx, tello):
         set_phase(idx, "landing")
         try:
             tello.land()
             print(f"  {configs[idx]['name']} landing command accepted.", flush=True)
         except Exception as exc:
             print(f"  Warning: {configs[idx]['name']} landing command returned error: {exc}", flush=True)
-        finally:
-            time.sleep(0.5)
+            with errors_lock:
+                errors.append((idx, exc))
+
+    threads = []
+    for idx, tello in enumerate(swarm.tellos):
+        thread = threading.Thread(target=worker, args=(idx, tello), daemon=True)
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 
 def wait_for_each_drone_target_pad_and_record_battery(swarm, configs):
@@ -2145,7 +2175,7 @@ def run_collection(experiment_id):
         fly_node_to_node(swarm, configs)
 
         formation = str(experiment.get("formation", "")).strip().lower()
-        if formation == "front":
+        if formation == "front" or is_echalon_formation(formation):
             set_phase_all("verify_target_pad")
             print("Verifying final target mission pads before automatic landing.", flush=True)
             for idx, tello in enumerate(swarm.tellos):
