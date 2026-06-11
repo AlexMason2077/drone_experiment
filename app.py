@@ -3475,7 +3475,7 @@ INDEX_TEMPLATE = """
                 <span class="small" id="frontFormationNote">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
                 <span class="small">column: left lane = 1, 2, 3, 4, 5, 6, 7, 8, 3, 4</span>
                 <span class="small">drone #: 1->101, 2->109, 3->103, 4->106, 5->107</span>
-                <span class="small">default battery order: B11, B10, B13, B14, B15</span>
+                <span class="small">default battery order: B11, B10, B13, B14, B12</span>
               </div>
             </div>
           </div>
@@ -3831,7 +3831,7 @@ INDEX_TEMPLATE = """
     const frontFormationNote = document.getElementById("frontFormationNote");
     const experimentMissionLayoutText = document.getElementById("experimentMissionLayoutText");
     const recommendedDroneOrder = ["1", "2", "3", "4", "5"];
-    const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B15"];
+    const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B12"];
     const standardTopMissionRow = Math.max(...padCells.filter((cell) => cell.dataset.standardPad).map((cell) => Number(cell.dataset.row)));
 
     function isFrontTailWind() {
@@ -3854,6 +3854,12 @@ INDEX_TEMPLATE = """
       return isEchalonFormation() &&
              windDirectionInput &&
              windDirectionInput.value === "head wind" &&
+             interDroneDistanceInput &&
+             interDroneDistanceInput.value === "75";
+    }
+
+    function isVee75cm() {
+      return formationInput.value === "vee" &&
              interDroneDistanceInput &&
              interDroneDistanceInput.value === "75";
     }
@@ -3949,7 +3955,9 @@ INDEX_TEMPLATE = """
             ? "diamond + tail wind: starts at rows 6-8 in diamond shape; flies back 5 cells to rows 1-3."
             : "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
         } else if (formation === "vee") {
-          frontFormationNote.textContent = "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
+          frontFormationNote.textContent = isVee75cm()
+            ? "vee + 75cm: always starts from the first row; columns use custom V origins and each lane keeps 50cm row spacing."
+            : "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
         } else if (formation === "column") {
           frontFormationNote.textContent = isColumnHeadWind()
             ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
@@ -3968,7 +3976,9 @@ INDEX_TEMPLATE = """
       }
       if (experimentMissionLayoutText) {
         if (formation === "vee") {
-          experimentMissionLayoutText.textContent = "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
+          experimentMissionLayoutText.textContent = isVee75cm()
+            ? "Vee + 75cm uses the vee mission-pad order with custom V-shaped origins; all drones start from row 1 and each lane keeps 50cm row spacing."
+            : "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
         } else if (formation === "column") {
           experimentMissionLayoutText.textContent = "Column uses the left lane only: 1-2-3-4-5-6-7-8-3-4";
         } else if (isDiamond) {

@@ -99,6 +99,13 @@ VEE_COLUMN_ORIGINS_CM = [
     (75 * math.sqrt(2), 25 * math.sqrt(2)),
     (100 * math.sqrt(2), 0.0),
 ]
+VEE_75_COLUMN_ORIGINS_CM = [
+    (0.0, 0.0),
+    (35 * math.sqrt(2), 35 * math.sqrt(2)),
+    (75 * math.sqrt(2), 75 * math.sqrt(2)),
+    (115 * math.sqrt(2), 35 * math.sqrt(2)),
+    (150 * math.sqrt(2), 0.0),
+]
 ECHALON_COLUMN_ORIGINS_CM = [
     (0.0, 150 * math.sqrt(2)),
     (35 * math.sqrt(2), 115 * math.sqrt(2)),
@@ -285,13 +292,25 @@ def mission_pad_columns_for_experiment(experiment):
 
 def experiment_column_spacing_cm(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
-    if formation == "front" and experiment_inter_drone_distance_cm(experiment) == 75:
+    if formation in {"front", "vee"} and experiment_inter_drone_distance_cm(experiment) == 75:
         return 75
     return COLUMN_SPACING_CM
 
 
 def is_echalon_formation(formation):
     return str(formation or "").strip().lower() in {"echalon", "echelon", "echolon"}
+
+
+def is_vee_75cm_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    return formation == "vee" and experiment_inter_drone_distance_cm(experiment) == 75
+
+
+def is_vee_75cm_config(config):
+    return (
+        str(config.get("formation", "")).strip().lower() == "vee"
+        and int(config.get("inter_drone_distance_cm") or 50) == 75
+    )
 
 
 def is_front_head_75cm_experiment(experiment):
@@ -310,7 +329,8 @@ def config_column_spacing_cm(config):
 
 def position_at_column_row(formation, grid_column, row_idx, column_spacing_cm=COLUMN_SPACING_CM):
     if formation == "vee":
-        origin_x, origin_y = VEE_COLUMN_ORIGINS_CM[grid_column]
+        origins = VEE_75_COLUMN_ORIGINS_CM if column_spacing_cm == 75 else VEE_COLUMN_ORIGINS_CM
+        origin_x, origin_y = origins[grid_column]
         return origin_x, origin_y + row_idx * ROW_SPACING_CM
     if is_echalon_formation(formation):
         origin_x, origin_y = ECHALON_COLUMN_ORIGINS_CM[grid_column]
@@ -403,6 +423,10 @@ def build_tello_configs(experiment):
             raise ValueError(f"grid_column out of range for {ip}: {grid_column}")
         if grid_row < 0 or grid_row >= len(mission_pad_columns[grid_column]):
             raise ValueError(f"grid_row out of range for {ip}: {grid_row}")
+        if is_vee_75cm_experiment(experiment) and grid_row != 0:
+            raise ValueError(
+                f"vee + 75cm must start from the first row; {ip} is assigned to row {grid_row}."
+            )
 
         mission_pad = int_field(drone.get("mission_pad"), "mission_pad")
         expected_pad = mission_pad_columns[grid_column][grid_row]
@@ -1559,7 +1583,7 @@ def fly_node_to_node(swarm, configs):
         )
 
     formation = str(configs[0].get("formation", "")).strip().lower()
-    is_front = formation == "front" or is_echalon_formation(formation)
+    is_front = formation == "front" or is_echalon_formation(formation) or all(is_vee_75cm_config(config) for config in configs)
     current_rows = [config["grid_row"] for config in configs]
     for segment_index in range(segments):
         set_phase_all(f"node_segment_{segment_index + 1}_of_{segments}")
@@ -2175,7 +2199,7 @@ def run_collection(experiment_id):
         fly_node_to_node(swarm, configs)
 
         formation = str(experiment.get("formation", "")).strip().lower()
-        if formation == "front" or is_echalon_formation(formation):
+        if formation == "front" or is_echalon_formation(formation) or is_vee_75cm_experiment(experiment):
             set_phase_all("verify_target_pad")
             print("Verifying final target mission pads before automatic landing.", flush=True)
             for idx, tello in enumerate(swarm.tellos):
