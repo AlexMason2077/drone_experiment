@@ -285,6 +285,8 @@ def mission_pad_columns_for_experiment(experiment):
         return COLUMN_MISSION_PAD_COLUMNS
     if formation == "diamond":
         return DIAMOND_MISSION_PAD_COLUMNS
+    if is_vee_75cm_experiment(experiment):
+        return MISSION_PAD_COLUMNS
     if formation == "vee":
         return VEE_MISSION_PAD_COLUMNS
     return MISSION_PAD_COLUMNS

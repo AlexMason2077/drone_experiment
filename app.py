@@ -3886,7 +3886,7 @@ INDEX_TEMPLATE = """
       const layoutPad = formation === "diamond"
         ? cell.dataset.diamondPad
         : (formation === "vee"
-          ? cell.dataset.veePad
+          ? (isVee75cm() ? cell.dataset.standardPad : cell.dataset.veePad)
           : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
       if (!layoutPad) return false;
       if (formation === "front") return row === (isFrontReversePath() ? standardTopMissionRow : 0);
@@ -3956,7 +3956,7 @@ INDEX_TEMPLATE = """
             : "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.";
         } else if (formation === "vee") {
           frontFormationNote.textContent = isVee75cm()
-            ? "vee + 75cm: always starts from the first row; columns use custom V origins and each lane keeps 50cm row spacing."
+            ? "vee + 75cm: first row pads are 1, 2, 3, 4, 5; columns use custom V origins and each lane keeps 50cm row spacing."
             : "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
         } else if (formation === "column") {
           frontFormationNote.textContent = isColumnHeadWind()
@@ -3977,7 +3977,7 @@ INDEX_TEMPLATE = """
       if (experimentMissionLayoutText) {
         if (formation === "vee") {
           experimentMissionLayoutText.textContent = isVee75cm()
-            ? "Vee + 75cm uses the vee mission-pad order with custom V-shaped origins; all drones start from row 1 and each lane keeps 50cm row spacing."
+            ? "Vee + 75cm uses front mission-pad order with custom V-shaped origins; all drones start from row 1 and each lane keeps 50cm row spacing."
             : "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
         } else if (formation === "column") {
           experimentMissionLayoutText.textContent = "Column uses the left lane only: 1-2-3-4-5-6-7-8-3-4";
@@ -3997,7 +3997,7 @@ INDEX_TEMPLATE = """
         const layoutPad = isDiamond
           ? cell.dataset.diamondPad
           : (formation === "vee"
-            ? cell.dataset.veePad
+            ? (isVee75cm() ? cell.dataset.standardPad : cell.dataset.veePad)
             : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
         cell.hidden = !layoutPad && !isDiamond;
         cell.dataset.pad = layoutPad || "";
