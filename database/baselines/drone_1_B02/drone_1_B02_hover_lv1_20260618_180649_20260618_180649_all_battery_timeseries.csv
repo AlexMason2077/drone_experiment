@@ -1,0 +1,6 @@
+run_id,experiment_id,formation,wind_direction,wind_speed,drone_name,drone_ip,battery_id,takeoff_order,drone_role,mission_pad,target_pad,phase,timestamp,elapsed_time,node_elapsed_time,battery,battery_start,battery_drop_from_start
+20260618_180649,drone_1_B02_hover_lv1_20260618_180649,single_drone_baseline,hover,lv1,drone_1,192.168.0.101,B02,1,single_baseline,,,takeoff,2026-06-18T18:07:00.939,1.971,0.0,77,77,0
+20260618_180649,drone_1_B02_hover_lv1_20260618_180649,single_drone_baseline,hover,lv1,drone_1,192.168.0.101,B02,1,single_baseline,,,takeoff,2026-06-18T18:07:01.944,2.976,1.005,76,77,1
+20260618_180649,drone_1_B02_hover_lv1_20260618_180649,single_drone_baseline,hover,lv1,drone_1,192.168.0.101,B02,1,single_baseline,,,takeoff,2026-06-18T18:07:02.947,3.979,2.008,76,77,1
+20260618_180649,drone_1_B02_hover_lv1_20260618_180649,single_drone_baseline,hover,lv1,drone_1,192.168.0.101,B02,1,single_baseline,,,hover_to_10_percent,2026-06-18T18:07:03.951,4.983,3.012,75,77,2
+20260618_180649,drone_1_B02_hover_lv1_20260618_180649,single_drone_baseline,hover,lv1,drone_1,192.168.0.101,B02,1,single_baseline,,,hover_to_10_percent,2026-06-18T18:07:04.958,5.99,4.019,75,77,2

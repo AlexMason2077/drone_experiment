@@ -1,0 +1,13 @@
+run_id,experiment_id,formation,wind_direction,wind_speed,drone_name,drone_ip,battery_id,takeoff_order,drone_role,mission_pad,target_pad,phase,timestamp,elapsed_time,node_elapsed_time,battery,battery_start,battery_drop_from_start
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,takeoff,2026-06-18T19:10:11.315,2.391,0.0,56,56,0
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,takeoff,2026-06-18T19:10:12.321,3.397,1.006,55,56,1
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,takeoff,2026-06-18T19:10:13.327,4.402,2.012,55,56,1
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:14.333,5.408,3.018,54,56,2
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:15.339,6.414,4.024,54,56,2
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:16.344,7.419,5.029,53,56,3
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:17.350,8.426,6.035,53,56,3
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:18.356,9.431,7.041,52,56,4
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:19.361,10.437,8.046,52,56,4
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:20.367,11.442,9.051,51,56,5
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:21.372,12.447,10.057,51,56,5
+20260618_191006,drone_5_B01_hover_lv1_20260618_191006,single_drone_baseline,hover,lv1,drone_5,192.168.0.107,B01,1,single_baseline,,,hover_to_10_percent,2026-06-18T19:10:22.373,13.448,11.058,50,56,6

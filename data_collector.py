@@ -705,6 +705,48 @@ def get_state_safe(tello):
     }
 
 
+def monitor_takeoff_health(swarm, configs, duration=2.5, interval=0.5):
+    """Print early flight state so failed takeoffs are visible in the run log."""
+    start = time.time()
+    next_sample = start
+    last_states = [None] * len(configs)
+    print("Takeoff health monitor started.", flush=True)
+    while time.time() - start < duration:
+        now = time.time()
+        if now < next_sample:
+            time.sleep(min(0.05, next_sample - now))
+            continue
+        elapsed = now - start
+        parts = []
+        for idx, tello in enumerate(swarm.tellos):
+            config = configs[idx]
+            try:
+                state = get_state_safe(tello)
+                last_states[idx] = state
+                parts.append(
+                    f"{config['name']} ip={config['ip']} "
+                    f"h={state['h']} tof={state['tof']} mid={state['mid']} "
+                    f"motor_time={state['motor_time']} "
+                    f"bat={tello.get_battery()}%"
+                )
+            except Exception as exc:
+                parts.append(f"{config['name']} ip={config['ip']} state_error={exc}")
+        print(f"  takeoff+{elapsed:.1f}s: " + " | ".join(parts), flush=True)
+        next_sample += interval
+
+    for idx, state in enumerate(last_states):
+        if state is None:
+            continue
+        measured_height = max(int(state.get("h") or 0), int(state.get("tof") or 0))
+        if measured_height < 20:
+            print(
+                f"  Warning: {configs[idx]['name']} still reports low height after takeoff "
+                f"(h={state['h']} tof={state['tof']}, motor_time={state['motor_time']}). "
+                "This usually means takeoff failed or the drone auto-stopped.",
+                flush=True,
+            )
+
+
 def pad_origin_for_detection(config, mid, preferred_row=None):
     min_row = min(config["grid_row"], config["target_grid_row"]) - 1
     max_row = max(config["grid_row"], config["target_grid_row"]) + 1
@@ -2160,7 +2202,7 @@ def run_collection(experiment_id):
         print("Taking off all five drones...", flush=True)
         takeoff_started = True
         swarm.takeoff()
-        time.sleep(2.5)
+        monitor_takeoff_health(swarm, configs, duration=2.5)
 
         set_phase_all("acquire_start_pad")
         wait_for_all_expected_start_pads(swarm, configs)

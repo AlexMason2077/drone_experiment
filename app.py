@@ -28,7 +28,7 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 CSV_EXTENSIONS = {".csv"}
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
-    "1": "101",
+    "1": "102",
     "2": "109",
     "3": "103",
     "4": "106",
@@ -3474,7 +3474,7 @@ INDEX_TEMPLATE = """
               <div class="board-note">
                 <span class="small" id="frontFormationNote">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
                 <span class="small">column: left lane = 1, 2, 3, 4, 5, 6, 7, 8, 3, 4</span>
-                <span class="small">drone #: 1->101, 2->109, 3->103, 4->106, 5->107</span>
+                <span class="small">drone #: 1->102, 2->109, 3->103, 4->106, 5->107</span>
                 <span class="small">default battery order: B11, B10, B13, B14, B12</span>
               </div>
             </div>

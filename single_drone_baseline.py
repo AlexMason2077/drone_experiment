@@ -36,7 +36,7 @@ DATA_DIR = BASE_DIR / "database"
 BASELINE_DIR = DATA_DIR / "baselines"
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
-    "1": "101",
+    "1": "102",
     "2": "109",
     "3": "103",
     "4": "106",
@@ -446,6 +446,42 @@ def get_state_safe(tello):
         "baro": state.get("baro", 0.0),
         "motor_time": state.get("time", 0),
     }
+
+
+def measured_height_cm(state):
+    return max(int(state.get("h") or 0), int(state.get("tof") or 0))
+
+
+def require_takeoff_success(tello, config, timeout=3.0, interval=0.5, min_height_cm=20):
+    deadline = time.time() + timeout
+    last_state = None
+    print("Checking takeoff health for auto-stop/protection.", flush=True)
+    while time.time() < deadline:
+        state = get_state_safe(tello)
+        last_state = state
+        height = measured_height_cm(state)
+        battery = tello.get_battery()
+        print(
+            f"  takeoff check: {config['drone_name']} ip={config['ip']} "
+            f"battery_id={config['battery_id']} h={state['h']} tof={state['tof']} "
+            f"mid={state['mid']} motor_time={state['motor_time']} battery={battery}%",
+            flush=True,
+        )
+        if height >= min_height_cm:
+            return state
+        time.sleep(interval)
+
+    if last_state is None:
+        raise RuntimeError(
+            f"{config['drone_name']} takeoff protection suspected: no state packet after takeoff."
+        )
+    raise RuntimeError(
+        f"{config['drone_name']} takeoff failed after SDK returned ok: "
+        f"height stayed below {min_height_cm}cm "
+        f"(h={last_state['h']} tof={last_state['tof']} mid={last_state['mid']} "
+        f"motor_time={last_state['motor_time']}). "
+        "Likely Tello auto-stop/protection; check propeller, motor shaft, battery sag, or IMU."
+    )
 
 
 def wait_for_pad(tello, pad_id=None, timeout=8.0, interval=0.15):
@@ -1239,10 +1275,10 @@ def run_baseline(args):
 
         set_phase("takeoff")
         tello.takeoff()
+        first_state = require_takeoff_success(tello, config)
 
         if args.mode == "hover":
             battery_start = str(tello.get_battery())
-            first_state = get_state_safe(tello)
             start_timestamp = datetime.now().isoformat(timespec="milliseconds")
             node_start_time = time.time()
             print(f"Baseline battery start captured before takeoff: {battery_start}%", flush=True)
@@ -1268,7 +1304,6 @@ def run_baseline(args):
             set_phase("hover_to_10_percent")
             end_reason = active_hover_until_battery(tello, HOVER_LANDING_BATTERY_PERCENT)
         else:
-            time.sleep(2.5)
             set_phase("acquire_start_pad")
             detected_pad = wait_for_pad(tello, int(args.start_pad), timeout=8.0)
             if detected_pad is None:
