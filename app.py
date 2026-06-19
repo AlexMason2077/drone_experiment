@@ -70,6 +70,13 @@ COLUMN_MISSION_PAD_COLUMNS = [
     [],
     [],
 ]
+COLUMN_75_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6, 7, 8, 1],
+    [],
+    [],
+    [],
+    [],
+]
 VEE_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6],
     [5, 6, 7, 8, 1, 2],
@@ -87,18 +94,27 @@ DIAMOND_MISSION_PAD_COLUMNS = [
 MISSION_PAD_LAYOUTS = {
     "standard": MISSION_PAD_COLUMNS,
     "column": COLUMN_MISSION_PAD_COLUMNS,
+    "column_75": COLUMN_75_MISSION_PAD_COLUMNS,
     "vee": VEE_MISSION_PAD_COLUMNS,
     "diamond": DIAMOND_MISSION_PAD_COLUMNS,
 }
 
 
-def mission_pad_layout_for_formation(formation):
+def mission_pad_layout_for_formation(formation, inter_drone_distance_cm=None):
     formation = str(formation or "").strip().lower()
+    try:
+        distance_cm = int(str(inter_drone_distance_cm or "").strip())
+    except ValueError:
+        distance_cm = None
     if formation == "column":
+        if distance_cm == 75:
+            return COLUMN_75_MISSION_PAD_COLUMNS
         return COLUMN_MISSION_PAD_COLUMNS
     if formation == "diamond":
         return DIAMOND_MISSION_PAD_COLUMNS
     if formation == "vee":
+        if distance_cm == 75:
+            return MISSION_PAD_COLUMNS
         return VEE_MISSION_PAD_COLUMNS
     return MISSION_PAD_COLUMNS
 
@@ -581,6 +597,36 @@ def validate_experiment_assignments(experiment):
         abort(400, description="Each drone can only be assigned once in an experiment.")
     if len(battery_ids) != len(set(battery_ids)):
         abort(400, description="Each battery can only be assigned once in an experiment.")
+    mission_pad_columns = mission_pad_layout_for_formation(
+        experiment.get("formation"),
+        experiment.get("inter_drone_distance_cm"),
+    )
+    seen_positions = set()
+    for drone in drones:
+        try:
+            grid_column = int(str(drone.get("grid_column")).strip())
+            grid_row = int(str(drone.get("grid_row")).strip())
+            mission_pad = int(str(drone.get("mission_pad")).strip())
+        except ValueError:
+            abort(400, description="Each active drone must have valid mission pad, grid column, and grid row values.")
+        if grid_column < 0 or grid_column >= len(mission_pad_columns):
+            abort(400, description=f"Grid column out of range for drone {drone.get('takeoff_order')}: {grid_column}.")
+        if grid_row < 0 or grid_row >= len(mission_pad_columns[grid_column]):
+            abort(400, description=f"Grid row out of range for drone {drone.get('takeoff_order')}: {grid_row}.")
+        expected_pad = mission_pad_columns[grid_column][grid_row]
+        if mission_pad != expected_pad:
+            abort(
+                400,
+                description=(
+                    f"Mission pad mismatch for drone {drone.get('takeoff_order')}: "
+                    f"record pad={mission_pad}, layout pad={expected_pad} "
+                    f"at column={grid_column}, row={grid_row}."
+                ),
+            )
+        position = (grid_column, grid_row)
+        if position in seen_positions:
+            abort(400, description=f"Two drones are assigned to the same grid position: {position}.")
+        seen_positions.add(position)
 
 
 def auto_attach_files(experiment, files):
@@ -1695,7 +1741,10 @@ def experiment_detail(experiment_id):
             selected_drone = card
     if selected_drone is None and drone_cards:
         selected_drone = drone_cards[0]
-    mission_pad_columns = mission_pad_layout_for_formation(experiment.get("formation"))
+    mission_pad_columns = mission_pad_layout_for_formation(
+        experiment.get("formation"),
+        experiment.get("inter_drone_distance_cm"),
+    )
     return render_template_string(
         EXPERIMENT_TEMPLATE,
         experiment=experiment,
@@ -3435,6 +3484,7 @@ INDEX_TEMPLATE = """
                   {% for col in range(max_mission_cols) %}
                     {% set standard_pad = mission_pad_layouts.standard[col][display_row] if col < mission_pad_layouts.standard|length and display_row < mission_pad_layouts.standard[col]|length else '' %}
                     {% set column_pad = mission_pad_layouts.column[col][display_row] if col < mission_pad_layouts.column|length and display_row < mission_pad_layouts.column[col]|length else '' %}
+                    {% set column_75_pad = mission_pad_layouts.column_75[col][display_row] if col < mission_pad_layouts.column_75|length and display_row < mission_pad_layouts.column_75[col]|length else '' %}
                     {% set vee_pad = mission_pad_layouts.vee[col][display_row] if col < mission_pad_layouts.vee|length and display_row < mission_pad_layouts.vee[col]|length else '' %}
                     {% set diamond_pad = mission_pad_layouts.diamond[col][display_row] if col < mission_pad_layouts.diamond|length and display_row < mission_pad_layouts.diamond[col]|length else '' %}
                     {% set pad_id = standard_pad %}
@@ -3444,6 +3494,7 @@ INDEX_TEMPLATE = """
                          data-pad="{{ pad_id }}"
                          data-standard-pad="{{ standard_pad }}"
                          data-column-pad="{{ column_pad }}"
+                         data-column75-pad="{{ column_75_pad }}"
                          data-vee-pad="{{ vee_pad }}"
                          data-diamond-pad="{{ diamond_pad }}"
                          data-front-active="{{ 'true' if display_row == 0 else 'false' }}"
@@ -3880,18 +3931,38 @@ INDEX_TEMPLATE = """
       return formationInput.value === "column" && windDirectionInput && windDirectionInput.value === "head wind";
     }
 
-    function isFormationCell(cell, formation) {
+    function isColumn75cm() {
+      return formationInput.value === "column" &&
+             interDroneDistanceInput &&
+             interDroneDistanceInput.value === "75";
+    }
+
+    function activeLayoutName(formation) {
+      if (formation === "diamond") return "diamond";
+      if (formation === "vee") return isVee75cm() ? "standard" : "vee";
+      if (formation === "column") return isColumn75cm() ? "column75" : "column";
+      return "standard";
+    }
+
+    function layoutPadForCell(cell, layoutName) {
+      if (layoutName === "diamond") return cell.dataset.diamondPad;
+      if (layoutName === "vee") return cell.dataset.veePad;
+      if (layoutName === "column") return cell.dataset.columnPad;
+      if (layoutName === "column75") return cell.dataset.column75Pad;
+      return cell.dataset.standardPad;
+    }
+
+    function isFormationCell(cell, formation, layoutName) {
       const col = Number(cell.dataset.col);
       const row = Number(cell.dataset.row);
-      const layoutPad = formation === "diamond"
-        ? cell.dataset.diamondPad
-        : (formation === "vee"
-          ? (isVee75cm() ? cell.dataset.standardPad : cell.dataset.veePad)
-          : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
+      const layoutPad = layoutPadForCell(cell, layoutName);
       if (!layoutPad) return false;
       if (formation === "front") return row === (isFrontReversePath() ? standardTopMissionRow : 0);
       if (formation === "echalon") return row === (isEchalonHeadWind75cm() ? standardTopMissionRow : 0);
       if (formation === "column") {
+        if (isColumn75cm()) {
+          return col === 0 && (isColumnHeadWind() ? row >= 4 && row <= 8 : row >= 0 && row <= 4);
+        }
         return col === 0 && (isColumnHeadWind() ? row >= 5 && row <= 9 : row >= 0 && row <= 4);
       }
       if (formation === "vee") {
@@ -3906,8 +3977,8 @@ INDEX_TEMPLATE = """
       return false;
     }
 
-    function orderedActiveCells(formation) {
-      const activeCells = padCells.filter((cell) => isFormationCell(cell, formation));
+    function orderedActiveCells(formation, layoutName) {
+      const activeCells = padCells.filter((cell) => isFormationCell(cell, formation, layoutName));
       if (formation === "front" || formation === "echalon") {
         return activeCells.sort((a, b) => Number(a.dataset.col) - Number(b.dataset.col));
       }
@@ -3942,6 +4013,7 @@ INDEX_TEMPLATE = """
     function setFormation(formation) {
       formationInput.value = formation;
       formationDisplay.value = formation;
+      const layoutName = activeLayoutName(formation);
       const isDiamond = formation === "diamond";
       if (missionGrid) {
         missionGrid.classList.toggle("column-layout", formation === "column");
@@ -3959,9 +4031,13 @@ INDEX_TEMPLATE = """
             ? "vee + 75cm: first row pads are 1, 2, 3, 4, 5; columns use custom V origins and each lane keeps 50cm row spacing."
             : "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
         } else if (formation === "column") {
-          frontFormationNote.textContent = isColumnHeadWind()
-            ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
-            : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.";
+          frontFormationNote.textContent = isColumn75cm()
+            ? (isColumnHeadWind()
+              ? "column + head wind + 75cm: starts at pads 1, 8, 7, 6, 5 and flies 300cm back to 5, 4, 3, 2, 1."
+              : "column + tail/side wind + 75cm: starts at pads 1, 2, 3, 4, 5 and flies 300cm to 5, 6, 7, 8, 1.")
+            : (isColumnHeadWind()
+              ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
+              : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.");
         } else if (formation === "echalon") {
           frontFormationNote.textContent = isEchalonHeadWind75cm()
             ? "echalon + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5."
@@ -3980,7 +4056,9 @@ INDEX_TEMPLATE = """
             ? "Vee + 75cm uses front mission-pad order with custom V-shaped origins; all drones start from row 1 and each lane keeps 50cm row spacing."
             : "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
         } else if (formation === "column") {
-          experimentMissionLayoutText.textContent = "Column uses the left lane only: 1-2-3-4-5-6-7-8-3-4";
+          experimentMissionLayoutText.textContent = isColumn75cm()
+            ? "Column + 75cm uses the left lane only: 1-2-3-4-5-6-7-8-1, with 75cm pad spacing and 300cm flight distance."
+            : "Column uses the left lane only: 1-2-3-4-5-6-7-8-3-4";
         } else if (isDiamond) {
           experimentMissionLayoutText.textContent = "Diamond uses the middle three columns: 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1 · 3-4-5-6-7-8-1-2";
         } else if (formation === "echalon") {
@@ -3994,11 +4072,7 @@ INDEX_TEMPLATE = """
       });
 
       padCells.forEach((cell) => {
-        const layoutPad = isDiamond
-          ? cell.dataset.diamondPad
-          : (formation === "vee"
-            ? (isVee75cm() ? cell.dataset.standardPad : cell.dataset.veePad)
-            : (formation === "column" ? cell.dataset.columnPad : cell.dataset.standardPad));
+        const layoutPad = layoutPadForCell(cell, layoutName);
         cell.hidden = !layoutPad && !isDiamond;
         cell.dataset.pad = layoutPad || "";
         const padLabel = cell.querySelector(".pad-id");
@@ -4019,7 +4093,7 @@ INDEX_TEMPLATE = """
         role.value = "";
       });
 
-      orderedActiveCells(formation).forEach((cell, index) => {
+      orderedActiveCells(formation, layoutName).forEach((cell, index) => {
         const input = cell.querySelector('select[name^="pad_ip_"]');
         const battery = cell.querySelector('select[name^="pad_battery_"]');
         const order = cell.querySelector(`input[name="pad_order_${cell.dataset.col}_${cell.dataset.row}"]`);
@@ -4058,7 +4132,7 @@ INDEX_TEMPLATE = """
       });
     }
 
-    setFormation("front");
+    setFormation(formationInput.value || "front");
 
     const experimentForm = document.querySelector('form[action="{{ url_for("create_experiment") }}"]');
     if (experimentForm) {

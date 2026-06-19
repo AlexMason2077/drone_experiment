@@ -41,6 +41,8 @@ REGISTRY_FILE = DATA_DIR / "experiment_registry.json"
 IP_PREFIX = "192.168.0."
 ROW_SPACING_CM = 50
 COLUMN_SPACING_CM = 50
+COLUMN_75_ROW_SPACING_CM = 75
+COLUMN_75_FORWARD_DISTANCE_CM = 300
 TAKEOFF_HEIGHT_CM = 80
 LOG_INTERVAL_SEC = 0.1
 TAKEOFF_CLIMB_SPEED_CM_S = 20
@@ -55,7 +57,8 @@ SEGMENT_STAGGER_DELAY_SEC = 0.2
 COLUMN_WIND_STAGGER_DELAY_SEC = 0.5
 COLUMN_WIND_STAGGER_DELAYS_SEC = [0.0, 1.0, 1.7, 2.4, 3.0]
 COLUMN_TARGET_SPACING_CM = 50.0
-COLUMN_SAFETY_RELEASE_SPACING_CM = COLUMN_TARGET_SPACING_CM + 5.0
+COLUMN_SAFETY_RELEASE_SPACING_CM = 60.0
+COLUMN_MIN_LEADER_PROGRESS_CM = 25.0
 COLUMN_SAFETY_WAIT_TIMEOUT_SEC = 20.0
 COLUMN_SAFETY_REPORT_INTERVAL_SEC = 2.0
 VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
@@ -80,6 +83,13 @@ MISSION_PAD_COLUMNS = [
 ]
 COLUMN_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6, 7, 8, 3, 4],
+    [],
+    [],
+    [],
+    [],
+]
+COLUMN_75_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6, 7, 8, 1],
     [],
     [],
     [],
@@ -281,6 +291,8 @@ def clamp(value, low, high):
 
 def mission_pad_columns_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
+    if is_column_75cm_experiment(experiment):
+        return COLUMN_75_MISSION_PAD_COLUMNS
     if formation == "column":
         return COLUMN_MISSION_PAD_COLUMNS
     if formation == "diamond":
@@ -297,6 +309,30 @@ def experiment_column_spacing_cm(experiment):
     if formation in {"front", "vee"} and experiment_inter_drone_distance_cm(experiment) == 75:
         return 75
     return COLUMN_SPACING_CM
+
+
+def is_column_75cm_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    return formation == "column" and experiment_inter_drone_distance_cm(experiment) == 75
+
+
+def is_column_75cm_config(config):
+    return (
+        str(config.get("formation", "")).strip().lower() == "column"
+        and int(config.get("inter_drone_distance_cm") or 50) == 75
+    )
+
+
+def experiment_row_spacing_cm(experiment):
+    if is_column_75cm_experiment(experiment):
+        return COLUMN_75_ROW_SPACING_CM
+    return ROW_SPACING_CM
+
+
+def experiment_node_forward_distance_cm(experiment):
+    if is_column_75cm_experiment(experiment):
+        return COLUMN_75_FORWARD_DISTANCE_CM
+    return NODE_FORWARD_DISTANCE_CM
 
 
 def is_echalon_formation(formation):
@@ -329,15 +365,25 @@ def config_column_spacing_cm(config):
     return int(config.get("column_spacing_cm") or COLUMN_SPACING_CM)
 
 
-def position_at_column_row(formation, grid_column, row_idx, column_spacing_cm=COLUMN_SPACING_CM):
+def config_row_spacing_cm(config):
+    return int(config.get("row_spacing_cm") or ROW_SPACING_CM)
+
+
+def position_at_column_row(
+    formation,
+    grid_column,
+    row_idx,
+    column_spacing_cm=COLUMN_SPACING_CM,
+    row_spacing_cm=ROW_SPACING_CM,
+):
     if formation == "vee":
         origins = VEE_75_COLUMN_ORIGINS_CM if column_spacing_cm == 75 else VEE_COLUMN_ORIGINS_CM
         origin_x, origin_y = origins[grid_column]
-        return origin_x, origin_y + row_idx * ROW_SPACING_CM
+        return origin_x, origin_y + row_idx * row_spacing_cm
     if is_echalon_formation(formation):
         origin_x, origin_y = ECHALON_COLUMN_ORIGINS_CM[grid_column]
-        return origin_x, origin_y + row_idx * ROW_SPACING_CM
-    return grid_column * column_spacing_cm, row_idx * ROW_SPACING_CM
+        return origin_x, origin_y + row_idx * row_spacing_cm
+    return grid_column * column_spacing_cm, row_idx * row_spacing_cm
 
 
 def lane_pad_sequence(grid_column, min_rows=None, columns=None):
@@ -399,7 +445,9 @@ def build_tello_configs(experiment):
     node_direction = node_direction_for_experiment(experiment)
     mission_pad_columns = mission_pad_columns_for_experiment(experiment)
     column_spacing_cm = experiment_column_spacing_cm(experiment)
-    default_steps = int(round(NODE_FORWARD_DISTANCE_CM / ROW_SPACING_CM))
+    row_spacing_cm = experiment_row_spacing_cm(experiment)
+    node_forward_distance_cm = experiment_node_forward_distance_cm(experiment)
+    default_steps = int(round(node_forward_distance_cm / row_spacing_cm))
     configs = []
     seen_ips = set()
     seen_batteries = set()
@@ -442,14 +490,26 @@ def build_tello_configs(experiment):
         if position_key in seen_positions:
             raise ValueError(f"Two drones are assigned to the same grid position: {position_key}")
         seen_positions.add(position_key)
-        start_x, start_y = position_at_column_row(formation, grid_column, grid_row, column_spacing_cm)
+        start_x, start_y = position_at_column_row(
+            formation,
+            grid_column,
+            grid_row,
+            column_spacing_cm,
+            row_spacing_cm,
+        )
         if node_direction < 0:
             target_row = max(0, grid_row - default_steps)
         else:
             target_row = grid_row + default_steps
         target_pad = pad_at_column_row(grid_column, target_row, columns=mission_pad_columns)
-        node_distance = abs(target_row - grid_row) * ROW_SPACING_CM
-        target_x, target_y = position_at_column_row(formation, grid_column, target_row, column_spacing_cm)
+        node_distance = abs(target_row - grid_row) * row_spacing_cm
+        target_x, target_y = position_at_column_row(
+            formation,
+            grid_column,
+            target_row,
+            column_spacing_cm,
+            row_spacing_cm,
+        )
 
         configs.append({
             "name": f"drone_{idx + 1}",
@@ -464,6 +524,7 @@ def build_tello_configs(experiment):
             "wind_speed": str(experiment.get("wind_speed", "")).strip().lower(),
             "inter_drone_distance_cm": experiment_inter_drone_distance_cm(experiment),
             "column_spacing_cm": column_spacing_cm,
+            "row_spacing_cm": row_spacing_cm,
             "target_pad": target_pad,
             "grid_column": grid_column,
             "grid_row": grid_row,
@@ -647,6 +708,24 @@ def cleanup_failed_run_outputs(experiment_dir, output_files):
             print(f"  Warning: failed to remove empty folder {folder}: {exc}", flush=True)
 
 
+def should_keep_partial_run(progress):
+    total_segments = int(progress.get("total_segments") or 0)
+    started_segments = int(progress.get("started_segments") or 0)
+    if total_segments <= 0:
+        return False
+    return started_segments / total_segments >= 0.8
+
+
+def keep_partial_run_message(progress):
+    started_segments = int(progress.get("started_segments") or 0)
+    total_segments = int(progress.get("total_segments") or 0)
+    return (
+        "Experiment was stopped after reaching "
+        f"{started_segments}/{total_segments} node-to-node segments; "
+        "keeping partial output files."
+    )
+
+
 def write_header(path, columns):
     with path.open("w", newline="", encoding="utf-8") as f:
         csv.writer(f).writerow(columns)
@@ -771,6 +850,7 @@ def pad_origin_for_detection(config, mid, preferred_row=None):
         config["grid_column"],
         detected_row,
         config_column_spacing_cm(config),
+        config_row_spacing_cm(config),
     )
 
 
@@ -1094,6 +1174,7 @@ def advance_to_target_pad(
             config["grid_column"],
             row_idx,
             config_column_spacing_cm(config),
+            config_row_spacing_cm(config),
         )
         expected_pad = pad_at_physical_row(config, row_idx)
         for _ in range(max_corrections):
@@ -1154,6 +1235,7 @@ def fly_synchronized_node_segment(
         config["grid_column"],
         next_row,
         config_column_spacing_cm(config),
+        config_row_spacing_cm(config),
     )
     current_pad = pad_at_physical_row(config, current_row)
     expected_pad = pad_at_physical_row(config, next_row)
@@ -1313,6 +1395,12 @@ def is_column_spacing_gate_enabled(configs):
     return str(configs[0].get("formation", "")).strip().lower() == "column"
 
 
+def column_safety_release_spacing_cm(config):
+    if is_column_75cm_config(config):
+        return 75.0 + 5.0
+    return COLUMN_SAFETY_RELEASE_SPACING_CM
+
+
 def observed_segment_y(tello, config, current_row):
     state = get_state_safe(tello)
     if state["mid"] == -1:
@@ -1344,6 +1432,14 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
     leader_config = configs[leader_index]
     follower_config = configs[follower_index]
     direction = follower_config["node_row_direction"]
+    release_spacing_cm = column_safety_release_spacing_cm(follower_config)
+    _, leader_start_y = position_at_column_row(
+        leader_config.get("formation", ""),
+        leader_config["grid_column"],
+        current_rows[leader_index],
+        config_column_spacing_cm(leader_config),
+        config_row_spacing_cm(leader_config),
+    )
     deadline = time.time() + COLUMN_SAFETY_WAIT_TIMEOUT_SEC
     last_report = 0.0
 
@@ -1353,10 +1449,12 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
 
         if leader_y is not None and follower_y is not None:
             spacing = direction * (leader_y - follower_y)
-            if spacing >= COLUMN_SAFETY_RELEASE_SPACING_CM:
+            leader_progress = direction * (leader_y - leader_start_y)
+            if spacing >= release_spacing_cm and leader_progress >= COLUMN_MIN_LEADER_PROGRESS_CM:
                 return
         else:
             spacing = None
+            leader_progress = None
 
         try:
             swarm.tellos[follower_index].send_rc_control(0, 0, 0, 0)
@@ -1366,19 +1464,21 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
         now = time.time()
         if now >= deadline:
             spacing_text = "unknown" if spacing is None else f"{spacing:.1f}cm"
+            progress_text = "unknown" if leader_progress is None else f"{leader_progress:.1f}cm"
             raise RuntimeError(
                 f"{follower_config['name']} was not released because "
                 f"{leader_config['name']} did not clear "
-                f"{COLUMN_SAFETY_RELEASE_SPACING_CM:.0f}cm in column; "
-                f"spacing={spacing_text}."
+                f"{release_spacing_cm:.0f}cm in column; "
+                f"spacing={spacing_text} leader_progress={progress_text}."
             )
         if now - last_report >= COLUMN_SAFETY_REPORT_INTERVAL_SEC:
             spacing_text = "unknown" if spacing is None else f"{spacing:.1f}cm"
+            progress_text = "unknown" if leader_progress is None else f"{leader_progress:.1f}cm"
             print(
                 f"    {follower_config['name']} holding: waiting for "
                 f"{leader_config['name']} to clear "
-                f"{COLUMN_SAFETY_RELEASE_SPACING_CM:.0f}cm in column; "
-                f"spacing={spacing_text}.",
+                f"{release_spacing_cm:.0f}cm in column; "
+                f"spacing={spacing_text} leader_progress={progress_text}.",
                 flush=True,
             )
             last_report = now
@@ -1388,10 +1488,60 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
 def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
     errors = []
     errors_lock = threading.Lock()
+    collision_event = threading.Event()
+    monitor_stop_event = threading.Event()
     work_done_count = [0]
     work_done_lock = threading.Lock()
     all_work_done = threading.Event()
     launch_order = segment_launch_order(configs, current_rows)
+    monitor_thread = threading.Thread(
+        target=monitor_column_collision_risk,
+        args=(
+            swarm,
+            configs,
+            current_rows,
+            monitor_stop_event,
+            collision_event,
+            errors,
+            errors_lock,
+        ),
+        daemon=True,
+    )
+    monitor_thread.start()
+
+    if is_column_side_wind(configs):
+        order_text = " -> ".join(configs[index]["name"] for index in launch_order)
+        print(
+            f"  Segment {segment_index + 1} side-wind safe launch order: {order_text}",
+            flush=True,
+        )
+        try:
+            for release_order, index in enumerate(launch_order):
+                if collision_event.is_set():
+                    break
+                wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
+                if collision_event.is_set():
+                    break
+                fly_synchronized_node_segment(
+                    swarm.tellos[index],
+                    configs[index],
+                    current_rows[index],
+                    speed=NODE_FLIGHT_SPEED_CM_S,
+                )
+        except Exception as exc:
+            with errors_lock:
+                errors.append((-1, exc))
+        finally:
+            monitor_stop_event.set()
+            monitor_thread.join(timeout=1.0)
+        if errors:
+            details = "; ".join(
+                f"{configs[index]['name'] if index >= 0 else 'monitor'}: {exc}"
+                for index, exc in errors
+            )
+            raise RuntimeError(f"Node segment {segment_index + 1} failed: {details}")
+        return
+
     stagger_delays = segment_stagger_delays(configs, len(launch_order))
     order_text = " -> ".join(configs[index]["name"] for index in launch_order)
     delay_text = ", ".join(
@@ -1412,19 +1562,23 @@ def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
         delay = stagger_delays[release_order]
         deadline = time.time() + delay
         while time.time() < deadline:
+            if collision_event.is_set():
+                break
             try:
                 swarm.tellos[index].send_rc_control(0, 0, 0, 0)
             except Exception:
                 pass
             time.sleep(0.05)
         try:
-            wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
-            fly_synchronized_node_segment(
-                swarm.tellos[index],
-                config,
-                current_rows[index],
-                speed=NODE_FLIGHT_SPEED_CM_S,
-            )
+            if not collision_event.is_set():
+                wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
+            if not collision_event.is_set():
+                fly_synchronized_node_segment(
+                    swarm.tellos[index],
+                    config,
+                    current_rows[index],
+                    speed=NODE_FLIGHT_SPEED_CM_S,
+                )
         except Exception as exc:
             with errors_lock:
                 errors.append((index, exc))
@@ -1439,14 +1593,21 @@ def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
                 pass
 
     threads = []
-    for release_order, index in enumerate(launch_order):
-        thread = threading.Thread(target=worker, args=(release_order, index), daemon=True)
-        threads.append(thread)
-        thread.start()
-    for thread in threads:
-        thread.join()
+    try:
+        for release_order, index in enumerate(launch_order):
+            thread = threading.Thread(target=worker, args=(release_order, index), daemon=True)
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()
+    finally:
+        monitor_stop_event.set()
+        monitor_thread.join(timeout=1.0)
     if errors:
-        details = "; ".join(f"{configs[index]['name']}: {exc}" for index, exc in errors)
+        details = "; ".join(
+            f"{configs[index]['name'] if index >= 0 else 'monitor'}: {exc}"
+            for index, exc in errors
+        )
         raise RuntimeError(f"Node segment {segment_index + 1} failed: {details}")
 
 
@@ -1464,6 +1625,7 @@ def fly_front_segment(
         config["grid_column"],
         next_row,
         config_column_spacing_cm(config),
+        config_row_spacing_cm(config),
     )
     expected_pad = pad_at_physical_row(config, next_row)
     last_report = 0.0
@@ -1598,9 +1760,13 @@ def fly_front_segment(
         time.sleep(0.2)
 
 
-def fly_node_to_node(swarm, configs):
+def fly_node_to_node(swarm, configs, progress=None):
     set_phase_all("node_to_node")
     segments = configs[0]["node_segment_count"]
+    if progress is not None:
+        progress["total_segments"] = segments
+        progress["started_segments"] = 0
+        progress["completed_segments"] = 0
     if any(config["node_segment_count"] != segments for config in configs):
         raise RuntimeError("All drones must have the same node segment count.")
     if segments <= 0:
@@ -1608,7 +1774,7 @@ def fly_node_to_node(swarm, configs):
     direction_text = "negative y" if configs[0]["node_row_direction"] < 0 else "positive y"
     print(
         f"Flying all drones in {segments} mission-pad segments "
-        f"({NODE_SEGMENT_DISTANCE_CM} cm each) along {direction_text} at "
+        f"({config_row_spacing_cm(configs[0])} cm each) along {direction_text} at "
         f"{NODE_FLIGHT_SPEED_CM_S} cm/s.",
         flush=True,
     )
@@ -1631,6 +1797,8 @@ def fly_node_to_node(swarm, configs):
     current_rows = [config["grid_row"] for config in configs]
     for segment_index in range(segments):
         set_phase_all(f"node_segment_{segment_index + 1}_of_{segments}")
+        if progress is not None:
+            progress["started_segments"] = segment_index + 1
         print(f"  Segment {segment_index + 1}/{segments}", flush=True)
         if is_front:
             run_swarm_parallel_checked(
@@ -1649,6 +1817,8 @@ def fly_node_to_node(swarm, configs):
                 f"    {config['name']} detected pad {pad_at_physical_row(config, current_rows[i])}.",
                 flush=True,
             )
+        if progress is not None:
+            progress["completed_segments"] = segment_index + 1
     print("  Segmented node-to-node flight complete.", flush=True)
 
     set_phase_all("arrived_target_node")
@@ -2153,6 +2323,7 @@ def run_collection(experiment_id):
     logger_thread = None
     experiment_start_time = time.time()
     takeoff_started = False
+    node_progress = {"total_segments": 0, "started_segments": 0, "completed_segments": 0}
 
     try:
         print("\nPreflight: connecting and checking all drones...", flush=True)
@@ -2240,7 +2411,7 @@ def run_collection(experiment_id):
         logger_thread.start()
 
         print("Node-to-node logging started.", flush=True)
-        fly_node_to_node(swarm, configs)
+        fly_node_to_node(swarm, configs, progress=node_progress)
 
         formation = str(experiment.get("formation", "")).strip().lower()
         if formation == "front" or is_echalon_formation(formation) or is_vee_75cm_experiment(experiment):
@@ -2313,6 +2484,9 @@ def run_collection(experiment_id):
         if run_completed:
             print("Experiment data was already saved; keeping output files.", flush=True)
             return True
+        if should_keep_partial_run(node_progress):
+            print(keep_partial_run_message(node_progress), flush=True)
+            return False
         cleanup_failed_run_outputs(experiment_dir, output_files)
         cleanup_done = True
         return False
@@ -2326,9 +2500,15 @@ def run_collection(experiment_id):
             except (ExperimentStopped, KeyboardInterrupt) as stop_exc:
                 print(f"\nExperiment stopped after error: {stop_exc}", flush=True)
                 safe_land_all(swarm, configs)
+                if should_keep_partial_run(node_progress):
+                    print(keep_partial_run_message(node_progress), flush=True)
+                    return False
                 cleanup_failed_run_outputs(experiment_dir, output_files)
                 cleanup_done = True
                 return False
+        if should_keep_partial_run(node_progress):
+            print(keep_partial_run_message(node_progress), flush=True)
+            return False
         cleanup_failed_run_outputs(experiment_dir, output_files)
         cleanup_done = True
         raise
@@ -2343,7 +2523,7 @@ def run_collection(experiment_id):
                     tello.end()
                 except Exception:
                     pass
-        if not run_completed and not cleanup_done:
+        if not run_completed and not cleanup_done and not should_keep_partial_run(node_progress):
             cleanup_failed_run_outputs(experiment_dir, output_files)
 
     return True
