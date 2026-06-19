@@ -57,8 +57,7 @@ SEGMENT_STAGGER_DELAY_SEC = 0.2
 COLUMN_WIND_STAGGER_DELAY_SEC = 0.5
 COLUMN_WIND_STAGGER_DELAYS_SEC = [0.0, 1.0, 1.7, 2.4, 3.0]
 COLUMN_TARGET_SPACING_CM = 50.0
-COLUMN_SAFETY_RELEASE_SPACING_CM = 60.0
-COLUMN_MIN_LEADER_PROGRESS_CM = 25.0
+COLUMN_SAFETY_RELEASE_SPACING_CM = 65.0
 COLUMN_SAFETY_WAIT_TIMEOUT_SEC = 20.0
 COLUMN_SAFETY_REPORT_INTERVAL_SEC = 2.0
 VEE_COLUMN_DETECTION_TOLERANCE_CM = 25
@@ -1124,6 +1123,7 @@ def wait_for_segment_target(
     interval=0.15,
 ):
     last_report = 0.0
+    last_nudge = 0.0
     while True:
         hold_position(tello, config, "target pad verification")
         state = get_state_safe(tello)
@@ -1136,6 +1136,22 @@ def wait_for_segment_target(
                     flush=True,
                 )
                 last_report = now
+            if is_column_75cm_config(config) and state["mid"] == -1 and now - last_nudge >= 2.0:
+                direction = config["node_row_direction"]
+                try:
+                    tello.send_rc_control(0, 20 * direction, 0, 0)
+                    time.sleep(0.4)
+                    tello.send_rc_control(0, 0, 0, 0)
+                    print(
+                        f"    {config['name']} nudged forward to reacquire column_75 target pad m{target_pad}.",
+                        flush=True,
+                    )
+                except Exception as exc:
+                    print(
+                        f"  Warning: {config['name']} column_75 target-pad nudge returned error: {exc}",
+                        flush=True,
+                    )
+                last_nudge = now
             time.sleep(interval)
             continue
         x_global, y_global, _ = to_global(config, state, preferred_row=target_row)
@@ -1273,7 +1289,14 @@ def fly_synchronized_node_segment(
             time.sleep(0.3)
             continue
         try:
-            tello.go_xyz_speed_mid(local_x, local_y, local_z, max(10, min(100, speed)), int(state["mid"]))
+            go_cmd = "go {} {} {} {} m{}".format(
+                local_x,
+                local_y,
+                local_z,
+                max(10, min(100, speed)),
+                int(state["mid"]),
+            )
+            tello.send_control_command(go_cmd, timeout=LONG_GO_RESPONSE_TIMEOUT_SEC)
         except Exception as exc:
             if is_no_valid_marker_error(exc):
                 print(
@@ -1433,13 +1456,6 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
     follower_config = configs[follower_index]
     direction = follower_config["node_row_direction"]
     release_spacing_cm = column_safety_release_spacing_cm(follower_config)
-    _, leader_start_y = position_at_column_row(
-        leader_config.get("formation", ""),
-        leader_config["grid_column"],
-        current_rows[leader_index],
-        config_column_spacing_cm(leader_config),
-        config_row_spacing_cm(leader_config),
-    )
     deadline = time.time() + COLUMN_SAFETY_WAIT_TIMEOUT_SEC
     last_report = 0.0
 
@@ -1449,12 +1465,10 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
 
         if leader_y is not None and follower_y is not None:
             spacing = direction * (leader_y - follower_y)
-            leader_progress = direction * (leader_y - leader_start_y)
-            if spacing >= release_spacing_cm and leader_progress >= COLUMN_MIN_LEADER_PROGRESS_CM:
+            if spacing >= release_spacing_cm:
                 return
         else:
             spacing = None
-            leader_progress = None
 
         try:
             swarm.tellos[follower_index].send_rc_control(0, 0, 0, 0)
@@ -1464,21 +1478,19 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
         now = time.time()
         if now >= deadline:
             spacing_text = "unknown" if spacing is None else f"{spacing:.1f}cm"
-            progress_text = "unknown" if leader_progress is None else f"{leader_progress:.1f}cm"
             raise RuntimeError(
                 f"{follower_config['name']} was not released because "
                 f"{leader_config['name']} did not clear "
                 f"{release_spacing_cm:.0f}cm in column; "
-                f"spacing={spacing_text} leader_progress={progress_text}."
+                f"spacing={spacing_text}."
             )
         if now - last_report >= COLUMN_SAFETY_REPORT_INTERVAL_SEC:
             spacing_text = "unknown" if spacing is None else f"{spacing:.1f}cm"
-            progress_text = "unknown" if leader_progress is None else f"{leader_progress:.1f}cm"
             print(
                 f"    {follower_config['name']} holding: waiting for "
                 f"{leader_config['name']} to clear "
                 f"{release_spacing_cm:.0f}cm in column; "
-                f"spacing={spacing_text} leader_progress={progress_text}.",
+                f"spacing={spacing_text}.",
                 flush=True,
             )
             last_report = now
@@ -1488,60 +1500,10 @@ def wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, rel
 def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
     errors = []
     errors_lock = threading.Lock()
-    collision_event = threading.Event()
-    monitor_stop_event = threading.Event()
     work_done_count = [0]
     work_done_lock = threading.Lock()
     all_work_done = threading.Event()
     launch_order = segment_launch_order(configs, current_rows)
-    monitor_thread = threading.Thread(
-        target=monitor_column_collision_risk,
-        args=(
-            swarm,
-            configs,
-            current_rows,
-            monitor_stop_event,
-            collision_event,
-            errors,
-            errors_lock,
-        ),
-        daemon=True,
-    )
-    monitor_thread.start()
-
-    if is_column_side_wind(configs):
-        order_text = " -> ".join(configs[index]["name"] for index in launch_order)
-        print(
-            f"  Segment {segment_index + 1} side-wind safe launch order: {order_text}",
-            flush=True,
-        )
-        try:
-            for release_order, index in enumerate(launch_order):
-                if collision_event.is_set():
-                    break
-                wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
-                if collision_event.is_set():
-                    break
-                fly_synchronized_node_segment(
-                    swarm.tellos[index],
-                    configs[index],
-                    current_rows[index],
-                    speed=NODE_FLIGHT_SPEED_CM_S,
-                )
-        except Exception as exc:
-            with errors_lock:
-                errors.append((-1, exc))
-        finally:
-            monitor_stop_event.set()
-            monitor_thread.join(timeout=1.0)
-        if errors:
-            details = "; ".join(
-                f"{configs[index]['name'] if index >= 0 else 'monitor'}: {exc}"
-                for index, exc in errors
-            )
-            raise RuntimeError(f"Node segment {segment_index + 1} failed: {details}")
-        return
-
     stagger_delays = segment_stagger_delays(configs, len(launch_order))
     order_text = " -> ".join(configs[index]["name"] for index in launch_order)
     delay_text = ", ".join(
@@ -1562,23 +1524,19 @@ def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
         delay = stagger_delays[release_order]
         deadline = time.time() + delay
         while time.time() < deadline:
-            if collision_event.is_set():
-                break
             try:
                 swarm.tellos[index].send_rc_control(0, 0, 0, 0)
             except Exception:
                 pass
             time.sleep(0.05)
         try:
-            if not collision_event.is_set():
-                wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
-            if not collision_event.is_set():
-                fly_synchronized_node_segment(
-                    swarm.tellos[index],
-                    config,
-                    current_rows[index],
-                    speed=NODE_FLIGHT_SPEED_CM_S,
-                )
+            wait_for_column_spacing_gate(swarm, configs, current_rows, launch_order, release_order, index)
+            fly_synchronized_node_segment(
+                swarm.tellos[index],
+                config,
+                current_rows[index],
+                speed=NODE_FLIGHT_SPEED_CM_S,
+            )
         except Exception as exc:
             with errors_lock:
                 errors.append((index, exc))
@@ -1593,21 +1551,14 @@ def run_staggered_node_segment(swarm, configs, current_rows, segment_index):
                 pass
 
     threads = []
-    try:
-        for release_order, index in enumerate(launch_order):
-            thread = threading.Thread(target=worker, args=(release_order, index), daemon=True)
-            threads.append(thread)
-            thread.start()
-        for thread in threads:
-            thread.join()
-    finally:
-        monitor_stop_event.set()
-        monitor_thread.join(timeout=1.0)
+    for release_order, index in enumerate(launch_order):
+        thread = threading.Thread(target=worker, args=(release_order, index), daemon=True)
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
     if errors:
-        details = "; ".join(
-            f"{configs[index]['name'] if index >= 0 else 'monitor'}: {exc}"
-            for index, exc in errors
-        )
+        details = "; ".join(f"{configs[index]['name']}: {exc}" for index, exc in errors)
         raise RuntimeError(f"Node segment {segment_index + 1} failed: {details}")
 
 
