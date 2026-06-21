@@ -43,6 +43,8 @@ ROW_SPACING_CM = 50
 COLUMN_SPACING_CM = 50
 COLUMN_75_ROW_SPACING_CM = 75
 COLUMN_75_FORWARD_DISTANCE_CM = 300
+DIAMOND_75_ROW_SPACING_CM = 75
+DIAMOND_75_FORWARD_DISTANCE_CM = 300
 TAKEOFF_HEIGHT_CM = 80
 LOG_INTERVAL_SEC = 0.1
 TAKEOFF_CLIMB_SPEED_CM_S = 20
@@ -127,6 +129,13 @@ DIAMOND_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6, 7, 8],
     [2, 3, 4, 5, 6, 7, 8, 1],
     [3, 4, 5, 6, 7, 8, 1, 2],
+    [],
+]
+DIAMOND_75_MISSION_PAD_COLUMNS = [
+    [],
+    [8, 1, 2, 3, 4, 5, 6, 7],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [2, 3, 4, 5, 6, 7, 8, 1],
     [],
 ]
 
@@ -294,6 +303,8 @@ def mission_pad_columns_for_experiment(experiment):
         return COLUMN_75_MISSION_PAD_COLUMNS
     if formation == "column":
         return COLUMN_MISSION_PAD_COLUMNS
+    if is_diamond_75cm_experiment(experiment):
+        return DIAMOND_75_MISSION_PAD_COLUMNS
     if formation == "diamond":
         return DIAMOND_MISSION_PAD_COLUMNS
     if is_vee_75cm_experiment(experiment):
@@ -305,7 +316,7 @@ def mission_pad_columns_for_experiment(experiment):
 
 def experiment_column_spacing_cm(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
-    if formation in {"front", "vee"} and experiment_inter_drone_distance_cm(experiment) == 75:
+    if formation in {"front", "vee", "diamond"} and experiment_inter_drone_distance_cm(experiment) == 75:
         return 75
     return COLUMN_SPACING_CM
 
@@ -322,15 +333,31 @@ def is_column_75cm_config(config):
     )
 
 
+def is_diamond_75cm_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    return formation == "diamond" and experiment_inter_drone_distance_cm(experiment) == 75
+
+
+def is_diamond_75cm_config(config):
+    return (
+        str(config.get("formation", "")).strip().lower() == "diamond"
+        and int(config.get("inter_drone_distance_cm") or 50) == 75
+    )
+
+
 def experiment_row_spacing_cm(experiment):
     if is_column_75cm_experiment(experiment):
         return COLUMN_75_ROW_SPACING_CM
+    if is_diamond_75cm_experiment(experiment):
+        return DIAMOND_75_ROW_SPACING_CM
     return ROW_SPACING_CM
 
 
 def experiment_node_forward_distance_cm(experiment):
     if is_column_75cm_experiment(experiment):
         return COLUMN_75_FORWARD_DISTANCE_CM
+    if is_diamond_75cm_experiment(experiment):
+        return DIAMOND_75_FORWARD_DISTANCE_CM
     return NODE_FORWARD_DISTANCE_CM
 
 
@@ -409,6 +436,8 @@ def node_direction_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
     if formation == "column":
+        return -1 if wind_direction == "head wind" else 1
+    if is_diamond_75cm_experiment(experiment):
         return -1 if wind_direction == "head wind" else 1
     if is_front_head_75cm_experiment(experiment):
         return -1
@@ -1081,7 +1110,7 @@ def coordinate_climb_on_start_pads(swarm, configs):
 
 
 def is_valid_column_detection(config, x_global):
-    tolerance = COLUMN_SPACING_CM * 0.75
+    tolerance = config_column_spacing_cm(config) * 0.75
     if config.get("formation") == "vee":
         tolerance = VEE_COLUMN_DETECTION_TOLERANCE_CM
     return abs(x_global - config["target_x"]) <= tolerance
@@ -1136,19 +1165,19 @@ def wait_for_segment_target(
                     flush=True,
                 )
                 last_report = now
-            if is_column_75cm_config(config) and state["mid"] == -1 and now - last_nudge >= 2.0:
+            if is_column_target_nudge_enabled(config) and state["mid"] == -1 and now - last_nudge >= 2.0:
                 direction = config["node_row_direction"]
                 try:
                     tello.send_rc_control(0, 20 * direction, 0, 0)
                     time.sleep(0.4)
                     tello.send_rc_control(0, 0, 0, 0)
                     print(
-                        f"    {config['name']} nudged forward to reacquire column_75 target pad m{target_pad}.",
+                        f"    {config['name']} nudged forward to reacquire target pad m{target_pad}.",
                         flush=True,
                     )
                 except Exception as exc:
                     print(
-                        f"  Warning: {config['name']} column_75 target-pad nudge returned error: {exc}",
+                        f"  Warning: {config['name']} target-pad nudge returned error: {exc}",
                         flush=True,
                     )
                 last_nudge = now
@@ -1372,6 +1401,12 @@ def fly_continuous_node_to_node(tello, config, speed=NODE_FLIGHT_SPEED_CM_S):
 
 
 def segment_launch_order(configs, current_rows):
+    if configs and all(is_diamond_75cm_config(config) for config in configs):
+        by_role = {int(config["takeoff_order"]): index for index, config in enumerate(configs)}
+        preferred_order = [5, 2, 3, 4, 1]
+        ordered = [by_role[order] for order in preferred_order if order in by_role]
+        ordered.extend(index for index in range(len(configs)) if index not in ordered)
+        return ordered
     return sorted(
         range(len(configs)),
         key=lambda index: (
@@ -1398,6 +1433,12 @@ def segment_stagger_delays(configs, launch_count):
     if not configs:
         return [release_order * SEGMENT_STAGGER_DELAY_SEC for release_order in range(launch_count)]
     formation = str(configs[0].get("formation", "")).strip().lower()
+    if all(is_diamond_75cm_config(config) for config in configs):
+        # Diamond75 launches by shape layer: front tip, middle row together, rear tip.
+        delays = [0.0, 1.0, 1.0, 1.0, 2.0]
+        while len(delays) < launch_count:
+            delays.append(delays[-1] + SEGMENT_STAGGER_DELAY_SEC)
+        return delays[:launch_count]
     if formation == "front":
         return [0.0] * launch_count
     wind_direction = str(configs[0].get("wind_direction", "")).strip().lower()
@@ -1422,6 +1463,16 @@ def column_safety_release_spacing_cm(config):
     if is_column_75cm_config(config):
         return 75.0 + 5.0
     return COLUMN_SAFETY_RELEASE_SPACING_CM
+
+
+def is_column_target_nudge_enabled(config):
+    if is_column_75cm_config(config) or is_diamond_75cm_config(config):
+        return True
+    return (
+        str(config.get("formation", "")).strip().lower() == "column"
+        and str(config.get("wind_direction", "")).strip().lower() in {"tail wind", "side wind"}
+        and int(config.get("inter_drone_distance_cm") or 50) == 50
+    )
 
 
 def observed_segment_y(tello, config, current_row):
@@ -2002,6 +2053,26 @@ def connect_and_check(swarm, configs):
     )
 
 
+def prepare_formal_takeoff_state(swarm, configs):
+    print("Preparing all drones for formal takeoff state...", flush=True)
+
+    def prepare_one(_idx, tello):
+        tello.enable_mission_pads()
+        tello.set_mission_pad_detection_direction(0)
+        try:
+            tello.send_rc_control(0, 0, 0, 0)
+        except Exception:
+            pass
+
+    run_swarm_parallel_checked(swarm, "Formal takeoff state preparation", prepare_one)
+    time.sleep(1.0)
+    for tello in swarm.tellos:
+        try:
+            tello.send_rc_control(0, 0, 0, 0)
+        except Exception:
+            pass
+
+
 def run_selected_parallel(indexed_tellos, label, command_func):
     errors = []
     errors_lock = threading.Lock()
@@ -2279,9 +2350,7 @@ def run_collection(experiment_id):
     try:
         print("\nPreflight: connecting and checking all drones...", flush=True)
         _, high_battery = connect_and_check(swarm, configs)
-        for tello in swarm.tellos:
-            tello.enable_mission_pads()
-            tello.set_mission_pad_detection_direction(0)
+        prepare_formal_takeoff_state(swarm, configs)
 
         while high_battery:
             print(
@@ -2315,7 +2384,8 @@ def run_collection(experiment_id):
                 f"Post-discharge battery window check ({BATTERY_WINDOW_LOW_PERCENT}-{BATTERY_WINDOW_HIGH_PERCENT}% required):",
             )
 
-        print("Preflight checks passed. All drones are inside the battery window.", flush=True)
+        prepare_formal_takeoff_state(swarm, configs)
+        print("Preflight checks passed. Formal takeoff state is ready.", flush=True)
 
         print("Press Enter to take off all five drones...", flush=True)
         input()
