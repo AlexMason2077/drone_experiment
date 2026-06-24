@@ -103,6 +103,13 @@ VEE_MISSION_PAD_COLUMNS = [
     [5, 6, 7, 8, 1, 2],
     [1, 2, 3, 4, 7, 8],
 ]
+VEE_50_SIDE_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6],
+    [6, 7, 8, 1, 2, 3],
+    [3, 4, 5, 6, 7, 8],
+    [8, 1, 2, 3, 4, 5],
+    [5, 6, 7, 8, 1, 2],
+]
 VEE_COLUMN_ORIGINS_CM = [
     (0.0, 0.0),
     (25 * math.sqrt(2), 25 * math.sqrt(2)),
@@ -309,8 +316,12 @@ def mission_pad_columns_for_experiment(experiment):
         return DIAMOND_MISSION_PAD_COLUMNS
     if is_vee_75cm_experiment(experiment):
         return MISSION_PAD_COLUMNS
+    if is_vee_50cm_side_wind_experiment(experiment):
+        return VEE_50_SIDE_MISSION_PAD_COLUMNS
     if formation == "vee":
         return VEE_MISSION_PAD_COLUMNS
+    if is_front_50cm_side_wind_experiment(experiment):
+        return VEE_50_SIDE_MISSION_PAD_COLUMNS
     return MISSION_PAD_COLUMNS
 
 
@@ -368,6 +379,26 @@ def is_echalon_formation(formation):
 def is_vee_75cm_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     return formation == "vee" and experiment_inter_drone_distance_cm(experiment) == 75
+
+
+def is_vee_50cm_side_wind_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    return (
+        formation == "vee"
+        and wind_direction == "side wind"
+        and experiment_inter_drone_distance_cm(experiment) == 50
+    )
+
+
+def is_front_50cm_side_wind_experiment(experiment):
+    formation = str(experiment.get("formation", "")).strip().lower()
+    wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    return (
+        formation == "front"
+        and wind_direction == "side wind"
+        and experiment_inter_drone_distance_cm(experiment) == 50
+    )
 
 
 def is_vee_75cm_config(config):
@@ -439,6 +470,8 @@ def node_direction_for_experiment(experiment):
         return -1 if wind_direction == "head wind" else 1
     if is_diamond_75cm_experiment(experiment):
         return -1 if wind_direction == "head wind" else 1
+    if is_echalon_formation(formation) and wind_direction == "head wind":
+        return -1
     if is_front_head_75cm_experiment(experiment):
         return -1
     # Vee tail-wind runs keep the same pad layout and +Y flight path as head-wind runs.

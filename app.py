@@ -84,6 +84,13 @@ VEE_MISSION_PAD_COLUMNS = [
     [5, 6, 7, 8, 1, 2],
     [1, 2, 3, 4, 7, 8],
 ]
+VEE_50_SIDE_MISSION_PAD_COLUMNS = [
+    [1, 2, 3, 4, 5, 6],
+    [6, 7, 8, 1, 2, 3],
+    [3, 4, 5, 6, 7, 8],
+    [8, 1, 2, 3, 4, 5],
+    [5, 6, 7, 8, 1, 2],
+]
 DIAMOND_MISSION_PAD_COLUMNS = [
     [],
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -103,13 +110,15 @@ MISSION_PAD_LAYOUTS = {
     "column": COLUMN_MISSION_PAD_COLUMNS,
     "column_75": COLUMN_75_MISSION_PAD_COLUMNS,
     "vee": VEE_MISSION_PAD_COLUMNS,
+    "vee_50_side": VEE_50_SIDE_MISSION_PAD_COLUMNS,
     "diamond": DIAMOND_MISSION_PAD_COLUMNS,
     "diamond_75": DIAMOND_75_MISSION_PAD_COLUMNS,
 }
 
 
-def mission_pad_layout_for_formation(formation, inter_drone_distance_cm=None):
+def mission_pad_layout_for_formation(formation, inter_drone_distance_cm=None, wind_direction=None):
     formation = str(formation or "").strip().lower()
+    wind_direction = str(wind_direction or "").strip().lower()
     try:
         distance_cm = int(str(inter_drone_distance_cm or "").strip())
     except ValueError:
@@ -125,7 +134,11 @@ def mission_pad_layout_for_formation(formation, inter_drone_distance_cm=None):
     if formation == "vee":
         if distance_cm == 75:
             return MISSION_PAD_COLUMNS
+        if distance_cm == 50 and wind_direction == "side wind":
+            return VEE_50_SIDE_MISSION_PAD_COLUMNS
         return VEE_MISSION_PAD_COLUMNS
+    if formation == "front" and distance_cm == 50 and wind_direction == "side wind":
+        return VEE_50_SIDE_MISSION_PAD_COLUMNS
     return MISSION_PAD_COLUMNS
 
 
@@ -610,6 +623,7 @@ def validate_experiment_assignments(experiment):
     mission_pad_columns = mission_pad_layout_for_formation(
         experiment.get("formation"),
         experiment.get("inter_drone_distance_cm"),
+        experiment.get("wind_direction"),
     )
     seen_positions = set()
     for drone in drones:
@@ -1754,6 +1768,7 @@ def experiment_detail(experiment_id):
     mission_pad_columns = mission_pad_layout_for_formation(
         experiment.get("formation"),
         experiment.get("inter_drone_distance_cm"),
+        experiment.get("wind_direction"),
     )
     return render_template_string(
         EXPERIMENT_TEMPLATE,
@@ -3496,6 +3511,7 @@ INDEX_TEMPLATE = """
                     {% set column_pad = mission_pad_layouts.column[col][display_row] if col < mission_pad_layouts.column|length and display_row < mission_pad_layouts.column[col]|length else '' %}
                     {% set column_75_pad = mission_pad_layouts.column_75[col][display_row] if col < mission_pad_layouts.column_75|length and display_row < mission_pad_layouts.column_75[col]|length else '' %}
                     {% set vee_pad = mission_pad_layouts.vee[col][display_row] if col < mission_pad_layouts.vee|length and display_row < mission_pad_layouts.vee[col]|length else '' %}
+                    {% set vee_50_side_pad = mission_pad_layouts.vee_50_side[col][display_row] if col < mission_pad_layouts.vee_50_side|length and display_row < mission_pad_layouts.vee_50_side[col]|length else '' %}
                     {% set diamond_pad = mission_pad_layouts.diamond[col][display_row] if col < mission_pad_layouts.diamond|length and display_row < mission_pad_layouts.diamond[col]|length else '' %}
                     {% set diamond_75_pad = mission_pad_layouts.diamond_75[col][display_row] if col < mission_pad_layouts.diamond_75|length and display_row < mission_pad_layouts.diamond_75[col]|length else '' %}
                     {% set pad_id = standard_pad %}
@@ -3507,6 +3523,7 @@ INDEX_TEMPLATE = """
                          data-column-pad="{{ column_pad }}"
                          data-column75-pad="{{ column_75_pad }}"
                          data-vee-pad="{{ vee_pad }}"
+                         data-vee50side-pad="{{ vee_50_side_pad }}"
                          data-diamond-pad="{{ diamond_pad }}"
                          data-diamond75-pad="{{ diamond_75_pad }}"
                          data-front-active="{{ 'true' if display_row == 0 else 'false' }}"
@@ -3901,6 +3918,14 @@ INDEX_TEMPLATE = """
       return formationInput.value === "front" && windDirectionInput && windDirectionInput.value === "tail wind";
     }
 
+    function isFront50cmSideWind() {
+      return formationInput.value === "front" &&
+             windDirectionInput &&
+             windDirectionInput.value === "side wind" &&
+             interDroneDistanceInput &&
+             interDroneDistanceInput.value === "50";
+    }
+
     function isFrontHeadWind75cm() {
       return formationInput.value === "front" &&
              windDirectionInput &&
@@ -3913,18 +3938,28 @@ INDEX_TEMPLATE = """
       return formationInput.value === "echalon";
     }
 
-    function isEchalonHeadWind75cm() {
+    function isEchalonHeadWind() {
       return isEchalonFormation() &&
              windDirectionInput &&
-             windDirectionInput.value === "head wind" &&
-             interDroneDistanceInput &&
-             interDroneDistanceInput.value === "75";
+             windDirectionInput.value === "head wind";
     }
 
     function isVee75cm() {
       return formationInput.value === "vee" &&
              interDroneDistanceInput &&
              interDroneDistanceInput.value === "75";
+    }
+
+    function isVee50cmSideWind() {
+      return formationInput.value === "vee" &&
+             windDirectionInput &&
+             windDirectionInput.value === "side wind" &&
+             interDroneDistanceInput &&
+             interDroneDistanceInput.value === "50";
+    }
+
+    function usesVeeStandardPadLayout() {
+      return isVee75cm();
     }
 
     function isFrontTailWind75cm() {
@@ -3961,7 +3996,9 @@ INDEX_TEMPLATE = """
 
     function activeLayoutName(formation) {
       if (formation === "diamond") return isDiamond75cm() ? "diamond75" : "diamond";
-      if (formation === "vee") return isVee75cm() ? "standard" : "vee";
+      if (formation === "front" && isFront50cmSideWind()) return "vee50side";
+      if (formation === "vee" && isVee50cmSideWind()) return "vee50side";
+      if (formation === "vee") return usesVeeStandardPadLayout() ? "standard" : "vee";
       if (formation === "column") return isColumn75cm() ? "column75" : "column";
       return "standard";
     }
@@ -3970,6 +4007,7 @@ INDEX_TEMPLATE = """
       if (layoutName === "diamond75") return cell.dataset.diamond75Pad;
       if (layoutName === "diamond") return cell.dataset.diamondPad;
       if (layoutName === "vee") return cell.dataset.veePad;
+      if (layoutName === "vee50side") return cell.dataset.vee50sidePad;
       if (layoutName === "column") return cell.dataset.columnPad;
       if (layoutName === "column75") return cell.dataset.column75Pad;
       return cell.dataset.standardPad;
@@ -3981,7 +4019,7 @@ INDEX_TEMPLATE = """
       const layoutPad = layoutPadForCell(cell, layoutName);
       if (!layoutPad) return false;
       if (formation === "front") return row === (isFrontReversePath() ? standardTopMissionRow : 0);
-      if (formation === "echalon") return row === (isEchalonHeadWind75cm() ? standardTopMissionRow : 0);
+      if (formation === "echalon") return row === (isEchalonHeadWind() ? standardTopMissionRow : 0);
       if (formation === "column") {
         if (isColumn75cm()) {
           return col === 0 && (isColumnHeadWind() ? row >= 4 && row <= 8 : row >= 0 && row <= 4);
@@ -4058,8 +4096,10 @@ INDEX_TEMPLATE = """
               ? "diamond + tail wind: starts at rows 6-8 in diamond shape; flies back 5 cells to rows 1-3."
               : "diamond: 3 columns x 8 rows; starts at row1 middle, row2 all three pads, row3 middle; each drone flies forward 5 cells.");
         } else if (formation === "vee") {
-          frontFormationNote.textContent = isVee75cm()
-            ? "vee + 75cm: first row pads are 1, 2, 3, 4, 5; columns use custom V origins and each lane keeps 50cm row spacing."
+          frontFormationNote.textContent = isVee50cmSideWind()
+            ? "vee + 50cm + side wind: second lane starts at pad 6 to avoid adjacent-lane pad detection; other lanes use front pad order."
+            : usesVeeStandardPadLayout()
+              ? "vee + standard pad layout: first row pads are 1, 2, 3, 4, 5; columns use custom V origins and each lane keeps 50cm row spacing."
             : "vee: first row across five angled lanes = pads 1, 5, 3, 5, 1; adjacent drone spacing = 50 cm.";
         } else if (formation === "column") {
           frontFormationNote.textContent = isColumn75cm()
@@ -4070,11 +4110,13 @@ INDEX_TEMPLATE = """
               ? "column + head wind: starts at pads 4, 3, 8, 7, 6; flies back to 5, 4, 3, 2, 1."
               : "column + tail wind: starts at pads 1, 2, 3, 4, 5; flies forward to 6, 7, 8, 3, 4.");
         } else if (formation === "echalon") {
-          frontFormationNote.textContent = isEchalonHeadWind75cm()
-            ? "echalon + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5."
-            : "echalon + tail/side wind + 75cm: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2.";
+          frontFormationNote.textContent = isEchalonHeadWind()
+            ? "echalon + head wind: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5."
+            : "echalon + tail/side wind: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2.";
         } else {
-          frontFormationNote.textContent = isFrontHeadWind75cm()
+          frontFormationNote.textContent = isFront50cmSideWind()
+            ? "front + 50cm + side wind: uses the same pad path as vee + 50cm + side wind to avoid adjacent-lane pad detection."
+            : isFrontHeadWind75cm()
             ? "front + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5; x spacing = 75cm."
             : isFrontTailWind75cm()
               ? "front + tail wind + 75cm: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2; x spacing = 75cm."
@@ -4083,8 +4125,10 @@ INDEX_TEMPLATE = """
       }
       if (experimentMissionLayoutText) {
         if (formation === "vee") {
-          experimentMissionLayoutText.textContent = isVee75cm()
-            ? "Vee + 75cm uses front mission-pad order with custom V-shaped origins; all drones start from row 1 and each lane keeps 50cm row spacing."
+          experimentMissionLayoutText.textContent = isVee50cmSideWind()
+            ? "Vee + 50cm + side wind columns left to right: 1-2-3-4-5-6 · 6-7-8-1-2-3 · 3-4-5-6-7-8 · 8-1-2-3-4-5 · 5-6-7-8-1-2"
+            : usesVeeStandardPadLayout()
+              ? "Vee uses front mission-pad order with custom V-shaped origins for 75cm runs; all drones start from row 1 and each lane keeps 50cm row spacing."
             : "Columns left to right: 1-2-3-4-5-6 · 5-6-7-8-1-2 · 3-4-5-6-7-8 · 5-6-7-8-1-2 · 1-2-3-4-7-8";
         } else if (formation === "column") {
           experimentMissionLayoutText.textContent = isColumn75cm()
@@ -4094,6 +4138,8 @@ INDEX_TEMPLATE = """
           experimentMissionLayoutText.textContent = isDiamond75cm()
             ? "Diamond + 75cm uses the middle three columns with an extra bottom row: 8-1-2-3-4-5-6-7 · 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1, with 75cm pad spacing and 300cm flight distance."
             : "Diamond uses the middle three columns: 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1 · 3-4-5-6-7-8-1-2";
+        } else if (formation === "front" && isFront50cmSideWind()) {
+          experimentMissionLayoutText.textContent = "Front + 50cm + side wind columns left to right: 1-2-3-4-5-6 · 6-7-8-1-2-3 · 3-4-5-6-7-8 · 8-1-2-3-4-5 · 5-6-7-8-1-2";
         } else if (formation === "echalon") {
           experimentMissionLayoutText.textContent = "Echalon uses front mission-pad order with custom 75cm diagonal origins; each lane keeps 50cm mission-pad row spacing.";
         } else {
