@@ -61,6 +61,44 @@ def read_csv(path):
     return df
 
 
+def battery_summary_from_coordination(coord_df):
+    required = {"drone_name", "battery"}
+    if coord_df.empty or not required.issubset(coord_df.columns):
+        return pd.DataFrame()
+
+    rows = []
+    for drone_name, group in coord_df.groupby("drone_name"):
+        group = group.copy()
+        group["battery"] = pd.to_numeric(group["battery"], errors="coerce")
+        group = group[group["battery"].notna()]
+        if group.empty:
+            continue
+        first = group.iloc[0]
+        last = group.iloc[-1]
+        start_battery = first["battery"]
+        end_battery = last["battery"]
+        row = {}
+        for col in [
+            "run_id", "experiment_id", "formation", "wind_direction", "wind_speed",
+            "inter_drone_distance_cm", "drone_name", "drone_ip", "battery_id",
+            "takeoff_order", "drone_role", "mission_pad", "grid_column", "grid_row",
+            "target_pad", "node_forward_distance_cm", "node_speed_cm_s",
+        ]:
+            if col in group.columns:
+                row[col] = last.get(col, first.get(col, ""))
+        if "timestamp" in group.columns:
+            row["node_start_timestamp"] = first.get("timestamp", "")
+            row["node_end_timestamp"] = last.get("timestamp", "")
+        if "node_elapsed_time" in group.columns:
+            node_times = pd.to_numeric(group["node_elapsed_time"], errors="coerce")
+            row["node_duration_sec"] = node_times.max()
+        row["battery_hover_start"] = start_battery
+        row["battery_hover_end"] = end_battery
+        row["battery_drop"] = start_battery - end_battery
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def time_column(df):
     if "node_elapsed_time" in df.columns and df["node_elapsed_time"].notna().any():
         return "node_elapsed_time", "Node-to-node flight time (s)"
@@ -355,6 +393,8 @@ def generate_for_condition(condition_key):
         trial_id = trial_dir.name.rsplit("_", 1)[-1]
         battery_df = read_csv(latest_file(trial_dir, "*_all_battery.csv"))
         coord_df = read_csv(latest_file(trial_dir, "*_all_coordination.csv"))
+        if battery_df.empty and not coord_df.empty:
+            battery_df = battery_summary_from_coordination(coord_df)
         if not battery_df.empty:
             battery_df["trial_id"] = trial_id
             battery_frames.append(battery_df)
@@ -467,6 +507,8 @@ def plot_condition_temperature_lines(df, condition_key, plots_dir):
 def plot_condition_battery_summary(df, condition_key, plots_dir):
     df = add_discharge_rate(df)
     df["battery_drop"] = pd.to_numeric(df["battery_drop"], errors="coerce")
+    source_out = plots_dir / "condition_battery_summary_source.csv"
+    df.to_csv(source_out, index=False)
     grouped = df.groupby("drone_name")["battery_drop"]
     summary = grouped.agg(["mean", "std", "count"]).reset_index().sort_values("drone_name")
 
