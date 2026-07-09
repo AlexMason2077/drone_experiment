@@ -1,0 +1,1 @@
+run_id,baseline_id,drone_name,drone_number,drone_ip,battery_id,mode,wind_level,direction,baseline_path,start_timestamp,end_timestamp,duration_sec,battery_start,battery_end,battery_drop,templ_start,templ_end,temph_start,temph_end,end_reason,notes

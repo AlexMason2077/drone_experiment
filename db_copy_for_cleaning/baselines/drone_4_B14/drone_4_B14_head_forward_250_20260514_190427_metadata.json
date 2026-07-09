@@ -1,0 +1,32 @@
+{
+  "run_id": "20260514_190427",
+  "baseline_id": "drone_4_B14_head_forward_250_20260514_190427",
+  "experiment_id": "drone_4_B14_head_forward_250_20260514_190427",
+  "formation": "single_drone_baseline",
+  "wind_direction": "head_forward_250",
+  "wind_speed": "lv1",
+  "drone_number": "4",
+  "drone_name": "drone_4",
+  "drone_ip": "192.168.0.106",
+  "battery_id": "B14",
+  "mode": "head_forward_250",
+  "mode_label": "head wind forward 250cm",
+  "start_pad": 4,
+  "start_col": 3,
+  "start_row": 0,
+  "direction": "up",
+  "baseline_path": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    1
+  ],
+  "movement_distance_cm": 250,
+  "target_pad": 1,
+  "target_row": 5,
+  "landing_battery_percent": null,
+  "notes": "",
+  "wind_level": "lv1"
+}
