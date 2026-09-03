@@ -36,11 +36,11 @@ DATA_DIR = BASE_DIR / "database"
 BASELINE_DIR = DATA_DIR / "baselines"
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
-    "1": "102",
-    "2": "109",
-    "3": "103",
-    "4": "106",
-    "5": "107",
+    "1": "100",
+    "2": "101",
+    "3": "102",
+    "4": "103",
+    "5": "104",
 }
 
 TAKEOFF_HEIGHT_CM = 80

@@ -12,3 +12,22 @@ env/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Local dependency/cache data
+node_modules
+*.inspect.ndjson
+
+# Large local copies of experiment data (primary records remain in database/)
+database_csv/
+db_copy_for_cleaning/
+
+# Experiment records and generated analysis stay local unless explicitly added
+database/
+analysis_outputs/
+outputs/
+output_graph/
+swarm_analysis/
+
+# Generated model artifacts above GitHub's per-file size limit
+analysis_outputs/ml_policy/expanded_25m_exponential_90min_interval30s/permutation_position_ablation.joblib
+analysis_outputs/ml_policy/expanded_25m_exponential_90min_interval30s/autoregressive_position_policy.joblib

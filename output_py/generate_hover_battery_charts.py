@@ -21,12 +21,18 @@ import re
 from pathlib import Path
 
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = BASE_DIR / "db_copy_for_cleaning" / "baselines"
 DEFAULT_OUTPUT = BASE_DIR / "output_graph"
 SELECTED_MEAN_BATTERIES = ["B10", "B11", "B12", "B13", "B14", "B15"]
+MIN_COMPLETE_DURATION_SEC = 300.0
+MAX_COMPLETE_END_BATTERY = 15.0
+MIN_COMPLETE_BATTERY_DROP = 75.0
 
 NUMERIC_COLS = [
     "elapsed_time",
@@ -379,6 +385,57 @@ def find_hover_timeseries(input_dir: Path) -> list[Path]:
             continue
         paths.append(path)
     return sorted(paths)
+
+
+def cleaning_reason(trace: dict) -> str:
+    reasons = []
+    if trace["durationSec"] < MIN_COMPLETE_DURATION_SEC:
+        reasons.append(f"duration<{MIN_COMPLETE_DURATION_SEC:g}s")
+    if trace["batteryEnd"] > MAX_COMPLETE_END_BATTERY:
+        reasons.append(f"end_battery>{MAX_COMPLETE_END_BATTERY:g}%")
+    if trace["batteryDrop"] < MIN_COMPLETE_BATTERY_DROP:
+        reasons.append(f"battery_drop<{MIN_COMPLETE_BATTERY_DROP:g}pp")
+    return "; ".join(reasons)
+
+
+def write_static_mean_chart(traces: list[dict], output_path: Path) -> None:
+    selected = [t for t in traces if t["batteryId"] in SELECTED_MEAN_BATTERIES]
+    battery_groups = {
+        battery_id: [t for t in selected if t["batteryId"] == battery_id]
+        for battery_id in SELECTED_MEAN_BATTERIES
+    }
+    colors = {
+        "B10": "#1f77b4", "B11": "#d28e00", "B12": "#d55e00",
+        "B13": "#6f7f22", "B14": "#b44c7a", "B15": "#6b5ca5",
+    }
+    fig, ax = plt.subplots(figsize=(12, 7), dpi=180)
+    for battery_id, group in battery_groups.items():
+        mean_trace = mean_trace_for_battery(battery_id, group, max_points=1200)
+        if mean_trace is None:
+            continue
+        points = mean_trace["points"]
+        ax.plot(
+            [p["t"] / 60 for p in points], [p["battery"] for p in points],
+            color=colors[battery_id], linewidth=2.4,
+            label=battery_id,
+        )
+    ax.set_title("Single-drone hover battery discharge curves", loc="left", fontsize=16, weight="bold", pad=28)
+    ax.text(
+        0, 1.015,
+        "Mean complete-run curves · elapsed time aligned to discharge start · source: db_copy_for_cleaning/baselines",
+        transform=ax.transAxes, fontsize=9.5, color="#59636e", va="bottom",
+    )
+    ax.set_xlabel("Aligned hover time (minutes)")
+    ax.set_ylabel("Remaining battery (%)")
+    ax.set_ylim(0, 105)
+    ax.set_xlim(left=0)
+    ax.grid(axis="y", color="#d9dee3", linewidth=0.8)
+    ax.grid(axis="x", color="#edf0f2", linewidth=0.6)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(frameon=False, ncol=2, fontsize=9, loc="upper right")
+    fig.tight_layout()
+    fig.savefig(output_path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
 
 
 def build_html(traces: list[dict]) -> str:
@@ -772,22 +829,30 @@ def main() -> None:
     for path in find_hover_timeseries(input_dir):
         trace, summary = load_hover_timeseries(path, max_points=args.max_points_per_run)
         if trace is not None:
-            traces.append(trace)
+            reason = cleaning_reason(trace)
+            if reason:
+                summary["status"] = "excluded_incomplete_run"
+                summary["notes"] = reason
+            else:
+                traces.append(trace)
         if summary is not None:
             summary_rows.append(summary)
 
     traces = sorted(traces, key=lambda item: (item["batteryId"], item["droneName"], item["baselineId"]))
     summary_path = output_dir / "hover_battery_runs_summary.csv"
     html_path = output_dir / "hover_battery_comparison.html"
+    png_path = output_dir / "hover_battery_complete_mean_curves.png"
     write_summary(summary_rows, summary_path)
 
     if not traces:
         raise SystemExit(f"No usable hover timeseries found in {input_dir}")
 
     html_path.write_text(build_html(traces), encoding="utf-8")
+    write_static_mean_chart(traces, png_path)
     print(f"Included hover runs: {len(traces)}")
     print(f"Summary CSV: {summary_path}")
     print(f"Interactive HTML: {html_path}")
+    print(f"Static mean chart: {png_path}")
 
 
 if __name__ == "__main__":

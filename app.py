@@ -26,19 +26,29 @@ REGISTRY_FILE = DATA_DIR / "experiment_registry.json"
 ALLOWED_PREVIEW_EXTENSIONS = {".csv", ".png", ".jpg", ".jpeg", ".webp"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 CSV_EXTENSIONS = {".csv"}
+INDEX_EXPERIMENTS_PER_PAGE = 25
+INDEX_BASELINES_PER_PAGE = 25
+INDEX_FILES_PER_CATEGORY = 60
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
-    "1": "102",
-    "2": "109",
-    "3": "103",
-    "4": "106",
-    "5": "107",
+    "1": "100",
+    "2": "101",
+    "3": "102",
+    "4": "103",
+    "5": "104",
 }
 IP_SUFFIX_TO_DRONE_NUMBER = {
     suffix: number for number, suffix in DRONE_NUMBER_TO_IP_SUFFIX.items()
 }
 BATTERY_OPTIONS = [f"B{i:02d}" for i in range(1, 16)]
 EXPERIMENT_BATTERY_WINDOW = {"low": 40, "high": 75}
+SOC_MODE_TARGETS = {"high": 85, "medium": 75, "low": 30}
+SOC_MODE_OPTIONS = [
+    ("high", 85, "100-75% band"),
+    ("medium", 75, "75-40% band"),
+    ("low", 30, "40-0% band"),
+]
+SOC_TARGET_TOLERANCE_PERCENT = 2
 RECOMMENDED_EXPERIMENT_BATTERIES = {"B02", "B04", "B06", "B07", "B10"}
 FORMATION_OPTIONS = ["front", "column", "vee", "echalon", "diamond"]
 INTER_DRONE_DISTANCE_OPTIONS_CM = [50, 75]
@@ -62,6 +72,13 @@ MISSION_PAD_COLUMNS = [
     [3, 4, 5, 6, 7, 8],
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
+]
+FRONT_SOC_MISSION_PAD_COLUMNS = [
+    [2, 3, 4, 5, 6, 7],
+    [3, 4, 5, 6, 7, 8],
+    [4, 5, 6, 7, 8, 1],
+    [5, 6, 7, 8, 1, 2],
+    [6, 7, 8, 2, 2, 3],
 ]
 COLUMN_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6, 7, 8, 3, 4],
@@ -107,6 +124,7 @@ DIAMOND_75_MISSION_PAD_COLUMNS = [
 ]
 MISSION_PAD_LAYOUTS = {
     "standard": MISSION_PAD_COLUMNS,
+    "front_soc": FRONT_SOC_MISSION_PAD_COLUMNS,
     "column": COLUMN_MISSION_PAD_COLUMNS,
     "column_75": COLUMN_75_MISSION_PAD_COLUMNS,
     "vee": VEE_MISSION_PAD_COLUMNS,
@@ -116,7 +134,26 @@ MISSION_PAD_LAYOUTS = {
 }
 
 
-def mission_pad_layout_for_formation(formation, inter_drone_distance_cm=None, wind_direction=None):
+def normalize_soc_mode(value, default="medium"):
+    mode = str(value or "").strip().lower()
+    return mode if mode in SOC_MODE_TARGETS else default
+
+
+def tags_with_soc_mode(tags, soc_mode):
+    values = [str(tag).strip() for tag in (tags or []) if str(tag).strip()]
+    values = [tag for tag in values if tag.lower() not in SOC_MODE_TARGETS]
+    mode = normalize_soc_mode(soc_mode, default="")
+    if mode:
+        values.append(mode)
+    return values
+
+
+def mission_pad_layout_for_formation(
+    formation,
+    inter_drone_distance_cm=None,
+    wind_direction=None,
+    soc_mode=None,
+):
     formation = str(formation or "").strip().lower()
     wind_direction = str(wind_direction or "").strip().lower()
     try:
@@ -137,6 +174,8 @@ def mission_pad_layout_for_formation(formation, inter_drone_distance_cm=None, wi
         if distance_cm == 50 and wind_direction == "side wind":
             return VEE_50_SIDE_MISSION_PAD_COLUMNS
         return VEE_MISSION_PAD_COLUMNS
+    if formation == "front" and normalize_soc_mode(soc_mode, default="") in SOC_MODE_TARGETS:
+        return FRONT_SOC_MISSION_PAD_COLUMNS
     if formation == "front" and distance_cm == 50 and wind_direction == "side wind":
         return VEE_50_SIDE_MISSION_PAD_COLUMNS
     return MISSION_PAD_COLUMNS
@@ -157,6 +196,7 @@ EXPERIMENT_SCRIPTS = {
     "diamond": "data_collector.py",
 }
 TAKEOFF_PROMPT = "Press Enter to take off"
+FORMAL_TAKEOFF_PROMPT = "All five drones are landed. Press Enter to take off"
 DISCHARGE_PROMPT = "Press Enter to discharge high-battery drones"
 WIND_DIRECTION_CODES = {
     "head wind": "head",
@@ -193,6 +233,18 @@ WIND_LEVEL_ALIASES = {
 
 
 app = Flask(__name__)
+
+
+@app.after_request
+def disable_html_cache(response):
+    """Keep experiment forms in sync with the currently running pad layout."""
+    if response.mimetype == "text/html":
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 RUN_LOCK = threading.Lock()
 RUN_STATE = {
     "run_id": None,
@@ -369,16 +421,42 @@ def apply_distance_to_experiment_id(experiment_id, formation, inter_drone_distan
     return text
 
 
-def build_full_experiment_id(raw_id, formation, wind_direction, wind_speed, inter_drone_distance_cm=50, new_prefix=False):
+def apply_soc_mode_to_experiment_id(experiment_id, soc_mode):
+    text = str(experiment_id or "").strip()
+    mode = normalize_soc_mode(soc_mode, default="")
+    if not text or not mode:
+        return text
+    parts = text.split("_")
+    for idx, part in enumerate(parts):
+        if part in SOC_MODE_TARGETS:
+            parts[idx] = mode
+            return "_".join(parts)
+    insert_at = parts.index("new") if "new" in parts else max(0, len(parts) - 1)
+    parts.insert(insert_at, mode)
+    return "_".join(parts)
+
+
+def build_full_experiment_id(
+    raw_id,
+    formation,
+    wind_direction,
+    wind_speed,
+    inter_drone_distance_cm=50,
+    new_prefix=False,
+    soc_mode=None,
+):
     text = str(raw_id or "").strip()
     if text and not text.isdigit() and "_" in text:
-        return apply_distance_to_experiment_id(text, formation, inter_drone_distance_cm)
+        text = apply_distance_to_experiment_id(text, formation, inter_drone_distance_cm)
+        return apply_soc_mode_to_experiment_id(text, soc_mode)
     formation_code = (formation or "custom").strip().lower().replace(" ", "_")
     distance_code = normalize_inter_drone_distance_cm(inter_drone_distance_cm)
     direction_code = WIND_DIRECTION_CODES.get(wind_direction, (wind_direction or "wind").replace(" ", "_"))
     speed_code = WIND_SPEED_CODES.get(wind_speed, (wind_speed or "level").lower())
     short_id = short_new_experiment_id(text) if new_prefix else short_experiment_id(text)
-    return f"{formation_code}_{distance_code}_{direction_code}_{speed_code}_{short_id}"
+    mode = normalize_soc_mode(soc_mode, default="")
+    mode_code = f"_{mode}" if mode else ""
+    return f"{formation_code}_{distance_code}_{direction_code}_{speed_code}{mode_code}_{short_id}"
 
 
 def normalize_drone_identifier(value):
@@ -398,6 +476,19 @@ def display_drone_number(drone):
         return number
     suffix = str(drone.get("ip_suffix") or drone.get("ip", "")).replace(IP_PREFIX, "").strip()
     return IP_SUFFIX_TO_DRONE_NUMBER.get(suffix, suffix)
+
+
+def current_drone_ip(drone):
+    """Resolve a saved drone identity through the current physical IP mapping."""
+    number = display_drone_number(drone)
+    suffix = DRONE_NUMBER_TO_IP_SUFFIX.get(number)
+    if suffix:
+        return f"{IP_PREFIX}{suffix}"
+    ip = str(drone.get("ip") or "").strip()
+    if ip:
+        return ip
+    saved_suffix = str(drone.get("ip_suffix") or "").strip()
+    return f"{IP_PREFIX}{saved_suffix}" if saved_suffix else ""
 
 
 def normalize_battery_id(value):
@@ -469,7 +560,7 @@ def analyze_csv(path, max_trials=8):
     }
 
 
-def scan_workspace():
+def scan_workspace(analyze_csv_files=False):
     files = []
     categories = defaultdict(list)
     for path in sorted(DATA_DIR.rglob("*"), key=lambda item: item.relative_to(DATA_DIR).as_posix().lower()):
@@ -494,7 +585,7 @@ def scan_workspace():
             "is_csv": suffix in CSV_EXTENSIONS,
         }
         if suffix == ".csv":
-            info["csv"] = analyze_csv(path)
+            info["csv"] = analyze_csv(path) if analyze_csv_files else {}
         files.append(info)
         categories[category].append(info)
     return files, categories
@@ -517,6 +608,8 @@ def csv_preview(path, limit=80):
 
 
 def build_experiment_from_form(form):
+    if form.get("protocol", "").strip() == "wind_tunnel":
+        return build_wind_tunnel_experiment_from_form(form)
     drone_rows = []
     for key, raw_ip in form.items():
         if not key.startswith("pad_ip_"):
@@ -549,7 +642,9 @@ def build_experiment_from_form(form):
     formation = form.get("formation", "").strip()
     wind_direction = form.get("wind_direction", "").strip()
     wind_speed = form.get("wind_speed", "").strip()
+    soc_mode = normalize_soc_mode(form.get("soc_mode", "medium"))
     inter_drone_distance_cm = form.get("inter_drone_distance_cm", "50").strip() or "50"
+    normalize_front_soc_mission_pads(drone_rows, formation, soc_mode)
     experiment_id = build_full_experiment_id(
         form.get("experiment_id", "").strip(),
         formation,
@@ -557,6 +652,7 @@ def build_experiment_from_form(form):
         wind_speed,
         inter_drone_distance_cm,
         new_prefix=True,
+        soc_mode=soc_mode,
     )
     return {
         "experiment_id": experiment_id,
@@ -564,6 +660,9 @@ def build_experiment_from_form(form):
         "formation": formation,
         "wind_direction": wind_direction,
         "wind_speed": wind_speed,
+        "soc_mode": soc_mode,
+        "target_soc_percent": SOC_MODE_TARGETS[soc_mode],
+        "soc_tolerance_percent": SOC_TARGET_TOLERANCE_PERCENT,
         "inter_drone_distance_cm": inter_drone_distance_cm,
         "status": form.get("status", "planned").strip() or "planned",
         "created_at": now,
@@ -571,7 +670,57 @@ def build_experiment_from_form(form):
         "coordination_files": [],
         "battery_files": [],
         "image_files": [],
+        "tags": [soc_mode],
         "drones": drone_rows,
+        "notes": form.get("notes", "").strip(),
+    }
+
+
+def build_wind_tunnel_experiment_from_form(form):
+    """Build the fixed drone 1-5 -> pad 5,6,7,8,1 hover-discharge experiment."""
+    now = datetime.now().isoformat(timespec="seconds")
+    formation = form.get("formation", "front").strip().lower() or "front"
+    wind_direction = form.get("wind_direction", "head wind").strip().lower() or "head wind"
+    wind_speed = form.get("wind_speed", "Level1").strip() or "Level1"
+    distance = normalize_inter_drone_distance_cm(form.get("inter_drone_distance_cm", "50"))
+    raw_id = form.get("experiment_id", "").strip()
+    base_id = build_full_experiment_id(raw_id, formation, wind_direction, wind_speed, distance)
+    experiment_id = base_id if base_id.startswith("wind_tunnel_") else f"wind_tunnel_{base_id}"
+    drones = []
+    wind_tunnel_pads = [5, 6, 7, 8, 1]
+    for number, mission_pad in enumerate(wind_tunnel_pads, 1):
+        drone_number = str(number)
+        ip, suffix, _ = normalize_drone_identifier(drone_number)
+        drones.append({
+            "ip": ip,
+            "ip_suffix": suffix,
+            "drone_number": drone_number,
+            "battery_id": normalize_battery_id(form.get(f"wind_tunnel_battery_{number}", "")),
+            "takeoff_order": drone_number,
+            "role": f"wind_tunnel_position_{number}",
+            "mission_pad": str(mission_pad),
+            "grid_column": str(number - 1),
+            "grid_row": "0",
+        })
+    return {
+        "experiment_id": experiment_id,
+        "short_id": raw_id,
+        "protocol": "wind_tunnel",
+        "formation": formation,
+        "wind_direction": wind_direction,
+        "wind_speed": wind_speed,
+        "soc_mode": "",
+        "target_soc_percent": 20,
+        "soc_tolerance_percent": 0,
+        "inter_drone_distance_cm": distance,
+        "status": form.get("status", "planned").strip() or "planned",
+        "created_at": now,
+        "updated_at": now,
+        "coordination_files": [],
+        "battery_files": [],
+        "image_files": [],
+        "tags": ["wind_tunnel", "hover_to_20_percent"],
+        "drones": drones,
         "notes": form.get("notes", "").strip(),
     }
 
@@ -612,6 +761,22 @@ def build_edit_drones_from_form(form):
     return drone_rows
 
 
+def normalize_front_soc_mission_pads(drones, formation, soc_mode):
+    """Make the current front/SOC layout authoritative over stale form fields."""
+    if str(formation or "").strip().lower() != "front":
+        return drones
+    if normalize_soc_mode(soc_mode, default="") not in SOC_MODE_TARGETS:
+        return drones
+    for drone in drones:
+        try:
+            column = int(str(drone.get("grid_column", "")).strip())
+            row = int(str(drone.get("grid_row", "")).strip())
+            drone["mission_pad"] = str(FRONT_SOC_MISSION_PAD_COLUMNS[column][row])
+        except (ValueError, IndexError):
+            continue
+    return drones
+
+
 def validate_experiment_assignments(experiment):
     drones = experiment.get("drones", [])
     drone_numbers = [str(drone.get("drone_number") or "").strip() for drone in drones if str(drone.get("drone_number") or "").strip()]
@@ -620,10 +785,22 @@ def validate_experiment_assignments(experiment):
         abort(400, description="Each drone can only be assigned once in an experiment.")
     if len(battery_ids) != len(set(battery_ids)):
         abort(400, description="Each battery can only be assigned once in an experiment.")
+    if experiment.get("protocol") == "wind_tunnel":
+        if len(drones) != 5:
+            abort(400, description="Wind Tunnel requires all five drones.")
+        wind_tunnel_pads = [5, 6, 7, 8, 1]
+        for expected, drone in enumerate(sorted(drones, key=lambda item: int(item.get("takeoff_order", 999))), 1):
+            expected_pad = wind_tunnel_pads[expected - 1]
+            if str(drone.get("drone_number")) != str(expected) or str(drone.get("mission_pad")) != str(expected_pad):
+                abort(400, description=f"Wind Tunnel requires drone {expected} on Mission Pad {expected_pad}.")
+            if not normalize_battery_id(drone.get("battery_id")):
+                abort(400, description=f"Select a battery for drone {expected}.")
+        return
     mission_pad_columns = mission_pad_layout_for_formation(
         experiment.get("formation"),
         experiment.get("inter_drone_distance_cm"),
         experiment.get("wind_direction"),
+        experiment.get("soc_mode"),
     )
     seen_positions = set()
     for drone in drones:
@@ -1091,6 +1268,7 @@ def update_experiment_from_form(experiment, form):
     formation = form.get("formation", experiment.get("formation", "")).strip()
     wind_direction = form.get("wind_direction", experiment.get("wind_direction", "")).strip()
     wind_speed = form.get("wind_speed", experiment.get("wind_speed", "")).strip()
+    soc_mode = normalize_soc_mode(form.get("soc_mode", experiment.get("soc_mode", "medium")))
     inter_drone_distance_cm = form.get(
         "inter_drone_distance_cm",
         experiment.get("inter_drone_distance_cm", "50"),
@@ -1101,15 +1279,21 @@ def update_experiment_from_form(experiment, form):
         wind_direction,
         wind_speed,
         inter_drone_distance_cm,
+        soc_mode=soc_mode,
     )
     experiment["short_id"] = short_experiment_id(form.get("experiment_id", experiment.get("short_id", "")).strip())
     experiment["formation"] = formation
     experiment["wind_direction"] = wind_direction
     experiment["wind_speed"] = wind_speed
+    experiment["soc_mode"] = soc_mode
+    experiment["target_soc_percent"] = SOC_MODE_TARGETS[soc_mode]
+    experiment["soc_tolerance_percent"] = SOC_TARGET_TOLERANCE_PERCENT
+    experiment["tags"] = tags_with_soc_mode(experiment.get("tags"), soc_mode)
     experiment["inter_drone_distance_cm"] = inter_drone_distance_cm
     experiment["status"] = form.get("status", experiment.get("status", "planned")).strip() or "planned"
     experiment["notes"] = form.get("notes", experiment.get("notes", "")).strip()
     experiment["drones"] = build_edit_drones_from_form(form)
+    normalize_front_soc_mission_pads(experiment["drones"], formation, soc_mode)
     experiment["updated_at"] = now
     return experiment
 
@@ -1131,25 +1315,47 @@ def experiment_by_id(experiment_id):
     return registry["experiments"][idx]
 
 
-def battery_level_band(value):
+def experiment_soc_window(experiment):
+    if str((experiment or {}).get("protocol") or "").strip().lower() == "wind_tunnel":
+        return {
+            "low": 20,
+            "high": 100,
+            "target": 20,
+            "mode": "wind_tunnel",
+        }
+    mode = normalize_soc_mode((experiment or {}).get("soc_mode"), default="")
+    if mode:
+        target = SOC_MODE_TARGETS[mode]
+        return {
+            "low": 0,
+            "high": target + SOC_TARGET_TOLERANCE_PERCENT,
+            "target": target,
+            "mode": mode,
+        }
+    return dict(EXPERIMENT_BATTERY_WINDOW)
+
+
+def battery_level_band(value, window=None):
     try:
         percent = float(value)
     except (TypeError, ValueError):
         return "unknown"
-    if percent > EXPERIMENT_BATTERY_WINDOW["high"]:
+    window = window or EXPERIMENT_BATTERY_WINDOW
+    if percent > window["high"]:
         return "above"
-    if percent < EXPERIMENT_BATTERY_WINDOW["low"]:
+    if percent < window["low"]:
         return "below"
     return "window"
 
 
-def battery_window_progress(value):
+def battery_window_progress(value, window=None):
     try:
         percent = float(value)
     except (TypeError, ValueError):
         return 0
-    low = EXPERIMENT_BATTERY_WINDOW["low"]
-    high = EXPERIMENT_BATTERY_WINDOW["high"]
+    window = window or EXPERIMENT_BATTERY_WINDOW
+    low = window["low"]
+    high = window["high"]
     if high <= low:
         return 0
     return max(0, min(100, round((percent - low) / (high - low) * 100, 1)))
@@ -1195,13 +1401,21 @@ def live_batteries_from_output(output_lines):
             continue
         live_matches = list(live_status_pattern.finditer(line))
         if live_matches:
-            source = "live_output" if line.startswith("Live battery status:") else "discharge_output"
+            if line.startswith("Live battery status:"):
+                source = "live_output"
+                phase = ""
+            elif line.startswith("SOC target status:"):
+                source = "soc_target_output"
+                phase = "soc_target_hover"
+            else:
+                source = "discharge_output"
+                phase = "battery_discharge_hover"
             for match in live_matches:
                 remember({
                     "drone_name": match.group("name"),
                     "battery_id": match.group("battery"),
                     "battery_percent": float(match.group("percent")),
-                    "phase": "battery_discharge_hover" if source == "discharge_output" else "",
+                    "phase": phase,
                     "source": source,
                 })
             continue
@@ -1298,14 +1512,12 @@ def build_live_battery_status(experiment_id, output_lines):
             "drones": [],
         }
 
+    window = experiment_soc_window(experiment)
     stdout_status = live_batteries_from_output(output_lines)
     csv_status = latest_coordination_batteries(experiment_id)
     drones = []
     for drone in sorted(experiment.get("drones", []), key=lambda item: int(str(item.get("takeoff_order") or 999))):
-        ip = str(drone.get("ip") or "").strip()
-        if not ip:
-            suffix = str(drone.get("ip_suffix") or "").strip()
-            ip = f"{IP_PREFIX}{suffix}" if suffix else ""
+        ip = current_drone_ip(drone)
         battery_id = display_battery_id(drone)
         drone_name = drone.get("role") or f"drone_{drone.get('takeoff_order', '')}"
         status = {}
@@ -1326,15 +1538,15 @@ def build_live_battery_status(experiment_id, output_lines):
             "battery_id": status.get("battery_id") or battery_id,
             "battery_percent": percent,
             "battery_percent_label": f"{percent:g}%" if percent is not None else "--",
-            "band": battery_level_band(percent),
-            "window_progress": battery_window_progress(percent),
+            "band": battery_level_band(percent, window),
+            "window_progress": battery_window_progress(percent, window),
             "phase": status.get("phase", ""),
             "timestamp": status.get("timestamp", ""),
             "source": status.get("source", "waiting"),
             "recommended": battery_id in RECOMMENDED_EXPERIMENT_BATTERIES,
         })
     return {
-        "window": EXPERIMENT_BATTERY_WINDOW,
+        "window": window,
         "recommended_batteries": sorted(RECOMMENDED_EXPERIMENT_BATTERIES),
         "drones": drones,
     }
@@ -1362,7 +1574,13 @@ def append_run_output(line):
     with RUN_LOCK:
         RUN_STATE["output"].append(line)
         RUN_STATE["output"] = RUN_STATE["output"][-500:]
-        if TAKEOFF_PROMPT in line:
+        if FORMAL_TAKEOFF_PROMPT in line:
+            RUN_STATE["ready_for_takeoff"] = True
+            RUN_STATE["ready_for_discharge"] = False
+            RUN_STATE["prompt_action"] = "formal_takeoff"
+            RUN_STATE["status"] = "ready_for_takeoff"
+            RUN_STATE["message"] = "Target SOC reached; all drones landed and await formal takeoff."
+        elif TAKEOFF_PROMPT in line:
             RUN_STATE["ready_for_takeoff"] = True
             RUN_STATE["ready_for_discharge"] = False
             RUN_STATE["prompt_action"] = "takeoff"
@@ -1428,7 +1646,7 @@ def experiment_ip_order(experiment):
     )
     suffixes = []
     for drone in sorted_drones:
-        suffix = str(drone.get("ip_suffix") or drone.get("ip", "")).replace(IP_PREFIX, "").strip()
+        suffix = current_drone_ip(drone).replace(IP_PREFIX, "").strip()
         if suffix:
             suffixes.append(suffix)
     return ",".join(suffixes)
@@ -1436,7 +1654,7 @@ def experiment_ip_order(experiment):
 
 def start_experiment_process(experiment):
     formation = experiment.get("formation", "")
-    script_name = EXPERIMENT_SCRIPTS.get(formation)
+    script_name = "wind_tunnel_collector.py" if experiment.get("protocol") == "wind_tunnel" else EXPERIMENT_SCRIPTS.get(formation)
     if not script_name:
         raise ValueError(f"No runnable script is configured for formation: {formation}")
 
@@ -1455,7 +1673,7 @@ def start_experiment_process(experiment):
 
     run_id = uuid.uuid4().hex[:12]
     command = [python_executable(), "-u", str(script_path)]
-    if script_name == "data_collector.py":
+    if script_name in {"data_collector.py", "wind_tunnel_collector.py"}:
         command.extend(["--experiment-id", experiment["experiment_id"]])
 
     process = subprocess.Popen(
@@ -1467,7 +1685,7 @@ def start_experiment_process(experiment):
         text=True,
         bufsize=1,
     )
-    if script_name != "data_collector.py" and process.stdin:
+    if script_name not in {"data_collector.py", "wind_tunnel_collector.py"} and process.stdin:
         process.stdin.write(ip_order + "\n")
         process.stdin.flush()
 
@@ -1599,7 +1817,7 @@ def start_baseline_process(form):
 
 @app.route("/")
 def index():
-    files, all_categories = scan_workspace()
+    files, all_categories = scan_workspace(analyze_csv_files=False)
     registry = load_registry()
     all_experiments = sorted(
         registry["experiments"],
@@ -1618,7 +1836,20 @@ def index():
         "mode": selected_values(request.args, "baseline_mode"),
         "wind_level": selected_values(request.args, "baseline_wind_level", normalize_wind_level),
     }
-    baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
+    filtered_baseline_runs = filter_baseline_runs(all_baselines, **selected_baseline_filters)
+    try:
+        requested_baseline_page = max(1, int(request.args.get("baseline_page", "1")))
+    except ValueError:
+        requested_baseline_page = 1
+    baseline_page_count = max(
+        1,
+        (len(filtered_baseline_runs) + INDEX_BASELINES_PER_PAGE - 1) // INDEX_BASELINES_PER_PAGE,
+    )
+    baseline_page = min(requested_baseline_page, baseline_page_count)
+    baseline_page_start = (baseline_page - 1) * INDEX_BASELINES_PER_PAGE
+    baseline_runs = filtered_baseline_runs[
+        baseline_page_start:baseline_page_start + INDEX_BASELINES_PER_PAGE
+    ]
     baseline_summary_plot = (
         BASELINE_DIR / "summary" / "plots" /
         f"{baseline_summary_key(**selected_baseline_filters)}_summary.png"
@@ -1629,17 +1860,38 @@ def index():
         if extra_path.exists():
             baseline_summary_extra_plots.append(extra_path.relative_to(DATA_DIR).as_posix())
     data_experiments = filter_experiments(all_experiments, **selected_filters)
-    condition_experiments = filter_new_experiments(data_experiments)
+    try:
+        requested_page = max(1, int(request.args.get("page", "1")))
+    except ValueError:
+        requested_page = 1
+    page_count = max(1, (len(data_experiments) + INDEX_EXPERIMENTS_PER_PAGE - 1) // INDEX_EXPERIMENTS_PER_PAGE)
+    experiment_page = min(requested_page, page_count)
+    page_start = (experiment_page - 1) * INDEX_EXPERIMENTS_PER_PAGE
+    page_experiments = data_experiments[page_start:page_start + INDEX_EXPERIMENTS_PER_PAGE]
+    condition_experiments = filter_new_experiments(page_experiments)
     filter_active = True
     matched_ids = {exp.get("experiment_id") for exp in data_experiments}
-    categories = all_categories
+    category_counts = {name: len(items) for name, items in all_categories.items()}
+    categories = defaultdict(list)
+    for name, items in all_categories.items():
+        categories[name] = sorted(items, key=lambda item: item["mtime"], reverse=True)[:INDEX_FILES_PER_CATEGORY]
     stats = {
         "total_files": len(files),
-        "coordination": len(categories["coordination"]),
-        "battery": len(categories["battery"]),
-        "images": len(categories["image"]),
+        "coordination": category_counts.get("coordination", 0),
+        "battery": category_counts.get("battery", 0),
+        "images": category_counts.get("image", 0),
         "experiments": len(all_experiments),
     }
+    def page_url(page_number):
+        query_args = request.args.to_dict(flat=False)
+        query_args["page"] = [str(page_number)]
+        return url_for("index") + "?" + urlencode(query_args, doseq=True)
+
+    def baseline_page_url(page_number):
+        query_args = request.args.to_dict(flat=False)
+        query_args["baseline_page"] = [str(page_number)]
+        return url_for("index") + "?" + urlencode(query_args, doseq=True)
+
     return render_template_string(
         INDEX_TEMPLATE,
         base_dir=BASE_DIR,
@@ -1652,14 +1904,30 @@ def index():
         run_state=public_run_state(),
         stats=stats,
         categories=categories,
-        experiments=all_experiments,
-        data_experiments=data_experiments,
+        experiments=page_experiments,
+        data_experiments=page_experiments,
         condition_groups=group_experiments_by_condition(condition_experiments),
         all_experiment_count=len(all_experiments),
+        filtered_experiment_count=len(data_experiments),
+        experiment_page=experiment_page,
+        experiment_page_count=page_count,
+        previous_page_url=page_url(experiment_page - 1) if experiment_page > 1 else "",
+        next_page_url=page_url(experiment_page + 1) if experiment_page < page_count else "",
+        index_files_per_category=INDEX_FILES_PER_CATEGORY,
         selected_filters=selected_filters,
         filter_options=experiment_filter_options(all_experiments),
         baseline_runs=baseline_runs,
         all_baseline_count=len(all_baselines),
+        filtered_baseline_count=len(filtered_baseline_runs),
+        baseline_page=baseline_page,
+        baseline_page_count=baseline_page_count,
+        previous_baseline_page_url=(
+            baseline_page_url(baseline_page - 1) if baseline_page > 1 else ""
+        ),
+        next_baseline_page_url=(
+            baseline_page_url(baseline_page + 1)
+            if baseline_page < baseline_page_count else ""
+        ),
         selected_baseline_filters=selected_baseline_filters,
         baseline_filter_options=baseline_filter_options(all_baselines),
         baseline_summary_plot=baseline_summary_plot.relative_to(DATA_DIR).as_posix() if baseline_summary_plot.exists() else "",
@@ -1668,6 +1936,8 @@ def index():
         display_battery_id=display_battery_id,
         battery_options=BATTERY_OPTIONS,
         battery_window=EXPERIMENT_BATTERY_WINDOW,
+        soc_mode_options=SOC_MODE_OPTIONS,
+        soc_target_tolerance=SOC_TARGET_TOLERANCE_PERCENT,
         wind_speed_options=WIND_SPEED_OPTIONS,
         inter_drone_distance_options_cm=INTER_DRONE_DISTANCE_OPTIONS_CM,
         baseline_modes=BASELINE_MODES,
@@ -1706,6 +1976,7 @@ def update_experiment(experiment_id):
         request.form.get("wind_direction", experiments[idx].get("wind_direction", "")).strip(),
         request.form.get("wind_speed", experiments[idx].get("wind_speed", "")).strip(),
         request.form.get("inter_drone_distance_cm", experiments[idx].get("inter_drone_distance_cm", 50)).strip(),
+        soc_mode=request.form.get("soc_mode", experiments[idx].get("soc_mode", "medium")).strip(),
     )
     duplicate_idx = find_experiment_index(experiments, new_id)
     if new_id and duplicate_idx is not None and duplicate_idx != idx:
@@ -1769,6 +2040,7 @@ def experiment_detail(experiment_id):
         experiment.get("formation"),
         experiment.get("inter_drone_distance_cm"),
         experiment.get("wind_direction"),
+        experiment.get("soc_mode"),
     )
     return render_template_string(
         EXPERIMENT_TEMPLATE,
@@ -2364,10 +2636,10 @@ def stop_experiment_run():
         process.terminate()
         set_run_state(
             status="stopped",
-            message="Experiment process was stopped from GUI.",
+            message="LAND ALL & STOP was requested from the GUI.",
             ended_at=datetime.now().isoformat(timespec="seconds"),
         )
-        append_run_output("[GUI] Experiment process stopped.")
+        append_run_output("[GUI] LAND ALL & STOP requested; terminating the runner so it lands every airborne drone.")
     return jsonify({"ok": True, "state": public_run_state()})
 
 
@@ -2628,7 +2900,7 @@ INDEX_TEMPLATE = """
     }
     .mode-switch {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       margin-bottom: 14px;
     }
@@ -2977,8 +3249,8 @@ INDEX_TEMPLATE = """
     }
     .battery-monitor {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
       margin: 12px 0;
     }
     .battery-card {
@@ -2993,13 +3265,19 @@ INDEX_TEMPLATE = """
     .battery-card .battery-top {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
-      align-items: baseline;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+    .battery-card .battery-label {
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
     .battery-card strong {
       font-size: 20px;
       line-height: 1;
       color: var(--text);
+      flex: 0 0 auto;
     }
     .battery-track {
       height: 10px;
@@ -3023,7 +3301,17 @@ INDEX_TEMPLATE = """
       justify-content: space-between;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
       margin-top: 2px;
+    }
+    .battery-meta {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    @media (max-width: 760px) {
+      .battery-monitor {
+        grid-template-columns: 1fr;
+      }
     }
     .terminal {
       min-height: 220px;
@@ -3153,7 +3441,7 @@ INDEX_TEMPLATE = """
             <div>
               <h3>Data Filters</h3>
               <div class="small">
-                Showing {{ data_experiments|length }} matched experiment(s).
+                {{ filtered_experiment_count }} experiment(s) match the current filters.
                 Leave a list unselected to include all values for that condition.
               </div>
             </div>
@@ -3245,10 +3533,13 @@ INDEX_TEMPLATE = """
             <div>
               <h3>Baseline Data Filter</h3>
               <div class="small">
-                Showing {{ baseline_runs|length }} matched baseline run(s) from {{ all_baseline_count }} total.
+                Showing {{ baseline_runs|length }} of {{ filtered_baseline_count }} matched baseline run(s)
+                from {{ all_baseline_count }} total · page {{ baseline_page }} of {{ baseline_page_count }}.
               </div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+              {% if previous_baseline_page_url %}<a class="button secondary" href="{{ previous_baseline_page_url }}">Previous</a>{% endif %}
+              {% if next_baseline_page_url %}<a class="button secondary" href="{{ next_baseline_page_url }}">Next</a>{% endif %}
               <button class="secondary" type="button" data-toggle-filter-groups>Expand all</button>
               <a class="badge" href="{{ url_for('index') }}">Reset</a>
             </div>
@@ -3384,7 +3675,7 @@ INDEX_TEMPLATE = """
             {% endfor %}
           </div>
         </div>
-        <div class="small" id="fileListHint">Select a condition group above to inspect its trials, or click a file category button to browse raw files.</div>
+        <div class="small" id="fileListHint">Select a condition group above to inspect its trials, or browse the {{ index_files_per_category }} most recent files in each raw-file category. Older files remain stored and accessible from their experiment pages.</div>
         <div class="file-list" id="workspaceFileList" hidden>
           {% for category, items in categories.items() %}
             {% for item in items %}
@@ -3447,6 +3738,7 @@ INDEX_TEMPLATE = """
       <div class="section-body">
         <div class="mode-switch">
           <button class="area-mode-button active" type="button" data-area-mode="experiment">Experiment Area</button>
+          <button class="area-mode-button" type="button" data-area-mode="wind-tunnel">Wind Tunnel</button>
           <button class="area-mode-button" type="button" data-area-mode="baseline">Single Drone Baseline</button>
         </div>
 
@@ -3461,6 +3753,15 @@ INDEX_TEMPLATE = """
               <input id="formationInput" type="hidden" name="formation" value="front">
             </label>
           </div>
+          <label>Initial SOC Band
+            <select id="socModeInput" name="soc_mode" required>
+              {% for mode, target, band_label in soc_mode_options %}
+                <option value="{{ mode }}" {% if mode == 'medium' %}selected{% endif %}>
+                  {{ mode }} — formal recording starts at {{ target }}% ({{ band_label }})
+                </option>
+              {% endfor %}
+            </select>
+          </label>
           <label>Status
             <select name="status">
               <option value="planned">planned</option>
@@ -3508,6 +3809,7 @@ INDEX_TEMPLATE = """
                 {% for display_row in range(max_mission_rows - 1, -1, -1) %}
                   {% for col in range(max_mission_cols) %}
                     {% set standard_pad = mission_pad_layouts.standard[col][display_row] if col < mission_pad_layouts.standard|length and display_row < mission_pad_layouts.standard[col]|length else '' %}
+                    {% set front_soc_pad = mission_pad_layouts.front_soc[col][display_row] if col < mission_pad_layouts.front_soc|length and display_row < mission_pad_layouts.front_soc[col]|length else '' %}
                     {% set column_pad = mission_pad_layouts.column[col][display_row] if col < mission_pad_layouts.column|length and display_row < mission_pad_layouts.column[col]|length else '' %}
                     {% set column_75_pad = mission_pad_layouts.column_75[col][display_row] if col < mission_pad_layouts.column_75|length and display_row < mission_pad_layouts.column_75[col]|length else '' %}
                     {% set vee_pad = mission_pad_layouts.vee[col][display_row] if col < mission_pad_layouts.vee|length and display_row < mission_pad_layouts.vee[col]|length else '' %}
@@ -3520,6 +3822,7 @@ INDEX_TEMPLATE = """
                          data-row="{{ display_row }}"
                          data-pad="{{ pad_id }}"
                          data-standard-pad="{{ standard_pad }}"
+                         data-frontsoc-pad="{{ front_soc_pad }}"
                          data-column-pad="{{ column_pad }}"
                          data-column75-pad="{{ column_75_pad }}"
                          data-vee-pad="{{ vee_pad }}"
@@ -3552,7 +3855,7 @@ INDEX_TEMPLATE = """
                 {% endfor %}
               </div>
               <div class="board-note">
-                <span class="small" id="frontFormationNote">front: bottom row, left to right = 1, 2, 3, 4, 5</span>
+                <span class="small" id="frontFormationNote">front: start pads 2–6; synchronized continuous +Y 250cm (~25s), then stop recording and land immediately.</span>
                 <span class="small">column: left lane = 1, 2, 3, 4, 5, 6, 7, 8, 3, 4</span>
                 <span class="small">drone #: 1->102, 2->109, 3->103, 4->106, 5->107</span>
                 <span class="small">default battery order: B11, B10, B13, B14, B12</span>
@@ -3573,6 +3876,80 @@ INDEX_TEMPLATE = """
           </label>
           <button type="submit">Create experiment record</button>
         </form>
+        </div>
+
+        <div class="mode-panel" id="windTunnelAreaPanel" hidden>
+          <form method="post" action="{{ url_for('create_experiment') }}">
+            <input type="hidden" name="protocol" value="wind_tunnel">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <label>Experiment ID
+                <input name="experiment_id" required placeholder="e.g. 001 → wind_tunnel_front_50_head_lv1_001">
+              </label>
+              <label>Status
+                <select name="status">
+                  <option value="planned">planned</option>
+                  <option value="running">running</option>
+                  <option value="completed">completed</option>
+                  <option value="analysis">analysis</option>
+                </select>
+              </label>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <label>Formation
+                <select name="formation" required>
+                  <option value="front">front</option>
+                  <option value="column">column</option>
+                  <option value="vee">vee</option>
+                  <option value="echalon">echelon</option>
+                  <option value="diamond">diamond</option>
+                </select>
+              </label>
+              <label>Wind Direction
+                <select name="wind_direction" required>
+                  <option value="head wind">head wind</option>
+                  <option value="tail wind">tail wind</option>
+                  <option value="side wind">side wind</option>
+                </select>
+              </label>
+              <label>Wind Speed
+                <select name="wind_speed" required>
+                  {% for wind_speed in wind_speed_options %}
+                    <option value="{{ wind_speed }}" {% if wind_speed == 'Level1' %}selected{% endif %}>{{ wind_speed }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </div>
+            <label>Inter-drone Distance
+              <select name="inter_drone_distance_cm" required>
+                <option value="50">50 cm</option>
+                <option value="75">75 cm</option>
+              </select>
+            </label>
+            <div class="mission-board">
+              <h3 style="margin-top:0;">Fixed Mission Pad Assignment</h3>
+              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. For 75 cm, the selected front, vee, echelon, column, or diamond coordinates are applied automatically. Wind flow: head +Y→-Y; tail -Y→+Y; side +X→-X (←). All five take off together; each lands independently at 20%.</div>
+              <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;">
+                {% for drone_number, ip_suffix in drone_options %}
+                  <div class="pad-cell active">
+                    <div class="pad-title"><strong>Drone {{ drone_number }}</strong><span>Pad {{ [5, 6, 7, 8, 1][drone_number|int - 1] }}</span></div>
+                    <div class="small">IP 192.168.0.{{ ip_suffix }}</div>
+                    <label>Battery
+                      <select name="wind_tunnel_battery_{{ drone_number }}" required>
+                        <option value="">battery</option>
+                        {% for battery_id in battery_options %}
+                          <option value="{{ battery_id }}" {% if (drone_number == '1' and battery_id == 'B11') or (drone_number == '2' and battery_id == 'B10') or (drone_number == '3' and battery_id == 'B13') or (drone_number == '4' and battery_id == 'B14') or (drone_number == '5' and battery_id == 'B12') %}selected{% endif %}>{{ battery_id }}</option>
+                        {% endfor %}
+                      </select>
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <label>Notes
+              <textarea name="notes" placeholder="Fan setting, physical placement, unusual motion..."></textarea>
+            </label>
+            <button type="submit">Create Wind Tunnel record</button>
+          </form>
         </div>
 
         <div class="mode-panel" id="baselineAreaPanel" hidden>
@@ -3676,12 +4053,12 @@ INDEX_TEMPLATE = """
             <div class="record-actions">
               <span class="badge" id="runStatus">{{ run_state.status }}</span>
               <button class="secondary" type="button" id="refreshRunButton">Refresh</button>
-              <button class="danger" type="button" id="stopRunButton">Stop</button>
+              <button class="danger" type="button" id="stopRunButton">Land all &amp; stop</button>
             </div>
           </div>
           <div class="battery-window-note">
             <div class="small">Live battery monitor · experiment window <strong id="batteryWindowLabel">{{ battery_window.high }}% - {{ battery_window.low }}%</strong></div>
-            <div class="small">selected batteries: B02 · B04 · B06 · B07 · B10</div>
+            <div class="small" id="selectedBatteriesLabel">selected batteries: waiting for experiment</div>
           </div>
           <div class="battery-monitor" id="batteryMonitor">
             <div class="small">Prepare an experiment to see live drone battery levels.</div>
@@ -3706,6 +4083,17 @@ INDEX_TEMPLATE = """
 
         <div style="height:1px;background:var(--line);margin:18px 0;"></div>
 
+        <div class="run-status" style="margin-bottom:12px;">
+          <div class="small">
+            Showing {{ experiments|length }} of {{ filtered_experiment_count }} matching experiments
+            · page {{ experiment_page }} of {{ experiment_page_count }}
+          </div>
+          <div class="record-actions">
+            {% if previous_page_url %}<a class="button secondary" href="{{ previous_page_url }}">Previous</a>{% endif %}
+            {% if next_page_url %}<a class="button secondary" href="{{ next_page_url }}">Next</a>{% endif %}
+          </div>
+        </div>
+
         <div class="experiment-list">
           {% for exp in experiments %}
             <article class="experiment-row" id="{{ exp.experiment_id }}">
@@ -3722,6 +4110,7 @@ INDEX_TEMPLATE = """
                       · {{ exp.wind_direction or 'wind direction not set' }} · {{ exp.wind_speed or 'wind speed not set' }}
                     {% endif %}
                     · distance {{ exp.inter_drone_distance_cm or 50 }}cm
+                    · SOC {{ exp.soc_mode or 'legacy' }}{% if exp.target_soc_percent %} (land at {{ exp.target_soc_percent + (exp.soc_tolerance_percent if exp.soc_tolerance_percent is defined else soc_target_tolerance) }}%; target +{{ exp.soc_tolerance_percent if exp.soc_tolerance_percent is defined else soc_target_tolerance }}){% endif %}
                     · {{ exp.created_at }}
                   </div>
                 </div>
@@ -3755,6 +4144,13 @@ INDEX_TEMPLATE = """
                       <select name="status">
                         {% for status in ['planned', 'running', 'completed', 'analysis'] %}
                           <option value="{{ status }}" {% if exp.status == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                      </select>
+                    </label>
+                    <label>Initial SOC Band
+                      <select name="soc_mode">
+                        {% for mode, target, band_label in soc_mode_options %}
+                          <option value="{{ mode }}" {% if (exp.soc_mode or 'medium') == mode %}selected{% endif %}>{{ mode }} — {{ target }}%</option>
                         {% endfor %}
                       </select>
                     </label>
@@ -3867,6 +4263,7 @@ INDEX_TEMPLATE = """
     const fileListHint = document.getElementById("fileListHint");
     const areaModeButtons = document.querySelectorAll(".area-mode-button");
     const experimentAreaPanel = document.getElementById("experimentAreaPanel");
+    const windTunnelAreaPanel = document.getElementById("windTunnelAreaPanel");
     const baselineAreaPanel = document.getElementById("baselineAreaPanel");
     let activeFileFilter = null;
     tabs.forEach((tab) => {
@@ -3895,6 +4292,7 @@ INDEX_TEMPLATE = """
         const mode = button.dataset.areaMode;
         areaModeButtons.forEach((item) => item.classList.toggle("active", item === button));
         experimentAreaPanel.hidden = mode !== "experiment";
+        windTunnelAreaPanel.hidden = mode !== "wind-tunnel";
         baselineAreaPanel.hidden = mode !== "baseline";
       });
     });
@@ -3967,7 +4365,7 @@ INDEX_TEMPLATE = """
     }
 
     function isFrontReversePath() {
-      return isFrontHeadWind75cm();
+      return false;
     }
 
     function isDiamondTailWind() {
@@ -3995,8 +4393,8 @@ INDEX_TEMPLATE = """
     }
 
     function activeLayoutName(formation) {
+      if (formation === "front") return "frontsoc";
       if (formation === "diamond") return isDiamond75cm() ? "diamond75" : "diamond";
-      if (formation === "front" && isFront50cmSideWind()) return "vee50side";
       if (formation === "vee" && isVee50cmSideWind()) return "vee50side";
       if (formation === "vee") return usesVeeStandardPadLayout() ? "standard" : "vee";
       if (formation === "column") return isColumn75cm() ? "column75" : "column";
@@ -4004,6 +4402,7 @@ INDEX_TEMPLATE = """
     }
 
     function layoutPadForCell(cell, layoutName) {
+      if (layoutName === "frontsoc") return cell.dataset.frontsocPad;
       if (layoutName === "diamond75") return cell.dataset.diamond75Pad;
       if (layoutName === "diamond") return cell.dataset.diamondPad;
       if (layoutName === "vee") return cell.dataset.veePad;
@@ -4114,13 +4513,8 @@ INDEX_TEMPLATE = """
             ? "echalon + head wind: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5."
             : "echalon + tail/side wind: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2.";
         } else {
-          frontFormationNote.textContent = isFront50cmSideWind()
-            ? "front + 50cm + side wind: uses the same pad path as vee + 50cm + side wind to avoid adjacent-lane pad detection."
-            : isFrontHeadWind75cm()
-            ? "front + head wind + 75cm: top row, left to right = 6, 7, 8, 1, 2; flies along -Y to 1, 2, 3, 4, 5; x spacing = 75cm."
-            : isFrontTailWind75cm()
-              ? "front + tail wind + 75cm: bottom row, left to right = 1, 2, 3, 4, 5; flies along +Y to 6, 7, 8, 1, 2; x spacing = 75cm."
-              : "front: bottom row, left to right = 1, 2, 3, 4, 5";
+          frontFormationNote.textContent =
+            "front: start row 2-6; continuous +Y 250cm at 10cm/s (~25s); no in-flight pad correction/hover; stop recording and land immediately at command completion.";
         }
       }
       if (experimentMissionLayoutText) {
@@ -4138,12 +4532,10 @@ INDEX_TEMPLATE = """
           experimentMissionLayoutText.textContent = isDiamond75cm()
             ? "Diamond + 75cm uses the middle three columns with an extra bottom row: 8-1-2-3-4-5-6-7 · 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1, with 75cm pad spacing and 300cm flight distance."
             : "Diamond uses the middle three columns: 1-2-3-4-5-6-7-8 · 2-3-4-5-6-7-8-1 · 3-4-5-6-7-8-1-2";
-        } else if (formation === "front" && isFront50cmSideWind()) {
-          experimentMissionLayoutText.textContent = "Front + 50cm + side wind columns left to right: 1-2-3-4-5-6 · 6-7-8-1-2-3 · 3-4-5-6-7-8 · 8-1-2-3-4-5 · 5-6-7-8-1-2";
         } else if (formation === "echalon") {
           experimentMissionLayoutText.textContent = "Echalon uses front mission-pad order with custom 75cm diagonal origins; each lane keeps 50cm mission-pad row spacing.";
         } else {
-          experimentMissionLayoutText.textContent = "Columns left to right: 1-2-3-4-5-6 · 2-3-4-5-6-7 · 3-4-5-6-7-8 · 4-5-6-7-8-1 · 5-6-7-8-1-2";
+          experimentMissionLayoutText.textContent = "Front SOC rows bottom to top: 2-3-4-5-6 · 3-4-5-6-7 · 4-5-6-7-8 · 5-6-7-8-2 · 6-7-8-1-2 · 7-8-1-2-3. Row spacing: 50cm; flight direction: +Y.";
         }
       }
       formationButtons.forEach((button) => {
@@ -4351,6 +4743,7 @@ INDEX_TEMPLATE = """
     const runTerminalMeta = document.getElementById("runTerminalMeta");
     const batteryMonitor = document.getElementById("batteryMonitor");
     const batteryWindowLabel = document.getElementById("batteryWindowLabel");
+    const selectedBatteriesLabel = document.getElementById("selectedBatteriesLabel");
     const takeoffModal = document.getElementById("takeoffModal");
     const takeoffModalTitle = document.getElementById("takeoffModalTitle");
     const takeoffModalBody = document.getElementById("takeoffModalBody");
@@ -4369,8 +4762,16 @@ INDEX_TEMPLATE = """
     function renderBatteryMonitor(liveBatteries) {
       const data = liveBatteries || {};
       const windowInfo = data.window || { high: {{ battery_window.high }}, low: {{ battery_window.low }} };
-      batteryWindowLabel.textContent = `${windowInfo.high}% - ${windowInfo.low}%`;
+      batteryWindowLabel.textContent = windowInfo.target
+        ? `${windowInfo.mode} target ${windowInfo.target}% (${windowInfo.low}-${windowInfo.high}%)`
+        : `${windowInfo.low}% - ${windowInfo.high}%`;
       const drones = data.drones || [];
+      const selectedBatteryIds = drones
+        .map((drone) => drone.battery_id)
+        .filter((batteryId) => Boolean(batteryId));
+      selectedBatteriesLabel.textContent = selectedBatteryIds.length
+        ? `selected batteries: ${selectedBatteryIds.join(" · ")}`
+        : "selected batteries: waiting for experiment";
       batteryMonitor.innerHTML = "";
       if (!drones.length) {
         const empty = document.createElement("div");
@@ -4387,7 +4788,7 @@ INDEX_TEMPLATE = """
         const top = document.createElement("div");
         top.className = "battery-top";
         const label = document.createElement("span");
-        label.className = "small";
+        label.className = "small battery-label";
         label.textContent = `Drone ${drone.drone_number || drone.takeoff_order || "-"} · ${drone.battery_id || "-"}`;
         const value = document.createElement("strong");
         value.textContent = drone.battery_percent_label || "--";
@@ -4401,14 +4802,36 @@ INDEX_TEMPLATE = """
         track.appendChild(fill);
 
         const meta = document.createElement("div");
-        meta.className = "small";
+        meta.className = "small battery-meta";
         const bandText = {
           above: "above experiment window",
           window: "inside experiment window",
           below: "below experiment window",
           unknown: "waiting for reading",
         }[drone.band || "unknown"];
-        meta.textContent = `${bandText}${drone.phase ? " · " + drone.phase : ""}`;
+        const phaseText = {
+          battery_discharge_hover: "SOC preparation",
+          soc_target_hover: "SOC preparation",
+          front_continuous_pad_feedback_positive_y_250cm: "formal flight",
+          node_logging: "formal flight",
+          arrived_target_node: "flight complete",
+          landing_recording_stop: "landing",
+          landing: "landing",
+          emergency_landing: "emergency landing",
+          wind_tunnel_takeoff: "Wind Tunnel takeoff",
+          wind_tunnel_acquire_pad: "acquiring Mission Pad",
+          wind_tunnel_centering: "centering over Mission Pad",
+          wind_tunnel_hover: "Wind Tunnel hover",
+          wind_tunnel_recenter: "re-centering",
+          wind_tunnel_correction_retry: "correction failed; hovering and retrying",
+          wind_tunnel_recoverable_error: "recoverable error; still airborne",
+          wind_tunnel_cross_pad_recovery: "returning from adjacent Mission Pad",
+          wind_tunnel_spacing_guard: "collision-distance guard",
+          wind_tunnel_landing_20_percent: "landing at 20%",
+          wind_tunnel_landed: "landed at 20%",
+        }[drone.phase] || "";
+        meta.textContent = `${bandText}${phaseText ? " · " + phaseText : ""}`;
+        if (drone.phase) meta.title = drone.phase;
 
         card.append(top, track, meta);
         batteryMonitor.appendChild(card);
@@ -4439,10 +4862,22 @@ INDEX_TEMPLATE = """
           confirmTakeoffButton.textContent = "Start hover discharge";
           skipDischargeButton.hidden = false;
         } else {
-          takeoffModalTitle.textContent = "Ready for takeoff";
-          takeoffModalBody.textContent = state.script === "single_drone_baseline.py"
+          const isFormalSocTakeoff = state.prompt_action === "formal_takeoff";
+          const isWindTunnel = windowInfo.mode === "wind_tunnel";
+          takeoffModalTitle.textContent = isWindTunnel
+            ? "Ready for Wind Tunnel hover"
+            : isFormalSocTakeoff
+            ? "Ready for formal takeoff"
+            : "Ready for takeoff";
+          takeoffModalBody.textContent = isWindTunnel
+            ? `Confirm that drone 1-5 are centered over Mission Pads 5, 6, 7, 8, 1 respectively and the flight area is clear. All five will take off together, continuously re-center over their assigned pads, and each drone will land independently when it reaches ${windowInfo.target}%.`
+            : isFormalSocTakeoff
+            ? `Each drone has reached the ${windowInfo.target + {{ soc_target_tolerance }}}% landing threshold (target ${windowInfo.target}% + {{ soc_target_tolerance }}%) and landed. Move them onto formal start pads 2-6, center them above the pads, verify +Y points from row 1 toward row 6, then confirm the simultaneous formal takeoff.`
+            : state.script === "single_drone_baseline.py"
             ? "The single-drone baseline script is waiting at the takeoff prompt. Confirm only when the flight area is clear."
-            : `All drones are inside the ${windowInfo.low}%-${windowInfo.high}% battery window and the script is waiting at the takeoff prompt. Confirm only when the flight area is clear.`;
+            : windowInfo.target
+              ? `Only drones currently above the ${windowInfo.target}% target will take off for SOC preparation; place those drones well separated. Drones already at or below target stay on the ground. Each airborne drone lands at ${windowInfo.target + {{ soc_target_tolerance }}}% (target + {{ soc_target_tolerance }}%). If all five are already at or below target, this hover stage is skipped and the app goes directly to formal takeoff confirmation.`
+              : `All drones are inside the ${windowInfo.low}%-${windowInfo.high}% battery window and the script is waiting at the takeoff prompt. Confirm only when the flight area is clear.`;
           confirmTakeoffButton.textContent = "Confirm takeoff";
           skipDischargeButton.hidden = true;
         }
@@ -4504,7 +4939,7 @@ INDEX_TEMPLATE = """
 
     refreshRunButton.addEventListener("click", fetchRunState);
     stopRunButton.addEventListener("click", () => {
-      if (confirm("Stop the current experiment process?")) {
+      if (confirm("This will immediately command every airborne drone to LAND and stop the experiment. Continue?")) {
         postRunAction("{{ url_for('stop_experiment_run') }}");
       }
     });
@@ -4695,6 +5130,11 @@ EXPERIMENT_TEMPLATE = """
       <h1>{{ experiment.experiment_id }}</h1>
       <div class="small">
         {{ experiment.formation }} · {{ experiment.wind_direction }} · {{ experiment.wind_speed }} · distance {{ experiment.inter_drone_distance_cm or 50 }}cm
+        {% if experiment.protocol == 'wind_tunnel' %}
+          · Wind Tunnel hover · independent landing at {{ experiment.target_soc_percent or 20 }}%
+        {% else %}
+          · SOC {{ experiment.soc_mode or 'legacy' }}{% if experiment.target_soc_percent %} (land at {{ experiment.target_soc_percent + (experiment.soc_tolerance_percent if experiment.soc_tolerance_percent is not none else 2) }}%; target +{{ experiment.soc_tolerance_percent if experiment.soc_tolerance_percent is not none else 2 }}){% endif %}
+        {% endif %}
                 {% if experiment.is_outlier %}<span class="badge outlier">outlier excluded from summary</span>{% endif %}
                 {% for tag in experiment.tags or [] %}<span class="badge">{{ tag }}</span>{% endfor %}
       </div>

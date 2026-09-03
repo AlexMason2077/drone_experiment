@@ -6,10 +6,14 @@ This script is designed to be started by app.py with an experiment ID:
     python3 -u data_collector.py --experiment-id EXP_ID
 
 It reads database/experiment_registry.json, validates the saved drone IPs and
-mission pad positions, connects to the Tello swarm, waits for GUI confirmation
-at the takeoff prompt, then takes off, climbs over each configured start mission
-pad, flies forward 250 cm along the lane at 10 cm/s, logs coordination and
-battery data during the node-to-node flight, and lands.
+mission pad positions, connects to the Tello swarm, waits for GUI confirmation,
+then takes off and calibrates over each configured start mission pad. New SOC
+experiments hover without formal logging until all five drones reach the chosen
+high/medium/low target, land together, and wait for a second GUI confirmation.
+They then take off together for the formal run. Front experiments use streaming
+mission-pad feedback to fly one continuous +Y 250 cm path at 10 cm/s in about
+25 seconds, stop formal logging before the first zero-speed command, and land
+without an intermediate target-pad hover.
 """
 
 import argparse
@@ -39,6 +43,13 @@ DATA_DIR = BASE_DIR / "database"
 REGISTRY_FILE = DATA_DIR / "experiment_registry.json"
 
 IP_PREFIX = "192.168.0."
+DRONE_NUMBER_TO_IP_SUFFIX = {
+    "1": "100",
+    "2": "101",
+    "3": "102",
+    "4": "103",
+    "5": "104",
+}
 ROW_SPACING_CM = 50
 COLUMN_SPACING_CM = 50
 COLUMN_75_ROW_SPACING_CM = 75
@@ -51,6 +62,24 @@ TAKEOFF_CLIMB_SPEED_CM_S = 20
 NODE_FLIGHT_SPEED_CM_S = 10
 NODE_FORWARD_DISTANCE_CM = 250
 NODE_SEGMENT_DISTANCE_CM = ROW_SPACING_CM
+FRONT_STREAM_CONTROL_INTERVAL_SEC = 0.1
+FRONT_STREAM_DURATION_SEC = NODE_FORWARD_DISTANCE_CM / NODE_FLIGHT_SPEED_CM_S
+FRONT_STREAM_MIN_FORWARD_CONTROL = 4
+FRONT_STREAM_MAX_FORWARD_CONTROL = 25
+FRONT_STREAM_FORWARD_KP = 0.25
+FRONT_STREAM_FORWARD_KI = 0.10
+FRONT_STREAM_FORWARD_INTEGRAL_LIMIT = 150.0
+FRONT_STREAM_POSITION_FILTER_ALPHA = 0.45
+FRONT_STREAM_MAX_POSITION_JUMP_CM = 30.0
+FRONT_STREAM_MAX_LATERAL_SPEED = 12
+FRONT_STREAM_MAX_VERTICAL_SPEED = 10
+FRONT_STREAM_LATERAL_KP = 0.35
+FRONT_STREAM_VERTICAL_KP = 0.25
+FRONT_STREAM_SPACING_GUARD_CM = 40.0
+FRONT_STREAM_CRITICAL_SPACING_CM = 28.0
+FRONT_STREAM_TARGET_TOLERANCE_CM = 22.0
+FRONT_STATION_TOLERANCE_CM = 8.0
+FRONT_STATION_MIN_CONTROL = 6
 LONG_GO_RESPONSE_TIMEOUT_SEC = 40
 PRE_NODE_SETTLE_SEC = 2.0
 TAKEOFF_HEIGHT_ADJUST_MIN_CM = 20
@@ -71,8 +100,12 @@ TARGET_PAD_LOCK_TIMEOUT_SEC = 12.0
 SEGMENT_TARGET_TOLERANCE_CM = 15
 BATTERY_WINDOW_LOW_PERCENT = 20
 BATTERY_WINDOW_HIGH_PERCENT = 75
+SOC_MODE_TARGETS = {"high": 85, "medium": 75, "low": 30}
+SOC_TARGET_TOLERANCE_PERCENT = 2
+SOC_TARGET_CHECK_INTERVAL_SEC = 1.0
 DISCHARGE_CHECK_INTERVAL_SEC = 8.0
 DISCHARGE_MAX_DURATION_SEC = 900.0
+START_ALIGNMENT_TOLERANCE_CM = 15
 PAD_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8]
 
 MISSION_PAD_COLUMNS = [
@@ -81,6 +114,13 @@ MISSION_PAD_COLUMNS = [
     [3, 4, 5, 6, 7, 8],
     [4, 5, 6, 7, 8, 1],
     [5, 6, 7, 8, 1, 2],
+]
+FRONT_SOC_MISSION_PAD_COLUMNS = [
+    [2, 3, 4, 5, 6, 7],
+    [3, 4, 5, 6, 7, 8],
+    [4, 5, 6, 7, 8, 1],
+    [5, 6, 7, 8, 1, 2],
+    [6, 7, 8, 1, 2, 3],
 ]
 COLUMN_MISSION_PAD_COLUMNS = [
     [1, 2, 3, 4, 5, 6, 7, 8, 3, 4],
@@ -153,6 +193,9 @@ COORDINATION_COLUMNS = [
     "wind_direction",
     "wind_speed",
     "inter_drone_distance_cm",
+    "soc_mode",
+    "target_soc_percent",
+    "soc_tolerance_percent",
     "drone_name",
     "drone_ip",
     "battery_id",
@@ -191,6 +234,9 @@ COORDINATION_COLUMNS = [
     "yaw",
     "pitch",
     "roll",
+    "mission_pad_pitch",
+    "mission_pad_roll",
+    "mission_pad_yaw",
     "vgx",
     "vgy",
     "vgz",
@@ -212,6 +258,9 @@ BATTERY_COLUMNS = [
     "wind_direction",
     "wind_speed",
     "inter_drone_distance_cm",
+    "soc_mode",
+    "target_soc_percent",
+    "soc_tolerance_percent",
     "drone_name",
     "drone_ip",
     "battery_id",
@@ -241,6 +290,9 @@ BATTERY_TIMESERIES_COLUMNS = [
     "wind_direction",
     "wind_speed",
     "inter_drone_distance_cm",
+    "soc_mode",
+    "target_soc_percent",
+    "soc_tolerance_percent",
     "drone_name",
     "drone_ip",
     "battery_id",
@@ -296,6 +348,47 @@ def int_field(value, field_name):
         raise ValueError(f"Invalid {field_name}: {value}") from exc
 
 
+def experiment_soc_mode(experiment):
+    mode = str(experiment.get("soc_mode") or "").strip().lower()
+    if not mode:
+        return ""
+    if mode not in SOC_MODE_TARGETS:
+        raise ValueError(
+            f"Invalid soc_mode '{mode}'. Expected one of: {', '.join(SOC_MODE_TARGETS)}."
+        )
+    return mode
+
+
+def experiment_target_soc_percent(experiment):
+    if str(experiment.get("protocol") or "").strip().lower() == "wind_tunnel":
+        return int_field(experiment.get("target_soc_percent", 20), "target_soc_percent")
+    mode = experiment_soc_mode(experiment)
+    return SOC_MODE_TARGETS.get(mode)
+
+
+def experiment_soc_label(experiment):
+    if str(experiment.get("protocol") or "").strip().lower() == "wind_tunnel":
+        return "wind_tunnel"
+    return experiment_soc_mode(experiment) or "legacy"
+
+
+def experiment_soc_tolerance_percent(experiment):
+    if str(experiment.get("protocol") or "").strip().lower() == "wind_tunnel":
+        return int_field(experiment.get("soc_tolerance_percent", 0), "soc_tolerance_percent")
+    return SOC_TARGET_TOLERANCE_PERCENT if uses_soc_target_protocol(experiment) else ""
+
+
+def uses_soc_target_protocol(experiment):
+    return bool(experiment_soc_mode(experiment))
+
+
+def uses_front_continuous_protocol(experiment):
+    return (
+        uses_soc_target_protocol(experiment)
+        and str(experiment.get("formation") or "").strip().lower() == "front"
+    )
+
+
 def experiment_inter_drone_distance_cm(experiment):
     return int_field(experiment.get("inter_drone_distance_cm", 50), "inter_drone_distance_cm")
 
@@ -306,6 +399,8 @@ def clamp(value, low, high):
 
 def mission_pad_columns_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
+    if uses_front_continuous_protocol(experiment):
+        return FRONT_SOC_MISSION_PAD_COLUMNS
     if is_column_75cm_experiment(experiment):
         return COLUMN_75_MISSION_PAD_COLUMNS
     if formation == "column":
@@ -466,6 +561,8 @@ def target_pad_for_start(mission_pad, forward_distance_cm=NODE_FORWARD_DISTANCE_
 def node_direction_for_experiment(experiment):
     formation = str(experiment.get("formation", "")).strip().lower()
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
+    if uses_front_continuous_protocol(experiment):
+        return 1
     if formation == "column":
         return -1 if wind_direction == "head wind" else 1
     if is_diamond_75cm_experiment(experiment):
@@ -514,7 +611,9 @@ def build_tello_configs(experiment):
     seen_batteries = set()
     seen_positions = set()
     for idx, drone in enumerate(sorted(drones, key=lambda item: int_field(item.get("takeoff_order", 999), "takeoff_order"))):
-        ip = normalize_ip(drone.get("ip") or drone.get("ip_suffix"))
+        drone_number = str(drone.get("drone_number") or "").strip()
+        current_suffix = DRONE_NUMBER_TO_IP_SUFFIX.get(drone_number)
+        ip = normalize_ip(current_suffix or drone.get("ip") or drone.get("ip_suffix"))
         if not ip:
             raise ValueError(f"Drone {idx + 1} has no IP.")
         if ip in seen_ips:
@@ -583,6 +682,8 @@ def build_tello_configs(experiment):
             "formation": formation,
             "wind_direction": str(experiment.get("wind_direction", "")).strip().lower(),
             "wind_speed": str(experiment.get("wind_speed", "")).strip().lower(),
+            "soc_mode": experiment_soc_mode(experiment),
+            "front_continuous_protocol": uses_front_continuous_protocol(experiment),
             "inter_drone_distance_cm": experiment_inter_drone_distance_cm(experiment),
             "column_spacing_cm": column_spacing_cm,
             "row_spacing_cm": row_spacing_cm,
@@ -600,6 +701,28 @@ def build_tello_configs(experiment):
             "node_forward_distance_cm": node_distance,
             "node_speed_cm_s": NODE_FLIGHT_SPEED_CM_S,
         })
+    if uses_front_continuous_protocol(experiment):
+        start_pads = [config["mission_pad"] for config in configs]
+        start_positions = [(config["grid_column"], config["grid_row"]) for config in configs]
+        if start_pads != [2, 3, 4, 5, 6] or start_positions != [
+            (0, 0),
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (4, 0),
+        ]:
+            raise ValueError(
+                "The new front SOC protocol requires takeoff order 1-5 on start mission pads "
+                "2,3,4,5,6 at grid positions (0,0)..(4,0)."
+            )
+        if any(
+            config["node_row_direction"] != 1
+            or config["node_forward_distance_cm"] != NODE_FORWARD_DISTANCE_CM
+            for config in configs
+        ):
+            raise ValueError(
+                "The new front SOC protocol requires a +Y continuous 250 cm path for every drone."
+            )
     return configs
 
 
@@ -822,6 +945,24 @@ def reset_runtime_state(configs):
 
 def get_state_safe(tello):
     state = tello.get_current_state()
+    mission_pad_pitch = None
+    mission_pad_roll = None
+    mission_pad_yaw = None
+    mpry = state.get("mpry")
+    if mpry is not None:
+        try:
+            if isinstance(mpry, (list, tuple)):
+                values = list(mpry)
+            else:
+                values = str(mpry).split(",")
+            if len(values) >= 3:
+                mission_pad_pitch = float(values[0])
+                mission_pad_roll = float(values[1])
+                mission_pad_yaw = float(values[2])
+        except (TypeError, ValueError):
+            mission_pad_pitch = None
+            mission_pad_roll = None
+            mission_pad_yaw = None
     return {
         "mid": state.get("mid", -1),
         "x": state.get("x", 0),
@@ -830,6 +971,9 @@ def get_state_safe(tello):
         "yaw": state.get("yaw", 0),
         "pitch": state.get("pitch", 0),
         "roll": state.get("roll", 0),
+        "mission_pad_pitch": mission_pad_pitch,
+        "mission_pad_roll": mission_pad_roll,
+        "mission_pad_yaw": mission_pad_yaw,
         "vgx": state.get("vgx", 0),
         "vgy": state.get("vgy", 0),
         "vgz": state.get("vgz", 0),
@@ -845,8 +989,9 @@ def get_state_safe(tello):
     }
 
 
-def monitor_takeoff_health(swarm, configs, duration=2.5, interval=0.5):
+def monitor_takeoff_health(swarm, configs, duration=2.5, interval=0.5, indices=None):
     """Print early flight state so failed takeoffs are visible in the run log."""
+    monitored_indices = list(range(len(configs))) if indices is None else sorted(indices)
     start = time.time()
     next_sample = start
     last_states = [None] * len(configs)
@@ -858,7 +1003,8 @@ def monitor_takeoff_health(swarm, configs, duration=2.5, interval=0.5):
             continue
         elapsed = now - start
         parts = []
-        for idx, tello in enumerate(swarm.tellos):
+        for idx in monitored_indices:
+            tello = swarm.tellos[idx]
             config = configs[idx]
             try:
                 state = get_state_safe(tello)
@@ -874,7 +1020,8 @@ def monitor_takeoff_health(swarm, configs, duration=2.5, interval=0.5):
         print(f"  takeoff+{elapsed:.1f}s: " + " | ".join(parts), flush=True)
         next_sample += interval
 
-    for idx, state in enumerate(last_states):
+    for idx in monitored_indices:
+        state = last_states[idx]
         if state is None:
             continue
         measured_height = max(int(state.get("h") or 0), int(state.get("tof") or 0))
@@ -888,6 +1035,18 @@ def monitor_takeoff_health(swarm, configs, duration=2.5, interval=0.5):
 
 
 def pad_origin_for_detection(config, mid, preferred_row=None):
+    # Wind Tunnel uses one fixed set of five pads with explicit physical
+    # centers.  It has no following row, so never extend PAD_SEQUENCE when a
+    # neighbouring fixed pad enters the camera view.
+    explicit_origins = config.get("pad_origins_cm")
+    if explicit_origins:
+        origin = explicit_origins.get(mid)
+        if origin is None:
+            origin = explicit_origins.get(str(mid))
+        if origin is None:
+            return None, None
+        return float(origin[0]), float(origin[1])
+
     min_row = min(config["grid_row"], config["target_grid_row"]) - 1
     max_row = max(config["grid_row"], config["target_grid_row"]) + 1
     column = lane_pad_sequence(
@@ -1140,6 +1299,205 @@ def coordinate_climb_on_start_pads(swarm, configs):
         climb_on_start_pad,
     )
     time.sleep(1.0)
+
+
+def start_pad_alignment_state(tello, config, tolerance=START_ALIGNMENT_TOLERANCE_CM):
+    state = get_state_safe(tello)
+    aligned = (
+        state["mid"] == config["mission_pad"]
+        and abs(int(state["x"])) <= tolerance
+        and abs(int(state["y"])) <= tolerance
+        and abs(int(state["z"]) - TAKEOFF_HEIGHT_CM) <= tolerance
+    )
+    return aligned, state
+
+
+def ensure_all_start_pad_alignment(swarm, configs, tolerance=START_ALIGNMENT_TOLERANCE_CM):
+    """Keep every drone centered over its configured start pad before recording."""
+    errors = []
+    errors_lock = threading.Lock()
+
+    def worker(idx, tello):
+        config = configs[idx]
+        try:
+            aligned, state = start_pad_alignment_state(tello, config, tolerance=tolerance)
+            if aligned:
+                return
+            print(
+                f"  Re-centering {config['name']} over m{config['mission_pad']} "
+                f"from mid={state['mid']} x={state['x']} y={state['y']} z={state['z']}.",
+                flush=True,
+            )
+            if state["mid"] != config["mission_pad"] and not wait_for_expected_pad(
+                tello,
+                config,
+                timeout=START_PAD_LOCK_TIMEOUT_SEC,
+            ):
+                raise RuntimeError(
+                    f"{config['name']} cannot reacquire start pad m{config['mission_pad']}."
+                )
+            tello.go_xyz_speed_mid(
+                0,
+                0,
+                TAKEOFF_HEIGHT_CM,
+                TAKEOFF_CLIMB_SPEED_CM_S,
+                config["mission_pad"],
+            )
+            deadline = time.time() + START_PAD_LOCK_TIMEOUT_SEC
+            while time.time() < deadline:
+                aligned, state = start_pad_alignment_state(tello, config, tolerance=tolerance)
+                if aligned:
+                    return
+                time.sleep(0.15)
+            raise RuntimeError(
+                f"{config['name']} is not centered over m{config['mission_pad']} after correction; "
+                f"mid={state['mid']} x={state['x']} y={state['y']} z={state['z']}."
+            )
+        except Exception as exc:
+            with errors_lock:
+                errors.append((idx, exc))
+
+    threads = []
+    for idx, tello in enumerate(swarm.tellos):
+        thread = threading.Thread(target=worker, args=(idx, tello), daemon=True)
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+    if errors:
+        details = "; ".join(f"{configs[idx]['name']}: {exc}" for idx, exc in errors)
+        raise RuntimeError(f"Start-pad alignment failed: {details}")
+
+
+def validate_front_positive_y_setup(swarm, configs):
+    expected_pads = [2, 3, 4, 5, 6]
+    actual_pads = [config["mission_pad"] for config in configs]
+    if actual_pads != expected_pads:
+        raise RuntimeError(
+            f"Front start pads must be {expected_pads}; configured pads are {actual_pads}."
+        )
+    for config in configs:
+        signed_distance = int(round(config["target_y"] - config["start_y"]))
+        if config["node_row_direction"] != 1 or signed_distance != NODE_FORWARD_DISTANCE_CM:
+            raise RuntimeError(
+                f"{config['name']} does not have the required mission-pad +Y 250 cm path."
+            )
+    ensure_all_start_pad_alignment(swarm, configs)
+    print(
+        "Front start geometry verified: pads 2-6, centered above each pad, "
+        "and the streaming controller will fly +Y for about 25 seconds.",
+        flush=True,
+    )
+
+
+def read_all_batteries(swarm, configs):
+    readings = {}
+    for idx, tello in enumerate(swarm.tellos):
+        value = tello.get_battery()
+        try:
+            readings[configs[idx]["ip"]] = int(value)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError(
+                f"{configs[idx]['name']} returned invalid battery value: {value}"
+            ) from exc
+    return readings
+
+
+def partition_soc_preparation_drones(configs, readings, target_soc):
+    """Return (airborne-preparation, grounded-waiting) indices using the target itself."""
+    preparation = []
+    waiting = []
+    for idx, config in enumerate(configs):
+        if readings[config["ip"]] > target_soc:
+            preparation.append(idx)
+        else:
+            waiting.append(idx)
+    return preparation, waiting
+
+
+def hover_until_target_soc(
+    swarm,
+    configs,
+    target_soc,
+    tolerance=SOC_TARGET_TOLERANCE_PERCENT,
+    active_indices=None,
+    initial_readings=None,
+):
+    """Hover at separated preparation positions and land each drone at its target SOC."""
+    landing_threshold = target_soc + tolerance
+    deadline = time.time() + DISCHARGE_MAX_DURATION_SEC
+    active_indices = set(range(len(configs))) if active_indices is None else set(active_indices)
+    target_readings = dict(initial_readings or {})
+    for idx in range(len(configs)):
+        set_phase(idx, "soc_target_hover" if idx in active_indices else "soc_waiting_grounded")
+    print(
+        f"Hovering at separated SOC-preparation positions. Each drone will land when "
+        f"its battery reaches {landing_threshold}% (target {target_soc}% + {tolerance}%). "
+        "Mission-pad alignment and automatic lateral re-centering are OFF. "
+        "Each drone will land independently when it reaches the target; formal logging is OFF.",
+        flush=True,
+    )
+
+    while time.time() < deadline and active_indices:
+        readings = {}
+        for idx in sorted(active_indices):
+            value = swarm.tellos[idx].get_battery()
+            try:
+                readings[configs[idx]["ip"]] = int(value)
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError(
+                    f"{configs[idx]['name']} returned invalid battery value: {value}"
+                ) from exc
+        status_text = " | ".join(
+            f"{configs[idx]['name']} battery_id={configs[idx]['battery_id']} "
+            f"battery={readings[configs[idx]['ip']]}%"
+            for idx in sorted(active_indices)
+        )
+        print(f"SOC target status: {status_text}", flush=True)
+
+        reached_indices = [
+            idx for idx in sorted(active_indices)
+            if readings[configs[idx]["ip"]] <= landing_threshold
+        ]
+        for idx in reached_indices:
+            config = configs[idx]
+            value = readings[config["ip"]]
+            set_phase(idx, "soc_target_landing")
+            print(
+                f"  {config['name']} is at {value}% (at or below the {landing_threshold}% "
+                f"landing threshold); landing it now at its separated "
+                "preparation position.",
+                flush=True,
+            )
+            try:
+                swarm.tellos[idx].land()
+            except Exception as exc:
+                raise RuntimeError(
+                    f"{config['name']} reached target SOC but its landing command failed: {exc}"
+                ) from exc
+            target_readings[config["ip"]] = value
+            active_indices.remove(idx)
+
+        for idx in sorted(active_indices):
+            tello = swarm.tellos[idx]
+            hold_position(tello, configs[idx], "SOC target hover")
+        if active_indices:
+            time.sleep(SOC_TARGET_CHECK_INTERVAL_SEC)
+
+    if not active_indices:
+        set_phase_all("soc_target_landed")
+        print(
+            "All selected above-target drones reached or passed their one-sided landing "
+            "threshold and are landed at their separated "
+            "preparation positions.",
+            flush=True,
+        )
+        return target_readings
+
+    raise RuntimeError(
+        f"Timed out before all selected above-target drones reached and landed at the "
+        f"{landing_threshold}% threshold (target {target_soc}% + {tolerance}%)."
+    )
 
 
 def is_valid_column_detection(config, x_global):
@@ -1421,16 +1779,349 @@ def wait_for_all_segment_start_pads(swarm, configs, current_rows):
         time.sleep(0.2)
 
 
-def fly_continuous_node_to_node(tello, config, speed=NODE_FLIGHT_SPEED_CM_S):
-    signed_y_distance = int(round(config["target_y"] - config["start_y"]))
-    command = "go {} {} {} {} m{}".format(
-        0,
-        signed_y_distance,
-        TAKEOFF_HEIGHT_CM,
-        max(10, min(100, speed)),
-        int(config["mission_pad"]),
+def front_streaming_control_commands(
+    configs,
+    states,
+    elapsed,
+    control_state=None,
+    stationary=False,
+    active_indices=None,
+):
+    """Build front-formation feedback commands.
+
+    The normal mode follows the synchronized +Y trajectory.  ``stationary``
+    reuses the same position filtering, lateral control, height control, and
+    inter-drone spacing guard while keeping the desired Y position fixed at
+    the start Mission Pad instead of advancing it.
+    """
+    if control_state is None:
+        control_state = {}
+    if active_indices is None:
+        active_indices = set(range(len(configs)))
+    else:
+        active_indices = set(active_indices)
+    expected_row = (
+        0
+        if stationary
+        else int(clamp(round(elapsed * NODE_FLIGHT_SPEED_CM_S / ROW_SPACING_CM), 0, 5))
     )
-    tello.send_control_command(command, timeout=LONG_GO_RESPONSE_TIMEOUT_SEC)
+    desired_y_offset = (
+        0.0
+        if stationary
+        else min(NODE_FORWARD_DISTANCE_CM, elapsed * NODE_FLIGHT_SPEED_CM_S)
+    )
+    commands = []
+    positions = {}
+    valid_pad = {}
+    for idx, (config, state) in enumerate(zip(configs, states)):
+        if idx not in active_indices:
+            commands.append([0, 0, 0, 0])
+            valid_pad[idx] = False
+            continue
+        drone_control = control_state.setdefault(idx, {
+            "filtered_y": float(config["start_y"]),
+            "last_raw_y": None,
+            "last_elapsed": float(elapsed),
+            "forward_integral": 0.0,
+            "forward_error": 0.0,
+            "forward_control": NODE_FLIGHT_SPEED_CM_S,
+            "position_valid": False,
+            "invalid_position_samples": 0,
+        })
+        path_pads = (
+            {int(config["mission_pad"])}
+            if stationary
+            else {
+                pad_at_physical_row(config, row)
+                for row in range(config["grid_row"], config["target_grid_row"] + 1)
+            }
+        )
+        valid_pad[idx] = state["mid"] in path_pads
+        preferred_row = config["grid_row"] + expected_row
+        if valid_pad[idx]:
+            x_global, y_global, z_global = to_global(config, state, preferred_row=preferred_row)
+        else:
+            x_global, y_global, z_global = None, None, None
+        if x_global is not None and y_global is not None:
+            positions[idx] = (float(x_global), float(y_global))
+            lateral_error = config["start_x"] - x_global
+            lateral_speed = int(round(clamp(
+                FRONT_STREAM_LATERAL_KP * lateral_error,
+                -FRONT_STREAM_MAX_LATERAL_SPEED,
+                FRONT_STREAM_MAX_LATERAL_SPEED,
+            )))
+            if stationary:
+                if abs(lateral_error) <= FRONT_STATION_TOLERANCE_CM:
+                    lateral_speed = 0
+                elif abs(lateral_speed) < FRONT_STATION_MIN_CONTROL:
+                    lateral_speed = (
+                        FRONT_STATION_MIN_CONTROL
+                        if lateral_error > 0
+                        else -FRONT_STATION_MIN_CONTROL
+                    )
+        else:
+            lateral_speed = 0
+
+        dt = clamp(elapsed - drone_control["last_elapsed"], 0.0, 0.25)
+        measurement_valid = y_global is not None
+        if measurement_valid and drone_control["last_raw_y"] is not None:
+            plausible_jump = (
+                abs(float(y_global) - drone_control["last_raw_y"])
+                <= FRONT_STREAM_MAX_POSITION_JUMP_CM
+            )
+            measurement_valid = plausible_jump or drone_control["invalid_position_samples"] >= 10
+        if measurement_valid:
+            raw_y = float(y_global)
+            alpha = FRONT_STREAM_POSITION_FILTER_ALPHA
+            drone_control["filtered_y"] = (
+                alpha * raw_y + (1.0 - alpha) * drone_control["filtered_y"]
+            )
+            drone_control["last_raw_y"] = raw_y
+            drone_control["invalid_position_samples"] = 0
+        else:
+            drone_control["invalid_position_samples"] += 1
+
+        desired_y = float(config["start_y"]) + desired_y_offset
+        # Use the same target-minus-measurement feedback direction as the
+        # proven 2.5 m front-flight controller.  A fixed-pad run changes only
+        # the desired Y trajectory (zero progress), not the axis signs.
+        forward_error = desired_y - drone_control["filtered_y"]
+        if stationary and abs(forward_error) <= FRONT_STATION_TOLERANCE_CM:
+            drone_control["forward_integral"] = 0.0
+        elif measurement_valid and dt > 0:
+            drone_control["forward_integral"] = clamp(
+                drone_control["forward_integral"] + forward_error * dt,
+                -FRONT_STREAM_FORWARD_INTEGRAL_LIMIT,
+                FRONT_STREAM_FORWARD_INTEGRAL_LIMIT,
+            )
+        if measurement_valid:
+            forward_base = 0 if stationary else NODE_FLIGHT_SPEED_CM_S
+            forward_min = -FRONT_STREAM_MAX_LATERAL_SPEED if stationary else FRONT_STREAM_MIN_FORWARD_CONTROL
+            forward_max = FRONT_STREAM_MAX_LATERAL_SPEED if stationary else FRONT_STREAM_MAX_FORWARD_CONTROL
+            forward_control = int(round(clamp(
+                forward_base
+                + FRONT_STREAM_FORWARD_KP * forward_error
+                + FRONT_STREAM_FORWARD_KI * drone_control["forward_integral"],
+                forward_min,
+                forward_max,
+            )))
+            if stationary:
+                if abs(forward_error) <= FRONT_STATION_TOLERANCE_CM:
+                    forward_control = 0
+                elif abs(forward_control) < FRONT_STATION_MIN_CONTROL:
+                    forward_control = (
+                        FRONT_STATION_MIN_CONTROL
+                        if forward_error > 0
+                        else -FRONT_STATION_MIN_CONTROL
+                    )
+        else:
+            # Do not accelerate blindly while the mission-pad position is unavailable.
+            forward_control = 0 if stationary else int(drone_control["forward_control"])
+        drone_control.update({
+            "last_elapsed": float(elapsed),
+            "forward_error": float(forward_error),
+            "forward_control": forward_control,
+            "position_valid": measurement_valid,
+            "desired_y": desired_y,
+        })
+        measured_height = z_global
+        if measured_height is None or measured_height <= 0:
+            measured_height = state.get("tof") or state.get("h") or TAKEOFF_HEIGHT_CM
+        vertical_speed = (
+            0
+            if stationary and not valid_pad[idx]
+            else int(round(clamp(
+                FRONT_STREAM_VERTICAL_KP * (TAKEOFF_HEIGHT_CM - measured_height),
+                -FRONT_STREAM_MAX_VERTICAL_SPEED,
+                FRONT_STREAM_MAX_VERTICAL_SPEED,
+            )))
+        )
+        commands.append([lateral_speed, forward_control, vertical_speed, 0])
+
+    # Adjacent drones keep moving forward while receiving opposite lateral corrections.
+    lateral_order = sorted(range(len(configs)), key=lambda idx: configs[idx]["start_x"])
+    spacing_alerts = []
+    for left_idx, right_idx in zip(lateral_order, lateral_order[1:]):
+        if left_idx not in positions or right_idx not in positions:
+            continue
+        left = positions[left_idx]
+        right = positions[right_idx]
+        distance = math.hypot(right[0] - left[0], right[1] - left[1])
+        if distance >= FRONT_STREAM_SPACING_GUARD_CM:
+            continue
+        strength = (
+            FRONT_STREAM_MAX_LATERAL_SPEED
+            if distance < FRONT_STREAM_CRITICAL_SPACING_CM
+            else 6
+        )
+        commands[left_idx][0] = int(clamp(
+            commands[left_idx][0] - strength,
+            -FRONT_STREAM_MAX_LATERAL_SPEED,
+            FRONT_STREAM_MAX_LATERAL_SPEED,
+        ))
+        commands[right_idx][0] = int(clamp(
+            commands[right_idx][0] + strength,
+            -FRONT_STREAM_MAX_LATERAL_SPEED,
+            FRONT_STREAM_MAX_LATERAL_SPEED,
+        ))
+        spacing_alerts.append((left_idx, right_idx, round(distance, 1)))
+
+    if stationary:
+        # Mission Pad errors are expressed in that pad's printed X/Y frame,
+        # while send_rc_control(left_right, forward_back, ...) uses the
+        # aircraft body frame.  Use mpry yaw (attitude relative to the detected
+        # Mission Pad), not the ordinary IMU yaw whose reference is unrelated
+        # to an individual pad's printed orientation.  Tello yaw is
+        # clockwise-positive:
+        #   world_x = body_right*cos(yaw) + body_forward*sin(yaw)
+        #   world_y = -body_right*sin(yaw) + body_forward*cos(yaw)
+        for idx, state in enumerate(states):
+            if idx not in active_indices or not valid_pad.get(idx):
+                commands[idx][0] = 0
+                commands[idx][1] = 0
+                continue
+            world_x = float(commands[idx][0])
+            world_y = float(commands[idx][1])
+            mission_pad_yaw = state.get("mission_pad_yaw")
+            if mission_pad_yaw is None:
+                commands[idx][0] = 0
+                commands[idx][1] = 0
+                continue
+            yaw_radians = math.radians(float(mission_pad_yaw))
+            cos_yaw = math.cos(yaw_radians)
+            sin_yaw = math.sin(yaw_radians)
+            body_right = world_x * cos_yaw - world_y * sin_yaw
+            body_forward = world_x * sin_yaw + world_y * cos_yaw
+            commands[idx][0] = int(round(clamp(
+                body_right,
+                -FRONT_STREAM_MAX_LATERAL_SPEED,
+                FRONT_STREAM_MAX_LATERAL_SPEED,
+            )))
+            commands[idx][1] = int(round(clamp(
+                body_forward,
+                -FRONT_STREAM_MAX_LATERAL_SPEED,
+                FRONT_STREAM_MAX_LATERAL_SPEED,
+            )))
+    return commands, positions, valid_pad, spacing_alerts
+
+
+def run_front_continuous_flight(swarm, configs, progress=None, recording_start_event=None):
+    """Fly +Y continuously for about 25 seconds with live pad/spacing feedback."""
+    global logging_active
+    if not configs or not all(config.get("front_continuous_protocol") for config in configs):
+        raise RuntimeError("Continuous front flight was requested for a non-front SOC experiment.")
+    if progress is not None:
+        progress["total_segments"] = 1
+        progress["started_segments"] = 1
+        progress["completed_segments"] = 0
+
+    set_phase_all("front_continuous_pad_feedback_positive_y_250cm")
+    print(
+        "Formal recording flight: synchronized continuous mission-pad feedback, +Y, "
+        f"{NODE_FORWARD_DISTANCE_CM} cm at {NODE_FLIGHT_SPEED_CM_S} cm/s; "
+        f"planned duration {FRONT_STREAM_DURATION_SEC:.1f} s; no intermediate hover or stop commands.",
+        flush=True,
+    )
+    if recording_start_event is not None:
+        recording_start_event.set()
+    start = time.monotonic()
+    next_tick = start
+    last_mids = [None] * len(configs)
+    last_spacing_report = -999.0
+    last_speed_report = -999.0
+    control_state = {}
+    command_count = 0
+    while True:
+        now = time.monotonic()
+        elapsed = now - start
+        if elapsed >= FRONT_STREAM_DURATION_SEC:
+            break
+        if now < next_tick:
+            time.sleep(min(0.02, next_tick - now))
+            continue
+        states = [get_state_safe(tello) for tello in swarm.tellos]
+        commands, _positions, valid_pads, spacing_alerts = front_streaming_control_commands(
+            configs,
+            states,
+            elapsed,
+            control_state=control_state,
+        )
+        for idx, state in enumerate(states):
+            if state["mid"] != last_mids[idx]:
+                validity = "lane pad" if valid_pads[idx] else "unexpected/no pad"
+                print(
+                    f"  flight+{elapsed:.1f}s {configs[idx]['name']} sees m{state['mid']} "
+                    f"({validity}) x={state['x']} y={state['y']} z={state['z']}.",
+                    flush=True,
+                )
+                last_mids[idx] = state["mid"]
+        if spacing_alerts and elapsed - last_spacing_report >= 0.5:
+            print(
+                "  Continuous spacing correction: "
+                + "; ".join(
+                    f"{configs[left]['name']}/{configs[right]['name']}={distance:.1f}cm"
+                    for left, right, distance in spacing_alerts
+                ),
+                flush=True,
+            )
+            last_spacing_report = elapsed
+        if elapsed - last_speed_report >= 1.0:
+            print(
+                "  Longitudinal synchronization: "
+                + " | ".join(
+                    f"{configs[idx]['name']} y={control_state[idx]['filtered_y']:.1f}cm "
+                    f"error={control_state[idx]['forward_error']:+.1f}cm "
+                    f"forward_rc={commands[idx][1]}"
+                    for idx in range(len(configs))
+                ),
+                flush=True,
+            )
+            last_speed_report = elapsed
+        for idx, tello in enumerate(swarm.tellos):
+            tello.send_rc_control(*commands[idx])
+        command_count += 1
+        next_tick += FRONT_STREAM_CONTROL_INTERVAL_SEC
+
+    # End the formal dataset before the first zero-velocity command, so post-processing
+    # does not need to remove an artificial hover interval.
+    logging_active = False
+    for tello in swarm.tellos:
+        tello.send_rc_control(0, 0, 0, 0)
+
+    final_states = [get_state_safe(tello) for tello in swarm.tellos]
+    arrival_errors = []
+    for config, state in zip(configs, final_states):
+        x_global, y_global, _ = to_global(config, state, preferred_row=config["target_grid_row"])
+        if (
+            x_global is None
+            or y_global is None
+            or abs(config["target_x"] - x_global) > FRONT_STREAM_TARGET_TOLERANCE_CM
+            or abs(config["target_y"] - y_global) > FRONT_STREAM_TARGET_TOLERANCE_CM
+        ):
+            arrival_errors.append(
+                f"{config['name']} mid={state['mid']} local=({state['x']},{state['y']},{state['z']}) "
+                f"global=({x_global},{y_global})"
+            )
+    print(
+        f"  Continuous controller sent {command_count} updates over "
+        f"{time.monotonic() - start:.2f} seconds.",
+        flush=True,
+    )
+    if arrival_errors:
+        print(
+            "  Warning: hard 25-second flight deadline reached; some terminal-pad "
+            "positions were not confirmed. This is diagnostic only and will not delay "
+            "landing: " + "; ".join(arrival_errors),
+            flush=True,
+        )
+    if progress is not None:
+        progress["completed_segments"] = 1
+    set_phase_all("arrived_target_node")
+    print(
+        "  Continuous +Y 250 cm front flight complete; landing will start immediately "
+        "without target-pad hover or correction.",
+        flush=True,
+    )
 
 
 def segment_launch_order(configs, current_rows):
@@ -1795,8 +2486,16 @@ def fly_front_segment(
         time.sleep(0.2)
 
 
-def fly_node_to_node(swarm, configs, progress=None):
+def fly_node_to_node(swarm, configs, progress=None, recording_start_event=None):
     set_phase_all("node_to_node")
+    if configs and all(config.get("front_continuous_protocol") for config in configs):
+        run_front_continuous_flight(
+            swarm,
+            configs,
+            progress=progress,
+            recording_start_event=recording_start_event,
+        )
+        return
     segments = configs[0]["node_segment_count"]
     if progress is not None:
         progress["total_segments"] = segments
@@ -1869,8 +2568,12 @@ def logger_loop(
     drone_paths,
     experiment_start_time,
     node_start_time,
+    recording_start_event=None,
 ):
     global logging_active
+    if recording_start_event is not None:
+        while logging_active and not recording_start_event.wait(timeout=0.05):
+            pass
     last_live_battery_report = 0.0
     while logging_active:
         now = time.time()
@@ -1914,6 +2617,9 @@ def logger_loop(
                 experiment.get("wind_direction", ""),
                 experiment.get("wind_speed", ""),
                 experiment_inter_drone_distance_cm(experiment),
+                experiment_soc_label(experiment),
+                experiment_target_soc_percent(experiment) or "",
+                experiment_soc_tolerance_percent(experiment),
                 config["name"],
                 config["ip"],
                 config["battery_id"],
@@ -1952,6 +2658,9 @@ def logger_loop(
                 state["yaw"],
                 state["pitch"],
                 state["roll"],
+                state["mission_pad_pitch"],
+                state["mission_pad_roll"],
+                state["mission_pad_yaw"],
                 state["vgx"],
                 state["vgy"],
                 state["vgz"],
@@ -1979,6 +2688,9 @@ def logger_loop(
                 experiment.get("wind_direction", ""),
                 experiment.get("wind_speed", ""),
                 experiment_inter_drone_distance_cm(experiment),
+                experiment_soc_label(experiment),
+                experiment_target_soc_percent(experiment) or "",
+                experiment_soc_tolerance_percent(experiment),
                 config["name"],
                 config["ip"],
                 config["battery_id"],
@@ -2012,6 +2724,9 @@ def save_battery_rows(path, drone_paths, configs, experiment, run_id, node_start
             experiment.get("wind_direction", ""),
             experiment.get("wind_speed", ""),
             experiment_inter_drone_distance_cm(experiment),
+            experiment_soc_label(experiment),
+            experiment_target_soc_percent(experiment) or "",
+            experiment_soc_tolerance_percent(experiment),
             config["name"],
             config["ip"],
             config["battery_id"],
@@ -2061,7 +2776,7 @@ def read_battery_window_status(swarm, configs, label):
     return readings, high_battery
 
 
-def connect_and_check(swarm, configs):
+def connect_and_check(swarm, configs, experiment=None):
     for idx, tello in enumerate(swarm.tellos):
         config = configs[idx]
         print(f"  Connecting {config['name']} ({config['ip']}, battery {config['battery_id']})...", flush=True)
@@ -2078,6 +2793,23 @@ def connect_and_check(swarm, configs):
             raise RuntimeError(
                 f"{config['name']} ({config['ip']}) returned invalid battery value: {battery_percent}"
             ) from exc
+
+    if experiment is not None and uses_soc_target_protocol(experiment):
+        target_soc = experiment_target_soc_percent(experiment)
+        readings = read_all_batteries(swarm, configs)
+        print(
+            f"\nPreflight SOC readings for {experiment_soc_mode(experiment)} mode "
+            f"(landing threshold {target_soc + SOC_TARGET_TOLERANCE_PERCENT}%; "
+            f"target {target_soc}% + {SOC_TARGET_TOLERANCE_PERCENT}%):",
+            flush=True,
+        )
+        for config in configs:
+            print(
+                f"  {config['name']} ({config['ip']}, battery {config['battery_id']}): "
+                f"{readings[config['ip']]}%",
+                flush=True,
+            )
+        return readings, []
 
     return read_battery_window_status(
         swarm,
@@ -2327,6 +3059,13 @@ def print_plan(configs, experiment):
     print(f"  formation     : {experiment.get('formation', '')}", flush=True)
     print(f"  wind          : {experiment.get('wind_direction', '')} / {experiment.get('wind_speed', '')}", flush=True)
     print(f"  distance      : {experiment_inter_drone_distance_cm(experiment)} cm", flush=True)
+    if uses_soc_target_protocol(experiment):
+        print(
+            f"  SOC mode      : {experiment_soc_mode(experiment)} "
+            f"(land at {experiment_target_soc_percent(experiment) + SOC_TARGET_TOLERANCE_PERCENT}%; "
+            f"target {experiment_target_soc_percent(experiment)}% + {SOC_TARGET_TOLERANCE_PERCENT}%)",
+            flush=True,
+        )
     print(f"  x spacing     : {experiment_column_spacing_cm(experiment)} cm", flush=True)
     for config in configs:
         print(
@@ -2378,14 +3117,15 @@ def run_collection(experiment_id):
     logger_thread = None
     experiment_start_time = time.time()
     takeoff_started = False
+    landed = False
     node_progress = {"total_segments": 0, "started_segments": 0, "completed_segments": 0}
 
     try:
         print("\nPreflight: connecting and checking all drones...", flush=True)
-        _, high_battery = connect_and_check(swarm, configs)
+        preflight_readings, high_battery = connect_and_check(swarm, configs, experiment=experiment)
         prepare_formal_takeoff_state(swarm, configs)
 
-        while high_battery:
+        while high_battery and not uses_soc_target_protocol(experiment):
             print(
                 "\nSome drones are above the experiment battery window "
                 f"({BATTERY_WINDOW_LOW_PERCENT}-{BATTERY_WINDOW_HIGH_PERCENT}%).",
@@ -2417,35 +3157,190 @@ def run_collection(experiment_id):
                 f"Post-discharge battery window check ({BATTERY_WINDOW_LOW_PERCENT}-{BATTERY_WINDOW_HIGH_PERCENT}% required):",
             )
 
-        prepare_formal_takeoff_state(swarm, configs)
-        print("Preflight checks passed. Formal takeoff state is ready.", flush=True)
+        if uses_soc_target_protocol(experiment):
+            target_soc = experiment_target_soc_percent(experiment)
+            soc_preparation_indices, soc_waiting_indices = partition_soc_preparation_drones(
+                configs,
+                preflight_readings,
+                target_soc,
+            )
+            print(
+                f"Selected SOC mode: {experiment_soc_mode(experiment)}; "
+                f"each drone lands at {target_soc + SOC_TARGET_TOLERANCE_PERCENT}% "
+                f"(target {target_soc}% + {SOC_TARGET_TOLERANCE_PERCENT}%). "
+                "There is no target-minus-two preflight rejection.",
+                flush=True,
+            )
+            if soc_preparation_indices:
+                print(
+                    "Above-target drones selected for separated SOC hover: "
+                    + ", ".join(
+                        f"{configs[idx]['name']}={preflight_readings[configs[idx]['ip']]}%"
+                        for idx in soc_preparation_indices
+                    ),
+                    flush=True,
+                )
+            if soc_waiting_indices:
+                print(
+                    "At-or-below-target drones will remain on the ground and wait: "
+                    + ", ".join(
+                        f"{configs[idx]['name']}={preflight_readings[configs[idx]['ip']]}%"
+                        for idx in soc_waiting_indices
+                    ),
+                    flush=True,
+                )
 
-        print("Press Enter to take off all five drones...", flush=True)
-        input()
+        if uses_soc_target_protocol(experiment):
+            soc_hover_target_readings = dict(preflight_readings)
+            if soc_preparation_indices:
+                prepare_formal_takeoff_state(swarm, configs)
+                print("Preflight checks passed. Selective SOC preparation takeoff is ready.", flush=True)
+                print(
+                    "SOC preparation: place only the above-target drones well separated. "
+                    "Keep every at-or-below-target drone on the ground. Formal pads 2-6 "
+                    "are not used during this preparation takeoff.",
+                    flush=True,
+                )
+                print(
+                    "Press Enter to take off selected above-target drones for SOC preparation hover...",
+                    flush=True,
+                )
+                input()
 
-        set_phase_all("takeoff")
-        print("Taking off all five drones...", flush=True)
-        takeoff_started = True
-        swarm.takeoff()
-        monitor_takeoff_health(swarm, configs, duration=2.5)
+                for idx in soc_preparation_indices:
+                    set_phase(idx, "soc_preparation_takeoff")
+                for idx in soc_waiting_indices:
+                    set_phase(idx, "soc_waiting_grounded")
+                print("Taking off only the selected above-target drones...", flush=True)
+                takeoff_started = True
+                selected_tellos = [(idx, swarm.tellos[idx]) for idx in soc_preparation_indices]
+                run_selected_parallel(
+                    selected_tellos,
+                    "Selective SOC preparation takeoff",
+                    lambda _idx, tello: tello.takeoff(),
+                )
+                monitor_takeoff_health(
+                    swarm,
+                    configs,
+                    duration=2.5,
+                    indices=soc_preparation_indices,
+                )
+                soc_hover_target_readings = hover_until_target_soc(
+                    swarm,
+                    configs,
+                    target_soc,
+                    active_indices=soc_preparation_indices,
+                    initial_readings=preflight_readings,
+                )
+                print(
+                    "Selective SOC preparation complete: "
+                    + " | ".join(
+                        f"{config['name']}={soc_hover_target_readings[config['ip']]}%"
+                        for config in configs
+                    ),
+                    flush=True,
+                )
+                landed = True
+                time.sleep(2.0)
+            else:
+                landed = True
+                set_phase_all("soc_hover_skipped")
+                print(
+                    f"All five drones are already at or below the {target_soc}% target. "
+                    "Skipping the SOC hover-and-land stage completely.",
+                    flush=True,
+                )
 
-        set_phase_all("acquire_start_pad")
-        wait_for_all_expected_start_pads(swarm, configs)
+            prepare_formal_takeoff_state(swarm, configs)
+            set_phase_all("waiting_formal_takeoff")
+            print(
+                "Place all five drones onto formal start pads 2-6, center each drone above "
+                "its pad, and verify that +Y points from row 1 toward row 6.",
+                flush=True,
+            )
+            print(
+                "All five drones are landed. Press Enter to take off all five drones "
+                "together for the formal flight...",
+                flush=True,
+            )
+            input()
 
-        set_phase_all("coordinate_climb")
-        coordinate_climb_on_start_pads(swarm, configs)
+            set_phase_all("formal_takeoff")
+            print("Taking off all five drones together for the formal flight...", flush=True)
+            takeoff_started = True
+            swarm.takeoff()
+            landed = False
+            monitor_takeoff_health(swarm, configs, duration=2.5)
 
-        set_phase_all("pre_node_settle")
-        print(f"Settling for {PRE_NODE_SETTLE_SEC:.1f} seconds before node-to-node flight...", flush=True)
-        time.sleep(PRE_NODE_SETTLE_SEC)
+            set_phase_all("formal_acquire_start_pad")
+            wait_for_all_expected_start_pads(swarm, configs)
+
+            set_phase_all("formal_coordinate_climb")
+            coordinate_climb_on_start_pads(swarm, configs)
+
+            if uses_front_continuous_protocol(experiment):
+                set_phase_all("formal_verify_front_positive_y_setup")
+                validate_front_positive_y_setup(swarm, configs)
+
+            target_readings = read_all_batteries(swarm, configs)
+            print(
+                "Formal-flight takeoff and alignment complete; current SOC: "
+                + " | ".join(
+                    f"{config['name']}={target_readings[config['ip']]}%"
+                    for config in configs
+                ),
+                flush=True,
+            )
+        else:
+            prepare_formal_takeoff_state(swarm, configs)
+            print("Preflight checks passed. Formal takeoff state is ready.", flush=True)
+            if uses_front_continuous_protocol(experiment):
+                print(
+                    "Before confirmation, verify mission pads 2-6 are centered below the drones "
+                    "and every printed +Y axis points down the forward lane.",
+                    flush=True,
+                )
+            print("Press Enter to take off all five drones...", flush=True)
+            input()
+
+            set_phase_all("takeoff")
+            print("Taking off all five drones...", flush=True)
+            takeoff_started = True
+            swarm.takeoff()
+            monitor_takeoff_health(swarm, configs, duration=2.5)
+
+            set_phase_all("acquire_start_pad")
+            wait_for_all_expected_start_pads(swarm, configs)
+
+            set_phase_all("coordinate_climb")
+            coordinate_climb_on_start_pads(swarm, configs)
+
+            if uses_front_continuous_protocol(experiment):
+                set_phase_all("verify_front_positive_y_setup")
+                validate_front_positive_y_setup(swarm, configs)
+
+            set_phase_all("pre_node_settle")
+            print(f"Settling for {PRE_NODE_SETTLE_SEC:.1f} seconds before node-to-node flight...", flush=True)
+            time.sleep(PRE_NODE_SETTLE_SEC)
+            target_readings = read_all_batteries(swarm, configs)
 
         node_start_timestamp = datetime.now().isoformat(timespec="milliseconds")
-        for idx, tello in enumerate(swarm.tellos):
-            hover_start_batteries[configs[idx]["ip"]] = str(tello.get_battery())
-        print("Node-to-node battery baselines captured.", flush=True)
+        for config in configs:
+            hover_start_batteries[config["ip"]] = str(target_readings[config["ip"]])
+        print(
+            "Formal recording battery baselines captured: "
+            + " | ".join(
+                f"{config['name']}={hover_start_batteries[config['ip']]}%"
+                for config in configs
+            ),
+            flush=True,
+        )
 
         set_phase_all("node_logging")
         node_start_time = time.time()
+        recording_start_event = (
+            threading.Event() if uses_front_continuous_protocol(experiment) else None
+        )
         logging_active = True
         logger_thread = threading.Thread(
             target=logger_loop,
@@ -2459,16 +3354,46 @@ def run_collection(experiment_id):
                 drone_paths,
                 experiment_start_time,
                 node_start_time,
+                recording_start_event,
             ),
             daemon=True,
         )
         logger_thread.start()
 
         print("Node-to-node logging started.", flush=True)
-        fly_node_to_node(swarm, configs, progress=node_progress)
+        fly_node_to_node(
+            swarm,
+            configs,
+            progress=node_progress,
+            recording_start_event=recording_start_event,
+        )
 
         formation = str(experiment.get("formation", "")).strip().lower()
-        if formation == "front" or is_echalon_formation(formation) or is_vee_75cm_experiment(experiment):
+        if uses_front_continuous_protocol(experiment):
+            # The streaming controller already stopped logging before its first
+            # zero-velocity command. Land immediately without a recorded hover.
+            set_phase_all("landing_recording_stop")
+            logging_active = False
+            print(
+                "Hard flight deadline reached. Sending landing commands immediately; "
+                "terminal-pad confirmation will not hold the drones in the air.",
+                flush=True,
+            )
+            land_all_with_tolerance(swarm, configs)
+            landed = True
+            if logger_thread:
+                logger_thread.join(timeout=2.0)
+            node_end_timestamp = datetime.now().isoformat(timespec="milliseconds")
+            node_duration = round(time.time() - node_start_time, 3)
+            final_readings = read_all_batteries(swarm, configs)
+            for config in configs:
+                hover_end_batteries[config["ip"]] = str(final_readings[config["ip"]])
+            print(
+                "Continuous flight finished. Formal recording stopped before landing; "
+                "target-pad hover and correction were skipped.",
+                flush=True,
+            )
+        elif formation == "front" or is_echalon_formation(formation) or is_vee_75cm_experiment(experiment):
             set_phase_all("verify_target_pad")
             print("Verifying final target mission pads before automatic landing.", flush=True)
             for idx, tello in enumerate(swarm.tellos):
@@ -2524,16 +3449,18 @@ def run_collection(experiment_id):
             run_id,
         )
 
-        time.sleep(1.5)
         run_completed = True
-        print("Experiment data saved. Landing all drones now.", flush=True)
-        land_all_with_tolerance(swarm, configs)
+        if not landed:
+            time.sleep(1.5)
+            print("Experiment data saved. Landing all drones now.", flush=True)
+            land_all_with_tolerance(swarm, configs)
+            landed = True
         print("Experiment finished.", flush=True)
 
     except (ExperimentStopped, KeyboardInterrupt) as exc:
         logging_active = False
         print(f"\nExperiment stopped: {exc}", flush=True)
-        if takeoff_started:
+        if takeoff_started and not landed:
             safe_land_all(swarm, configs)
         if run_completed:
             print("Experiment data was already saved; keeping output files.", flush=True)
@@ -2548,7 +3475,7 @@ def run_collection(experiment_id):
     except Exception as exc:
         logging_active = False
         print(f"\nERROR: {exc}", flush=True)
-        if takeoff_started:
+        if takeoff_started and not landed:
             try:
                 hold_all_until_stop(swarm, configs, "Error occurred.")
             except (ExperimentStopped, KeyboardInterrupt) as stop_exc:
