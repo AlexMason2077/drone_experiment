@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "expected_drone_count": true,
+    "battery_mapping_matches_all_sources": true,
+    "timestamps_strictly_increasing_per_drone": true,
+    "no_duplicate_drone_timestamp": true,
+    "battery_range_valid": true,
+    "observed_rows_have_source": true,
+    "simulated_rows_are_labelled": true,
+    "simulated_battery_values_are_integers": true
+  },
+  "passed": true,
+  "rows_total": 21375,
+  "rows_observed": 18280,
+  "rows_interpolated": 0,
+  "rows_simulated_tello_battery_bridge": 3095,
+  "rows_per_drone": {
+    "drone_1": 4275,
+    "drone_2": 4275,
+    "drone_3": 4275,
+    "drone_4": 4275,
+    "drone_5": 4275
+  }
+}

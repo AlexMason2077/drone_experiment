@@ -1,0 +1,178 @@
+{
+  "target_experiment_id": "wind_tunnel_front_50_head_lv2_002",
+  "merged_run_id": "20260829_211154_merged_002_005",
+  "created_at": "2026-08-29T21:55:03",
+  "method": "Concatenate observed segments _002, _003 and _005 on a compressed experiment-time axis. Exclude the short abnormal _004 restart attempt. For continuation segments _003 and _005, remove their repeated takeoff, Mission Pad acquisition and coordinated-climb setup rows, keeping data from the first wind_tunnel_hover sample onward. For boundaries with a battery-level difference, simulate Tello-style integer 1% steps using the aggregate discharge rate measured across the included observed segments. Exclude idle/restart wall-clock time and retain original timestamps in source_timestamp.",
+  "source_experiment_ids": [
+    "wind_tunnel_front_50_head_lv2_002",
+    "wind_tunnel_front_50_head_lv2_003",
+    "wind_tunnel_front_50_head_lv2_004",
+    "wind_tunnel_front_50_head_lv2_005"
+  ],
+  "observed_source_experiment_ids": [
+    "wind_tunnel_front_50_head_lv2_002",
+    "wind_tunnel_front_50_head_lv2_003",
+    "wind_tunnel_front_50_head_lv2_005"
+  ],
+  "excluded_interruption_source_experiment_ids": [
+    "wind_tunnel_front_50_head_lv2_004"
+  ],
+  "continuation_setup_trims": [
+    {
+      "experiment_id": "wind_tunnel_front_50_head_lv2_003",
+      "removed_phase_names": [
+        "wind_tunnel_takeoff",
+        "acquire_start_pad",
+        "coordinate_climb"
+      ],
+      "original_start_timestamp": "2026-08-29T21:13:22.245",
+      "kept_from_timestamp": "2026-08-29T21:13:43.661",
+      "removed_duration_sec": 21.416,
+      "removed_rows": 1005
+    },
+    {
+      "experiment_id": "wind_tunnel_front_50_head_lv2_005",
+      "removed_phase_names": [
+        "wind_tunnel_takeoff",
+        "acquire_start_pad",
+        "coordinate_climb"
+      ],
+      "original_start_timestamp": "2026-08-29T21:18:51.995",
+      "kept_from_timestamp": "2026-08-29T21:19:06.543",
+      "removed_duration_sec": 14.548,
+      "removed_rows": 685
+    }
+  ],
+  "source_files": [
+    {
+      "experiment_id": "wind_tunnel_front_50_head_lv2_002",
+      "path": "database/wind_tunnel_front_50_head_lv2_002/wind_tunnel_front_50_head_lv2_002_20260829_211154_all_coordination.csv",
+      "sha256": "2c871926342b1e2d84a578e514ca217ad630eac74df05d7884eb001ff986e117",
+      "rows": 1050,
+      "start": "2026-08-29T21:12:06.395",
+      "end": "2026-08-29T21:12:28.627"
+    },
+    {
+      "experiment_id": "wind_tunnel_front_50_head_lv2_003",
+      "path": "database/wind_tunnel_front_50_head_lv2_003/wind_tunnel_front_50_head_lv2_003_20260829_211319_all_coordination.csv",
+      "sha256": "be79ed7d7da76af96f2d9cffd2f80f2a016b099999a41c6b693d1633aa88e8a7",
+      "rows": 9855,
+      "start": "2026-08-29T21:13:22.245",
+      "end": "2026-08-29T21:16:51.270"
+    },
+    {
+      "experiment_id": "wind_tunnel_front_50_head_lv2_004",
+      "path": "database/wind_tunnel_front_50_head_lv2_004/wind_tunnel_front_50_head_lv2_004_20260829_211741_all_coordination.csv",
+      "sha256": "e865968dcb9a4feac466ef46c0ab0d89b8891a7c0882baa1954c24292e8195bb",
+      "rows": 1885,
+      "start": "2026-08-29T21:17:44.687",
+      "end": "2026-08-29T21:18:24.604"
+    },
+    {
+      "experiment_id": "wind_tunnel_front_50_head_lv2_005",
+      "path": "database/wind_tunnel_front_50_head_lv2_005/wind_tunnel_front_50_head_lv2_005_20260829_211849_all_coordination.csv",
+      "sha256": "d97de515fb72d2d798064f82050993617a11e801e0d00105ee748e85cdce37c0",
+      "rows": 9065,
+      "start": "2026-08-29T21:18:51.995",
+      "end": "2026-08-29T21:22:04.183"
+    }
+  ],
+  "battery_mapping": {
+    "drone_1": "B11",
+    "drone_2": "B10",
+    "drone_3": "B13",
+    "drone_4": "B14",
+    "drone_5": "B12"
+  },
+  "estimated_sample_cadence_sec": 0.106,
+  "gaps": [
+    {
+      "gap_index": 1,
+      "from_experiment_id": "wind_tunnel_front_50_head_lv2_002",
+      "to_experiment_id": "wind_tunnel_front_50_head_lv2_003",
+      "original_start_timestamp": "2026-08-29T21:12:28.627",
+      "original_end_timestamp": "2026-08-29T21:13:43.661",
+      "removed_wall_clock_duration_sec": 75.034,
+      "simulated_tello_bridge_duration_sec": 45.319,
+      "compressed_boundary_interval_sec": 0.106,
+      "simulated_rows": 2135,
+      "observed_discharge_rate_percent_per_sec": {
+        "drone_1": 0.183235,
+        "drone_2": 0.175492,
+        "drone_3": 0.175492,
+        "drone_4": 0.175492,
+        "drone_5": 0.172912
+      },
+      "endpoint_batteries": {
+        "drone_1": {
+          "left": 95.0,
+          "right": 91.0
+        },
+        "drone_2": {
+          "left": 96.0,
+          "right": 87.0
+        },
+        "drone_3": {
+          "left": 86.0,
+          "right": 80.0
+        },
+        "drone_4": {
+          "left": 95.0,
+          "right": 86.0
+        },
+        "drone_5": {
+          "left": 97.0,
+          "right": 85.0
+        }
+      }
+    },
+    {
+      "gap_index": 2,
+      "from_experiment_id": "wind_tunnel_front_50_head_lv2_003",
+      "to_experiment_id": "wind_tunnel_front_50_head_lv2_005",
+      "original_start_timestamp": "2026-08-29T21:16:51.270",
+      "original_end_timestamp": "2026-08-29T21:19:06.543",
+      "removed_wall_clock_duration_sec": 135.273,
+      "simulated_tello_bridge_duration_sec": 20.394,
+      "compressed_boundary_interval_sec": 0.106,
+      "simulated_rows": 960,
+      "observed_discharge_rate_percent_per_sec": {
+        "drone_1": 0.183235,
+        "drone_2": 0.175492,
+        "drone_3": 0.175492,
+        "drone_4": 0.175492,
+        "drone_5": 0.172912
+      },
+      "endpoint_batteries": {
+        "drone_1": {
+          "left": 57.0,
+          "right": 52.0
+        },
+        "drone_2": {
+          "left": 63.0,
+          "right": 60.0
+        },
+        "drone_3": {
+          "left": 57.0,
+          "right": 54.0
+        },
+        "drone_4": {
+          "left": 63.0,
+          "right": 60.0
+        },
+        "drone_5": {
+          "left": 54.0,
+          "right": 50.0
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "coordination": "database/wind_tunnel_front_50_head_lv2_002/wind_tunnel_front_50_head_lv2_002_20260829_211154_merged_002_005_all_coordination.csv",
+    "battery_timeseries": "database/wind_tunnel_front_50_head_lv2_002/wind_tunnel_front_50_head_lv2_002_20260829_211154_merged_002_005_all_battery_timeseries.csv",
+    "battery_summary": "database/wind_tunnel_front_50_head_lv2_002/wind_tunnel_front_50_head_lv2_002_20260829_211154_merged_002_005_all_battery.csv",
+    "provenance_plot": "database/wind_tunnel_front_50_head_lv2_002/plots/all_battery_merged_provenance.png"
+  },
+  "scientific_caveat": "Rows labelled simulated_tello_battery_bridge are modeled, not measured. Their battery values follow Tello's integer reporting pattern and observed swarm discharge rate; position, attitude, velocity, acceleration and temperature remain blank. The compressed axis is experiment time, not original wall-clock time.",
+  "registry_backup": "database/experiment_registry.before_20260829_211154_merged_002_005.json"
+}

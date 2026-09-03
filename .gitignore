@@ -21,8 +21,16 @@ node_modules
 database_csv/
 db_copy_for_cleaning/
 
-# Experiment records and generated analysis stay local unless explicitly added
-database/
+# Experiment data is versioned, but generated experiment images stay local
+database/**/*.png
+database/**/*.jpg
+database/**/*.jpeg
+database/**/*.gif
+database/**/*.webp
+database/**/*.bmp
+database/**/*.tif
+database/**/*.tiff
+database/**/*.svg
 analysis_outputs/
 outputs/
 output_graph/
