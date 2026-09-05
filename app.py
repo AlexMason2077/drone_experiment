@@ -3927,7 +3927,7 @@ INDEX_TEMPLATE = """
             </label>
             <div class="mission-board">
               <h3 style="margin-top:0;">Fixed Mission Pad Assignment</h3>
-              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. For 75 cm, the selected front, vee, echelon, column, or diamond coordinates are applied automatically. Wind flow: head +Y→-Y; tail -Y→+Y; side +X→-X (←). All five take off together; each lands independently at 20%.</div>
+              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Every printed rocket (+pad X) and aircraft nose points global +X (right). Wind flow: head +X→-X; tail -X→+X; side +Y→-Y. For 75 cm side wind: column runs 5→6→7→8→1 along +X; diamond has Pad 7 at centre with 8 top, 6 bottom, 5 left, 1 right; vee has Pad 7 at the +X apex, 75 cm between adjacent pad centres, and a 90° included angle; echelon has Pad 1 nearest the +Y fan and Pad 5 farthest, with adjacent centres 75 cm apart on a 45° diagonal. All five take off together; each lands independently at 20%.</div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;">
                 {% for drone_number, ip_suffix in drone_options %}
                   <div class="pad-cell active">
@@ -5340,4 +5340,4 @@ CONDITION_TEMPLATE = """
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=9000, debug=True)

@@ -41,7 +41,9 @@ def outlier_experiment_ids():
 
 
 def latest_file(folder, pattern):
-    files = sorted(folder.glob(pattern), key=lambda path: path.stat().st_mtime, reverse=True)
+    # Archive filenames contain the run timestamp.  Sorting by name keeps the
+    # newest run stable even when an older CSV is corrected and its mtime changes.
+    files = sorted(folder.glob(pattern), key=lambda path: path.name, reverse=True)
     return files[0] if files else None
 
 

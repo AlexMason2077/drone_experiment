@@ -1081,7 +1081,24 @@ def to_global(config, state, preferred_row=None):
     origin_x, origin_y = pad_origin_for_detection(config, mid, preferred_row=preferred_row)
     if origin_x is None or origin_y is None:
         return None, None, None
-    return origin_x + state["x"], origin_y + state["y"], state["z"]
+    # Most experiments lay the printed Mission Pad X/Y axes directly on the
+    # configured global X/Y axes.  A physical setup can override that basis.
+    # This is needed when a physical setup rotates a pad relative to the
+    # experiment's global frame. The Mission Pad rocket marks +pad X.
+    pad_axes = config.get("mission_pad_axes_global")
+    if not pad_axes:
+        return origin_x + state["x"], origin_y + state["y"], state["z"]
+    try:
+        pad_x_axis, pad_y_axis = pad_axes
+        local_x = float(state["x"])
+        local_y = float(state["y"])
+        return (
+            origin_x + local_x * float(pad_x_axis[0]) + local_y * float(pad_y_axis[0]),
+            origin_y + local_x * float(pad_x_axis[1]) + local_y * float(pad_y_axis[1]),
+            state["z"],
+        )
+    except (TypeError, ValueError, IndexError):
+        return None, None, None
 
 
 def spacing_stats(configs, positions):

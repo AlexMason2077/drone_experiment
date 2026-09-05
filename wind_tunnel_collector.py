@@ -24,13 +24,24 @@ FIXED_PAD_Z_KP = 0.3
 FIXED_PAD_MIN_XY_CONTROL = 6
 FIXED_PAD_MAX_XY_CONTROL = 12
 FIXED_PAD_MAX_Z_CONTROL = 8
+MISSION_PAD_CAMERA_YAW_BASELINE_DEG = 180.0
+MISSION_PAD_HEADING_TOLERANCE_DEG = 35.0
 GROUND_HEIGHT_THRESHOLD_CM = 15
 GROUND_CONFIRMATION_HITS = 8
 WIND_FLOW_DESCRIPTIONS = {
-    "head wind": "source at +Y; airflow +Y -> -Y",
-    "tail wind": "source at -Y; airflow -Y -> +Y",
-    "side wind": "source at +X; airflow +X -> -X",
+    "head wind": "source at +X; airflow +X -> -X (against the nose)",
+    "tail wind": "source at -X; airflow -X -> +X (from behind)",
+    "side wind": "source at +Y; airflow +Y -> -Y (down the pad line)",
 }
+
+# Physical frame shown on the Wind Tunnel floor plan:
+#   * Pad 5 -> 6 -> 7 -> 8 -> 1 runs from global -Y to +Y.
+#   * The official Mission Pad guide defines the printed rocket as +pad X.
+#   * Each printed rocket therefore points global +X.
+#   * Each aircraft nose also points global +X.
+# Consequently +pad Y is global +Y, while aircraft body-right is global -Y.
+FRONT_PAD_X_AXIS_GLOBAL = (1.0, 0.0)
+FRONT_PAD_Y_AXIS_GLOBAL = (0.0, 1.0)
 
 # Wind Tunnel Vee geometry from left/rear to centre/front to right/rear.
 # Each adjacent pair is exactly 75 cm apart along a 45-degree arm.
@@ -42,12 +53,26 @@ WIND_TUNNEL_VEE_75_POSITIONS_CM = [
     (3.0 * VEE_75_ARM_PROJECTION_CM, VEE_75_ARM_PROJECTION_CM),
     (4.0 * VEE_75_ARM_PROJECTION_CM, 0.0),
 ]
+WIND_TUNNEL_VEE_75_SIDE_POSITIONS_CM = [
+    (0.0, 0.0),
+    (VEE_75_ARM_PROJECTION_CM, VEE_75_ARM_PROJECTION_CM),
+    (2.0 * VEE_75_ARM_PROJECTION_CM, 2.0 * VEE_75_ARM_PROJECTION_CM),
+    (VEE_75_ARM_PROJECTION_CM, 3.0 * VEE_75_ARM_PROJECTION_CM),
+    (0.0, 4.0 * VEE_75_ARM_PROJECTION_CM),
+]
 WIND_TUNNEL_ECHALON_75_POSITIONS_CM = [
     (0.0, 4.0 * VEE_75_ARM_PROJECTION_CM),
     (VEE_75_ARM_PROJECTION_CM, 3.0 * VEE_75_ARM_PROJECTION_CM),
     (2.0 * VEE_75_ARM_PROJECTION_CM, 2.0 * VEE_75_ARM_PROJECTION_CM),
     (3.0 * VEE_75_ARM_PROJECTION_CM, VEE_75_ARM_PROJECTION_CM),
     (4.0 * VEE_75_ARM_PROJECTION_CM, 0.0),
+]
+WIND_TUNNEL_ECHALON_75_SIDE_POSITIONS_CM = [
+    (4.0 * VEE_75_ARM_PROJECTION_CM, 0.0),      # Drone 1 / Pad 5: farthest
+    (3.0 * VEE_75_ARM_PROJECTION_CM, VEE_75_ARM_PROJECTION_CM),
+    (2.0 * VEE_75_ARM_PROJECTION_CM, 2.0 * VEE_75_ARM_PROJECTION_CM),
+    (VEE_75_ARM_PROJECTION_CM, 3.0 * VEE_75_ARM_PROJECTION_CM),
+    (0.0, 4.0 * VEE_75_ARM_PROJECTION_CM),      # Drone 5 / Pad 1: nearest fan
 ]
 WIND_TUNNEL_COLUMN_75_POSITIONS_CM = [
     (0.0, 300.0),
@@ -56,12 +81,26 @@ WIND_TUNNEL_COLUMN_75_POSITIONS_CM = [
     (0.0, 75.0),
     (0.0, 0.0),
 ]
+WIND_TUNNEL_COLUMN_75_SIDE_POSITIONS_CM = [
+    (0.0, 0.0),
+    (75.0, 0.0),
+    (150.0, 0.0),
+    (225.0, 0.0),
+    (300.0, 0.0),
+]
 WIND_TUNNEL_DIAMOND_75_POSITIONS_CM = [
     (75.0, 0.0),    # Drone 1 / Pad 5: rear
     (0.0, 75.0),    # Drone 2 / Pad 6: left
     (75.0, 75.0),   # Drone 3 / Pad 7: centre
     (150.0, 75.0),  # Drone 4 / Pad 8: right
     (75.0, 150.0),  # Drone 5 / Pad 1: front
+]
+WIND_TUNNEL_DIAMOND_75_SIDE_POSITIONS_CM = [
+    (0.0, 75.0),    # Drone 1 / Pad 5: left
+    (75.0, 0.0),    # Drone 2 / Pad 6: bottom
+    (75.0, 75.0),   # Drone 3 / Pad 7: centre
+    (75.0, 150.0),  # Drone 4 / Pad 8: top
+    (150.0, 75.0),  # Drone 5 / Pad 1: right/front
 ]
 
 
@@ -72,30 +111,52 @@ def build_configs(experiment):
     formation = str(experiment.get("formation", "front")).strip().lower()
     spacing = dc.experiment_inter_drone_distance_cm(experiment)
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
-    front_75 = formation == "front" and spacing == 75
+    front = formation == "front"
+    front_side = front and wind_direction == "side wind"
     vee_75 = formation == "vee" and spacing == 75
     echalon_75 = dc.is_echalon_formation(formation) and spacing == 75
     column_75 = formation == "column" and spacing == 75
     diamond_75 = formation == "diamond" and spacing == 75
+    vee_75_side = vee_75 and wind_direction == "side wind"
+    echalon_75_side = echalon_75 and wind_direction == "side wind"
+    column_75_side = column_75 and wind_direction == "side wind"
+    diamond_75_side = diamond_75 and wind_direction == "side wind"
+    side_75_rocket_x_layout = (
+        vee_75_side or echalon_75_side or column_75_side or diamond_75_side
+    )
     wind_tunnel_pads = [5, 6, 7, 8, 1]
     fixed_positions = []
     for idx in range(len(wind_tunnel_pads)):
-        if front_75:
-            # Physical order Pad 5 -> 6 -> 7 -> 8 -> 1 follows global +X.
-            # The wind direction changes the fan side, not these pad centres.
-            fixed_positions.append((idx * 75, 0))
+        if front:
+            # Actual floor layout: Pad 5 is at the global -Y end and Pad 1 is
+            # at the +Y end.  Rocket/nose direction is global +X (right).
+            fixed_positions.append((0, idx * spacing))
+        elif vee_75_side:
+            # Pad 7 is the +X apex. Each arm step is 75 cm and the included
+            # angle between Pad 7->6 and Pad 7->8 is exactly 90 degrees.
+            fixed_positions.append(WIND_TUNNEL_VEE_75_SIDE_POSITIONS_CM[idx])
         elif vee_75:
             # Physical Vee layout: pads 5,6,7,8,1. Pad 7 is the +Y apex;
             # printed Mission Pad arrows face +X and every aircraft nose faces +Y.
             fixed_positions.append(WIND_TUNNEL_VEE_75_POSITIONS_CM[idx])
+        elif echalon_75_side:
+            # Pad 1 is nearest the +Y fan and Pad 5 is farthest. Adjacent pad
+            # centres are 75 cm apart on a 45-degree diagonal.
+            fixed_positions.append(WIND_TUNNEL_ECHALON_75_SIDE_POSITIONS_CM[idx])
         elif echalon_75:
             # Physical echelon layout: pads 5,6,7,8,1 descend along +X/-Y;
             # printed Mission Pad arrows face +X and every aircraft nose faces +Y.
             fixed_positions.append(WIND_TUNNEL_ECHALON_75_POSITIONS_CM[idx])
+        elif column_75_side:
+            # Pad 5 -> 6 -> 7 -> 8 -> 1 runs left-to-right along global +X.
+            fixed_positions.append(WIND_TUNNEL_COLUMN_75_SIDE_POSITIONS_CM[idx])
         elif column_75:
             # Physical column layout: pads 5,6,7,8,1 descend along -Y;
             # all pad centres share the same global X coordinate.
             fixed_positions.append(WIND_TUNNEL_COLUMN_75_POSITIONS_CM[idx])
+        elif diamond_75_side:
+            # Pad 7 centre; Pad 8 top, Pad 6 bottom, Pad 5 left, Pad 1 right.
+            fixed_positions.append(WIND_TUNNEL_DIAMOND_75_SIDE_POSITIONS_CM[idx])
         elif diamond_75:
             # Physical diamond layout: Pad 7 is the centre, with Pads 5,6,8,1
             # respectively 75 cm to its -Y, -X, +X, and +Y sides.
@@ -126,6 +187,19 @@ def build_configs(experiment):
             "mission_pad": mission_pad,
             "mission_pad_columns": [[5], [6], [7], [8], [1]],
             "pad_origins_cm": pad_origins_cm,
+            "mission_pad_axes_global": (
+                (FRONT_PAD_X_AXIS_GLOBAL, FRONT_PAD_Y_AXIS_GLOBAL)
+                if front
+                else ((1.0, 0.0), (0.0, 1.0))
+            ),
+            "mission_pad_yaw_baseline_deg": MISSION_PAD_CAMERA_YAW_BASELINE_DEG,
+            "pad_x_aligned_with_body_forward": front or side_75_rocket_x_layout,
+            "lateral_only_cross_pad_recovery": front_side,
+            "mission_pad_heading_tolerance_deg": (
+                MISSION_PAD_HEADING_TOLERANCE_DEG
+                if front or side_75_rocket_x_layout
+                else None
+            ),
             "formation": formation,
             "wind_direction": wind_direction,
             "wind_speed": str(experiment.get("wind_speed", "")).strip().lower(),
@@ -169,6 +243,11 @@ def _minimum_effective_control(value, error):
     return FIXED_PAD_MIN_XY_CONTROL if error > 0 else -FIXED_PAD_MIN_XY_CONTROL
 
 
+def _signed_angle_degrees(value):
+    """Normalize an angle to [-180, 180)."""
+    return (float(value) + 180.0) % 360.0 - 180.0
+
+
 def fixed_pad_hover_command(config, state):
     """Return one small correction toward the assigned Mission Pad centre."""
     observed_pad = int(state.get("mid", -1))
@@ -177,57 +256,102 @@ def fixed_pad_hover_command(config, state):
     if observed_pad == -1 or observed_pad not in pad_origins or assigned_pad not in pad_origins:
         return [0, 0, 0, 0]
 
-    local_x = float(state.get("x") or 0.0)
-    local_y = float(state.get("y") or 0.0)
     pad_z = float(state.get("z") or 0.0)
     pad_yaw = state.get("mission_pad_yaw")
     if pad_yaw is None:
         return [0, 0, 0, 0]
 
-    observed_origin_x, observed_origin_y = pad_origins[observed_pad]
     assigned_origin_x, assigned_origin_y = pad_origins[assigned_pad]
-    current_global_x = float(observed_origin_x) + local_x
-    current_global_y = float(observed_origin_y) + local_y
+    current_global_x, current_global_y, _ = dc.to_global(config, state)
+    if current_global_x is None or current_global_y is None:
+        return [0, 0, 0, 0]
     error_x = float(assigned_origin_x) - current_global_x
     error_y = float(assigned_origin_y) - current_global_y
 
+    # Project the global error back into the printed pad frame.  For the
+    # front layout this correctly maps global side-wind displacement (+/-Y)
+    # to the aircraft's left/right RC channel.
+    pad_x_axis, pad_y_axis = config.get(
+        "mission_pad_axes_global",
+        ((1.0, 0.0), (0.0, 1.0)),
+    )
+    pad_error_x = error_x * float(pad_x_axis[0]) + error_y * float(pad_x_axis[1])
+    pad_error_y = error_x * float(pad_y_axis[0]) + error_y * float(pad_y_axis[1])
+    lateral_only_recovery = (
+        observed_pad != assigned_pad
+        and config.get("lateral_only_cross_pad_recovery", False)
+    )
+    if lateral_only_recovery:
+        # A pad-ID transition can make its longitudinal local X jump by tens of
+        # centimetres. Do not turn that discontinuity into a forward/backward
+        # command. First return along global Y to the assigned pad; normal
+        # two-axis centering resumes as soon as that pad is detected again.
+        pad_error_x = 0.0
+
     pad_command_x = 0
-    if abs(error_x) > FIXED_PAD_XY_TOLERANCE_CM:
+    if abs(pad_error_x) > FIXED_PAD_XY_TOLERANCE_CM:
         pad_command_x = int(round(dc.clamp(
-            FIXED_PAD_XY_KP * error_x,
+            FIXED_PAD_XY_KP * pad_error_x,
             -FIXED_PAD_MAX_XY_CONTROL,
             FIXED_PAD_MAX_XY_CONTROL,
         )))
-        pad_command_x = _minimum_effective_control(pad_command_x, error_x)
+        pad_command_x = _minimum_effective_control(pad_command_x, pad_error_x)
 
     pad_command_y = 0
-    if abs(error_y) > FIXED_PAD_XY_TOLERANCE_CM:
+    if abs(pad_error_y) > FIXED_PAD_XY_TOLERANCE_CM:
         pad_command_y = int(round(dc.clamp(
-            FIXED_PAD_XY_KP * error_y,
+            FIXED_PAD_XY_KP * pad_error_y,
             -FIXED_PAD_MAX_XY_CONTROL,
             FIXED_PAD_MAX_XY_CONTROL,
         )))
-        pad_command_y = _minimum_effective_control(pad_command_y, error_y)
+        pad_command_y = _minimum_effective_control(pad_command_y, pad_error_y)
 
     # Tello's downward-facing Mission Pad attitude reports approximately
     # +/-180 degrees when the aircraft's RC axes are aligned with the pad
     # axes.  Remove that camera-frame baseline before rotating the pad-frame
     # correction into the aircraft body frame.  Using mpry yaw directly here
     # reverses both x/y corrections and pushes a displaced drone farther away.
-    control_yaw_degrees = (float(pad_yaw) % 360.0) - 180.0
+    yaw_baseline = float(config.get(
+        "mission_pad_yaw_baseline_deg",
+        MISSION_PAD_CAMERA_YAW_BASELINE_DEG,
+    ))
+    control_yaw_degrees = _signed_angle_degrees(float(pad_yaw) - yaw_baseline)
+    heading_tolerance = config.get("mission_pad_heading_tolerance_deg")
+    if heading_tolerance is not None and abs(control_yaw_degrees) > float(heading_tolerance):
+        # A rotated aircraft would map correction onto the wrong RC axis. Hold
+        # instead of issuing a potentially collision-inducing command.
+        return [0, 0, 0, 0]
     yaw_radians = math.radians(control_yaw_degrees)
     cos_yaw = math.cos(yaw_radians)
     sin_yaw = math.sin(yaw_radians)
-    left_right = int(round(dc.clamp(
-        pad_command_x * cos_yaw - pad_command_y * sin_yaw,
-        -FIXED_PAD_MAX_XY_CONTROL,
-        FIXED_PAD_MAX_XY_CONTROL,
-    )))
-    forward_back = int(round(dc.clamp(
-        pad_command_x * sin_yaw + pad_command_y * cos_yaw,
-        -FIXED_PAD_MAX_XY_CONTROL,
-        FIXED_PAD_MAX_XY_CONTROL,
-    )))
+    if config.get("pad_x_aligned_with_body_forward", False):
+        # With rocket/nose at global +X:
+        #   pad +X = body forward, pad +Y = body left = -body right.
+        # control_yaw is the small aircraft heading error after removing the
+        # downward-camera's 180-degree baseline.
+        left_right = int(round(dc.clamp(
+            -pad_command_x * sin_yaw - pad_command_y * cos_yaw,
+            -FIXED_PAD_MAX_XY_CONTROL,
+            FIXED_PAD_MAX_XY_CONTROL,
+        )))
+        forward_back = int(round(dc.clamp(
+            pad_command_x * cos_yaw - pad_command_y * sin_yaw,
+            -FIXED_PAD_MAX_XY_CONTROL,
+            FIXED_PAD_MAX_XY_CONTROL,
+        )))
+    else:
+        left_right = int(round(dc.clamp(
+            pad_command_x * cos_yaw - pad_command_y * sin_yaw,
+            -FIXED_PAD_MAX_XY_CONTROL,
+            FIXED_PAD_MAX_XY_CONTROL,
+        )))
+        forward_back = int(round(dc.clamp(
+            pad_command_x * sin_yaw + pad_command_y * cos_yaw,
+            -FIXED_PAD_MAX_XY_CONTROL,
+            FIXED_PAD_MAX_XY_CONTROL,
+        )))
+    if lateral_only_recovery:
+        forward_back = 0
 
     up_down = 0
     if pad_z > 0 and abs(dc.TAKEOFF_HEIGHT_CM - pad_z) > FIXED_PAD_Z_TOLERANCE_CM:
@@ -283,21 +407,31 @@ def run_fixed_pad_hover_control(
                 status = []
                 for idx in active_indices:
                     state = states[idx]
-                    if int(state.get("mid", -1)) == int(configs[idx]["mission_pad"]):
-                        status.append(
-                            f"{configs[idx]['name']} m{state['mid']} "
-                            f"local=({state['x']},{state['y']},{state['z']}) "
-                            f"rc={tuple(commands[idx][:3])}"
+                    mid = int(state.get("mid", -1))
+                    mpyaw = state.get("mission_pad_yaw")
+                    cmd = commands[idx]
+                    heading_note = ""
+                    heading_tolerance = configs[idx].get("mission_pad_heading_tolerance_deg")
+                    if mpyaw is not None and heading_tolerance is not None:
+                        heading_error = _signed_angle_degrees(
+                            float(mpyaw) - float(configs[idx]["mission_pad_yaw_baseline_deg"])
                         )
-                    elif int(state.get("mid", -1)) in configs[idx].get("pad_origins_cm", {}):
+                        if abs(heading_error) > float(heading_tolerance):
+                            heading_note = " HEADING_MISMATCH_HOLD"
+                    if mid == int(configs[idx]["mission_pad"]):
                         status.append(
-                            f"{configs[idx]['name']} expects m{configs[idx]['mission_pad']} "
-                            f"sees m{state['mid']} RECOVER rc={tuple(commands[idx][:3])}"
+                            f"{configs[idx]['name']} m{mid} "
+                            f"local=({state['x']},{state['y']}) yaw={mpyaw} "
+                            f"rc={tuple(cmd[:3])}{heading_note}"
+                        )
+                    elif mid >= 0:
+                        status.append(
+                            f"{configs[idx]['name']} sees_m{mid} expects_m{configs[idx]['mission_pad']} "
+                            f"yaw={mpyaw} rc={tuple(cmd[:3])}{heading_note}"
                         )
                     else:
                         status.append(
-                            f"{configs[idx]['name']} expects m{configs[idx]['mission_pad']} "
-                            f"sees m{state['mid']} HOLD"
+                            f"{configs[idx]['name']} NO_PAD_DETECTED yaw={mpyaw} rc={tuple(cmd[:3])}"
                         )
                 print("  STATION KEEPING: " + " | ".join(status), flush=True)
                 last_report = elapsed
@@ -340,6 +474,47 @@ def run(experiment_id):
 
     print(f"Wind Tunnel experiment: {experiment_id}", flush=True)
     print(f"Formation={experiment['formation']}, distance={experiment['inter_drone_distance_cm']}cm, wind={experiment['wind_direction']} / {experiment['wind_speed']}", flush=True)
+    if str(experiment.get("formation", "")).strip().lower() == "front":
+        print(
+            "Front physical frame: Pad 5 -> 6 -> 7 -> 8 -> 1 runs bottom-to-top "
+            "along global +Y; every pad rocket (+pad X) and aircraft nose points "
+            "global +X (right).",
+            flush=True,
+        )
+    elif (
+        dc.experiment_inter_drone_distance_cm(experiment) == 75
+        and str(experiment.get("wind_direction", "")).strip().lower() == "side wind"
+    ):
+        side_layouts = {
+            "vee": (
+                "Vee: Pad 7 is the +X apex; 5-6-7 and 1-8-7 form the two arms; "
+                "adjacent centres are 75 cm and the included angle is 90 degrees."
+            ),
+            "diamond": (
+                "Diamond: Pad 7 centre, Pad 8 top, Pad 6 bottom, Pad 5 left, "
+                "Pad 1 right; centre-to-outer-pad distance is 75 cm."
+            ),
+            "column": "Column: Pad 5 -> 6 -> 7 -> 8 -> 1 runs left-to-right along global +X at 75 cm spacing.",
+            "echalon": (
+                "Echelon: Pad 1 is nearest the +Y fan and Pad 5 is farthest; "
+                "1-8-7-6-5 follows a 45-degree diagonal with 75 cm between adjacent centres."
+            ),
+            "echelon": (
+                "Echelon: Pad 1 is nearest the +Y fan and Pad 5 is farthest; "
+                "1-8-7-6-5 follows a 45-degree diagonal with 75 cm between adjacent centres."
+            ),
+            "echolon": (
+                "Echelon: Pad 1 is nearest the +Y fan and Pad 5 is farthest; "
+                "1-8-7-6-5 follows a 45-degree diagonal with 75 cm between adjacent centres."
+            ),
+        }
+        description = side_layouts.get(str(experiment.get("formation", "")).strip().lower())
+        if description:
+            print(
+                "75 cm side-wind layout: " + description + " "
+                "Every pad rocket (+pad X) and aircraft nose points global +X (right).",
+                flush=True,
+            )
     print(
         "Physical wind direction: "
         + WIND_FLOW_DESCRIPTIONS.get(
@@ -370,7 +545,19 @@ def run(experiment_id):
         print("Preflight: connecting and enabling downward Mission Pad detection...", flush=True)
         dc.connect_and_check(swarm, configs, experiment=None)
         dc.prepare_formal_takeoff_state(swarm, configs)
-        print("Place drone 1-5 above Mission Pads 5,6,7,8,1 respectively. Press Enter to take off all five drones...", flush=True)
+        if str(experiment.get("formation", "")).strip().lower() == "front":
+            print(
+                "Place drone 1-5 above Mission Pads 5,6,7,8,1 bottom-to-top. "
+                "Confirm every pad rocket (+pad X) and aircraft nose points right (+X). "
+                "Press Enter to take off all five drones...",
+                flush=True,
+            )
+        else:
+            print(
+                "Place drone 1-5 above Mission Pads 5,6,7,8,1 respectively. "
+                "Press Enter to take off all five drones...",
+                flush=True,
+            )
         input()
 
         # Start the formal time series immediately before the takeoff command.
