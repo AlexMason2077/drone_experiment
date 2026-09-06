@@ -8,8 +8,15 @@ The controller then chooses a new configuration c = (f, p, d).
 
 The mission begins at Node A with every drone at 100% and ends when every
 drone has been fully charged at Node B.  The objective used at each online
-decision is an estimate of reconfiguration time plus the Node-B charging
-completion time implied by the candidate configuration.
+decision is a two-stage estimate:
+
+1. formation, current wind, and SOC determine flight energy and crossing time;
+2. predicted arrival SOC and charging-pad availability determine charging and
+   queueing time.
+
+The total is crossing time plus reconfiguration time plus the Node-B charging
+completion time.  Charging-pad availability is deliberately absent from the
+energy and crossing-time model interfaces.
 
 This is a research draft.  The demonstration energy, charging, and switching
 parameters are fictional and must later be calibrated from experimental data.
@@ -82,6 +89,7 @@ class OnlineDecision:
     predicted_battery_drop: tuple[float, ...]
     projected_battery: tuple[float, ...]
     reconfiguration_seconds: float
+    projected_flight_seconds: float
     projected_charging_seconds: float
     online_score_seconds: float
 
@@ -114,6 +122,18 @@ class EnergyModel(Protocol):
 class ChargingModel(Protocol):
     def seconds_to_full(self, current_soc: float) -> float:
         """Return charging time from ``current_soc`` to fully charged."""
+
+
+class CrossingTimeModel(Protocol):
+    """Formation-aware model for the remaining flight/crossing time."""
+
+    def predict_crossing_seconds(
+        self,
+        condition: WindCondition,
+        configuration: Configuration,
+        distance_m: float,
+    ) -> float:
+        """Return predicted seconds to cross ``distance_m``."""
 
 
 @dataclass(frozen=True)
@@ -178,6 +198,44 @@ class ParametricEnergyModel:
             )
 
         return tuple(drop_by_drone[drone] for drone in drone_ids)
+
+
+@dataclass(frozen=True)
+class ParametricCrossingTimeModel:
+    """Interpretable formation- and wind-dependent crossing-time model.
+
+    The factor maps are a lightweight interface for measured or fitted values.
+    In the validated analysis the factors are replaced by the selected
+    crossing-time regressor; the demonstration builder below remains explicitly
+    fictional.
+    """
+
+    base_seconds_per_meter: float
+    condition_factors: Mapping[tuple[str, int], float]
+    formation_factors: Mapping[tuple[str, str], float]
+    distance_factors: Mapping[int, float]
+
+    def predict_crossing_seconds(
+        self,
+        condition: WindCondition,
+        configuration: Configuration,
+        distance_m: float,
+    ) -> float:
+        if distance_m <= 0:
+            raise ValueError("distance_m must be positive")
+        direction = condition.wind_direction.lower()
+        seconds = (
+            self.base_seconds_per_meter
+            * distance_m
+            * self.condition_factors.get((direction, condition.wind_level), 1.0)
+            * self.formation_factors.get(
+                (direction, configuration.formation.lower()), 1.0
+            )
+            * self.distance_factors.get(configuration.distance_cm, 1.0)
+        )
+        if seconds <= 0:
+            raise ValueError("predicted crossing time must be positive")
+        return float(seconds)
 
 
 @dataclass(frozen=True)
@@ -322,6 +380,7 @@ class OnlineConfigurationController:
         *,
         charging_pad_availability: int,
         energy_model: EnergyModel,
+        crossing_time_model: CrossingTimeModel,
         charging_model: ChargingModel,
         candidate_configurations: Sequence[Configuration],
         reconfiguration_model: ReconfigurationModel | None = None,
@@ -342,6 +401,7 @@ class OnlineConfigurationController:
         self.drone_ids = tuple(drone_ids)
         self.charging_pad_availability = charging_pad_availability
         self.energy_model = energy_model
+        self.crossing_time_model = crossing_time_model
         self.charging_model = charging_model
         self.candidate_configurations = tuple(candidate_configurations)
         self.reconfiguration_model = (
@@ -488,8 +548,17 @@ class OnlineConfigurationController:
     ) -> OnlineDecision:
         assert self._current_battery is not None
 
-        feasible: list[tuple[float, Configuration, tuple[float, ...],
-                            tuple[float, ...], float, float]] = []
+        feasible: list[
+            tuple[
+                float,
+                Configuration,
+                tuple[float, ...],
+                tuple[float, ...],
+                float,
+                float,
+                float,
+            ]
+        ] = []
         for candidate in self.candidate_configurations:
             flight_drop = self.energy_model.predict_battery_drop(
                 condition=condition,
@@ -516,10 +585,19 @@ class OnlineConfigurationController:
             if min(projected_battery) < self.minimum_soc:
                 continue
 
+            projected_flight_seconds = self.crossing_time_model.predict_crossing_seconds(
+                condition=condition,
+                configuration=candidate,
+                distance_m=self.evaluation_distance_m,
+            )
             projected_charging_seconds, _ = self._charging_result(
                 projected_battery
             )
-            score = switch_seconds + projected_charging_seconds
+            score = (
+                switch_seconds
+                + projected_flight_seconds
+                + projected_charging_seconds
+            )
             feasible.append(
                 (
                     score,
@@ -527,6 +605,7 @@ class OnlineConfigurationController:
                     predicted_drop,
                     projected_battery,
                     switch_seconds,
+                    projected_flight_seconds,
                     projected_charging_seconds,
                 )
             )
@@ -542,6 +621,7 @@ class OnlineConfigurationController:
             predicted_drop,
             projected_battery,
             switch_seconds,
+            projected_flight_seconds,
             projected_charging_seconds,
         ) = min(feasible, key=lambda item: item[0])
 
@@ -564,6 +644,7 @@ class OnlineConfigurationController:
             predicted_battery_drop=predicted_drop,
             projected_battery=projected_battery,
             reconfiguration_seconds=switch_seconds,
+            projected_flight_seconds=projected_flight_seconds,
             projected_charging_seconds=projected_charging_seconds,
             online_score_seconds=score,
         )
@@ -648,6 +729,34 @@ def build_demonstration_energy_model() -> ParametricEnergyModel:
     )
 
 
+def build_demonstration_crossing_time_model() -> ParametricCrossingTimeModel:
+    """Create fictional time factors solely to demonstrate controller flow."""
+
+    return ParametricCrossingTimeModel(
+        base_seconds_per_meter=10.0,
+        condition_factors={
+            ("head", 1): 1.08,
+            ("head", 2): 1.18,
+            ("side", 1): 1.05,
+            ("side", 2): 1.12,
+            ("tail", 1): 0.98,
+            ("tail", 2): 1.02,
+        },
+        formation_factors={
+            ("head", "vee"): 0.96,
+            ("head", "column"): 1.10,
+            ("head", "echelon"): 1.00,
+            ("side", "vee"): 1.04,
+            ("side", "column"): 1.14,
+            ("side", "echelon"): 0.98,
+            ("tail", "vee"): 1.03,
+            ("tail", "column"): 1.12,
+            ("tail", "echelon"): 0.97,
+        },
+        distance_factors={50: 1.02, 75: 0.99},
+    )
+
+
 def build_example_controller() -> OnlineConfigurationController:
     """Construct a runnable controller using demonstration parameters."""
 
@@ -660,6 +769,7 @@ def build_example_controller() -> OnlineConfigurationController:
     return OnlineConfigurationController(
         charging_pad_availability=2,
         energy_model=build_demonstration_energy_model(),
+        crossing_time_model=build_demonstration_crossing_time_model(),
         charging_model=ExponentialChargingModel(),
         candidate_configurations=candidates,
         drone_ids=drone_ids,
@@ -682,6 +792,7 @@ def print_decision(decision: OnlineDecision) -> None:
         f"distance={configuration.distance_cm} cm"
     )
     print(f"  position: {configuration.position_mapping()}")
+    print(f"  predicted crossing time: {decision.projected_flight_seconds:.1f} s")
     print(
         "  measured battery: "
         + ", ".join(
