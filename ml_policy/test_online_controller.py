@@ -23,11 +23,17 @@ class _ZeroEnergyModel:
         return (0.0,) * len(drone_ids)
 
 
+class _FixedCrossingTimeModel:
+    def predict_crossing_seconds(self, condition, configuration, distance_m):
+        return distance_m * (2.0 if configuration.formation == "column" else 1.0)
+
+
 class OnlineIntervalTests(unittest.TestCase):
     def _controller(self) -> OnlineConfigurationController:
         return OnlineConfigurationController(
             charging_pad_availability=2,
             energy_model=_ZeroEnergyModel(),
+            crossing_time_model=_FixedCrossingTimeModel(),
             charging_model=ExponentialChargingModel(),
             candidate_configurations=(
                 Configuration("column", ("D1", "D2", "D3", "D4", "D5"), 50),
@@ -40,6 +46,7 @@ class OnlineIntervalTests(unittest.TestCase):
         controller = self._controller()
         initial = controller.start(WindCondition("head", 1), timestamp_seconds=0.0)
         self.assertEqual(initial.charging_pad_availability, 2)
+        self.assertEqual(initial.projected_flight_seconds, 20.0)
         self.assertEqual(controller.next_decision_timestamp, 30.0)
 
         updated = controller.on_decision_interval(
@@ -65,6 +72,27 @@ class OnlineIntervalTests(unittest.TestCase):
                 charging_pad_availability=3,
                 remaining_distance_m=8.0,
             )
+
+    def test_formation_dependent_crossing_time_enters_score(self) -> None:
+        candidates = (
+            Configuration("column", ("D1", "D2", "D3", "D4", "D5"), 50),
+            Configuration("vee", ("D1", "D2", "D3", "D4", "D5"), 50),
+        )
+        controller = OnlineConfigurationController(
+            charging_pad_availability=5,
+            energy_model=_ZeroEnergyModel(),
+            crossing_time_model=_FixedCrossingTimeModel(),
+            charging_model=ExponentialChargingModel(),
+            candidate_configurations=candidates,
+            evaluation_distance_m=10.0,
+        )
+        decision = controller.start(WindCondition("head", 1))
+        self.assertEqual(decision.selected_configuration.formation, "vee")
+        self.assertEqual(decision.projected_flight_seconds, 10.0)
+        self.assertEqual(
+            decision.online_score_seconds,
+            decision.projected_flight_seconds + decision.projected_charging_seconds,
+        )
 
 
 if __name__ == "__main__":
