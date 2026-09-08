@@ -3905,7 +3905,7 @@ INDEX_TEMPLATE = """
                 </select>
               </label>
               <label>Wind Direction
-                <select name="wind_direction" required>
+                <select id="windTunnelWindDirectionInput" name="wind_direction" required>
                   <option value="head wind">head wind</option>
                   <option value="tail wind">tail wind</option>
                   <option value="side wind">side wind</option>
@@ -3927,14 +3927,14 @@ INDEX_TEMPLATE = """
             </label>
             <div class="mission-board">
               <h3 style="margin-top:0;">Fixed Mission Pad Assignment</h3>
-              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Every printed rocket (+pad X) and aircraft nose points global +X (right). Wind flow: head +X→-X; tail -X→+X; side +Y→-Y. For 75 cm side wind: column runs 5→6→7→8→1 along +X; diamond has Pad 7 at centre with 8 top, 6 bottom, 5 left, 1 right; vee has Pad 7 at the +X apex, 75 cm between adjacent pad centres, and a 90° included angle; echelon has Pad 1 nearest the +Y fan and Pad 5 farthest, with adjacent centres 75 cm apart on a 45° diagonal. All five take off together; each lands independently at 20%.</div>
+              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Both 50 cm and 75 cm use the same controller, pad order, and orientation for each formation/wind setting; only the layout coordinates scale with the selected distance. Every printed rocket (+pad X) points global +X. For front + tail wind: pads 5→6→7→8→1 run left-to-right along the arrows (+X), all noses point up (+Y), and the fan behind them blows -Y→+Y. Front head/side wind retains pads along +Y and noses along +X; other side-wind layouts also retain noses along +X, while other head/tail-wind formations retain noses along +Y. Other wind-flow labels remain unchanged: head +X→-X; tail -X→+X; side +Y→-Y. For side wind at either spacing: column runs 5→6→7→8→1 along +X; diamond has Pad 7 at centre with 8 top, 6 bottom, 5 left, 1 right; vee has Pad 7 at the +X apex and a 90° included angle; echelon has Pad 1 nearest the +Y fan and Pad 5 farthest on a 45° diagonal. The selected distance is the adjacent-centre spacing for front/column/vee/echelon and the centre-to-outer-pad distance for diamond. All five take off together; each lands independently at 20%.</div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;">
                 {% for drone_number, ip_suffix in drone_options %}
                   <div class="pad-cell active">
                     <div class="pad-title"><strong>Drone {{ drone_number }}</strong><span>Pad {{ [5, 6, 7, 8, 1][drone_number|int - 1] }}</span></div>
                     <div class="small">IP 192.168.0.{{ ip_suffix }}</div>
                     <label>Battery
-                      <select name="wind_tunnel_battery_{{ drone_number }}" required>
+                      <select name="wind_tunnel_battery_{{ drone_number }}" data-wind-tunnel-drone="{{ drone_number }}" required>
                         <option value="">battery</option>
                         {% for battery_id in battery_options %}
                           <option value="{{ battery_id }}" {% if (drone_number == '1' and battery_id == 'B11') or (drone_number == '2' and battery_id == 'B10') or (drone_number == '3' and battery_id == 'B13') or (drone_number == '4' and battery_id == 'B14') or (drone_number == '5' and battery_id == 'B12') %}selected{% endif %}>{{ battery_id }}</option>
@@ -4310,6 +4310,22 @@ INDEX_TEMPLATE = """
     const experimentMissionLayoutText = document.getElementById("experimentMissionLayoutText");
     const recommendedDroneOrder = ["1", "2", "3", "4", "5"];
     const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B12"];
+    const windTunnelWindDirectionInput = document.getElementById("windTunnelWindDirectionInput");
+    const windTunnelBatteryInputs = Array.from(document.querySelectorAll("[data-wind-tunnel-drone]"));
+
+    function updateWindTunnelBatteryDefaults() {
+      if (!windTunnelWindDirectionInput) return;
+      const drone5Battery = windTunnelWindDirectionInput.value === "side wind" ? "B06" : "B12";
+      windTunnelBatteryInputs.forEach((input) => {
+        const droneNumber = input.dataset.windTunnelDrone;
+        if (droneNumber === "5") input.value = drone5Battery;
+      });
+    }
+
+    if (windTunnelWindDirectionInput) {
+      windTunnelWindDirectionInput.addEventListener("change", updateWindTunnelBatteryDefaults);
+      updateWindTunnelBatteryDefaults();
+    }
     const standardTopMissionRow = Math.max(...padCells.filter((cell) => cell.dataset.standardPad).map((cell) => Number(cell.dataset.row)));
 
     function isFrontTailWind() {
