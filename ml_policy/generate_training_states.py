@@ -3,7 +3,7 @@
 The current prototype samples remaining distances from 0.25--25 m.  Each row
 is an independent decision-epoch scenario:
 the five batteries begin at 100%, accumulate a random but reachable history
-in fixed 30-second (3 m at 0.1 m/s) steps using safe empirical rate cells, and
+in fixed 25-second (2.5 m at 0.1 m/s) steps by default using safe empirical rate cells, and
 are then labelled by the exact offline Oracle at one observed decision state.
 """
 
@@ -39,13 +39,15 @@ DEFAULT_OUTPUT_DIR = (
     PROJECT_ROOT
     / "analysis_outputs"
     / "ml_policy"
-    / "expanded_25m_exponential_90min_interval30s"
+    / "expanded_25m_exponential_90min_interval25s"
 )
 CONDITIONS = tuple(
     (direction, level)
     for direction in ("head", "side", "tail")
     for level in (1, 2)
 )
+NOMINAL_SPEED_M_PER_S = 0.10
+DEFAULT_HISTORY_STEP_M = DECISION_INTERVAL_SECONDS * NOMINAL_SPEED_M_PER_S
 
 
 def _simulate_reachable_soc(
@@ -71,7 +73,7 @@ def _simulate_reachable_soc(
         ]
         cell = rng.choice(cells)
         segment_distance_m = rng.uniform(history_step_min_m, history_step_max_m)
-        segment_minutes = segment_distance_m / 0.10 / 60.0
+        segment_minutes = segment_distance_m / NOMINAL_SPEED_M_PER_S / 60.0
         rates = [slot.rate_pp_per_min for slot in cell.slots]
         rng.shuffle(rates)
         projected_soc = [
@@ -302,10 +304,10 @@ def generate_dataset(
             "current_soc",
             "remaining_distance_m",
         ],
-        "decision_interval_distance_m_at_nominal_speed": 3.0,
+        "decision_interval_distance_m_at_nominal_speed": DEFAULT_HISTORY_STEP_M,
         "future_wind_known": False,
         "future_charging_pad_availability_known": False,
-        "forward_speed_m_per_s": 0.10,
+        "forward_speed_m_per_s": NOMINAL_SPEED_M_PER_S,
         "safety_rule": "2+ selected runs safe; 1 run backup-only; repeated-collision cells prohibited",
     }
     output_csv.with_suffix(".manifest.json").write_text(
@@ -326,8 +328,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--rate-table", type=Path, default=DEFAULT_RATE_TABLE_PATH)
     parser.add_argument("--remaining-distance-min-m", type=float, default=0.25)
     parser.add_argument("--remaining-distance-max-m", type=float, default=25.0)
-    parser.add_argument("--history-step-min-m", type=float, default=3.0)
-    parser.add_argument("--history-step-max-m", type=float, default=3.0)
+    parser.add_argument("--history-step-min-m", type=float, default=DEFAULT_HISTORY_STEP_M)
+    parser.add_argument("--history-step-max-m", type=float, default=DEFAULT_HISTORY_STEP_M)
     parser.add_argument("--maximum-history-steps", type=int, default=20)
     parser.add_argument("--minimum-history-soc", type=float, default=35.0)
     parser.add_argument("--minimum-arrival-soc", type=float, default=30.0)

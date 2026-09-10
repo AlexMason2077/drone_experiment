@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if run %}{{ run.experiment_id }}{% else %}Simulation Data{% endif %} · Tello Experiment Lab</title>
+  <style>
+    :root { color-scheme: light; --bg:#f6f7f9; --ink:#1d2430; --muted:#657286; --line:#d8dde6; --brand:#216c5f; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,sans-serif; }
+    main { max-width:1240px; padding:28px 24px 64px; margin:auto; }
+    nav,.actions,.pagination { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+    a { color:var(--brand); text-underline-offset:3px; }
+    h1 { font-size:30px; line-height:1.25; margin:24px 0 12px; overflow-wrap:anywhere; }
+    h2 { font-size:21px; margin:0 0 12px; } h3 { margin:0; font-size:17px; }
+    p { margin:8px 0 16px; } .muted { color:var(--muted); } .small { font-size:14px; }
+    .tag { background:#fff1cf; color:#715013; border:1px solid #e6d4a5; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+    .notice { border-left:4px solid #b18a19; padding:14px 18px; background:#fff9ec; margin:20px 0; }
+    section,.card { background:white; border:1px solid var(--line); border-radius:12px; padding:22px; margin:18px 0; min-width:0; }
+    .stats { display:flex; flex-wrap:wrap; gap:32px; padding:18px 0; } .stats strong { font-size:27px; display:block; }
+    .filters { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    label { display:grid; gap:6px; font-size:14px; color:var(--muted); }
+    input,select,button,.button { font:inherit; padding:10px 14px; border:1px solid var(--line); border-radius:8px; background:white; color:var(--ink); min-width:0; }
+    button,.button { cursor:pointer; text-decoration:none; display:inline-block; font-weight:600; }
+    button.primary { background:var(--brand); color:white; border-color:var(--brand); }
+    button:disabled { opacity:.65; cursor:wait; }
+    .search { grid-column:1 / -1; } .cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .card { margin:0; display:flex; flex-direction:column; align-items:flex-start; gap:12px; }
+    .card h3 { overflow-wrap:anywhere; } .card .actions { margin-top:auto; }
+    .pagination { justify-content:space-between; margin:20px 0; }
+    .scroll { overflow:auto; max-width:100%; } table { width:100%; border-collapse:collapse; font-size:14px; }
+    th,td { border-bottom:1px solid var(--line); padding:9px 12px; text-align:left; white-space:nowrap; }
+    th { color:var(--muted); font-weight:600; background:#f8f9fa; }
+    td.number { font-variant-numeric:tabular-nums; text-align:right; }
+    .plot { width:100%; height:auto; display:block; } figure { margin:24px 0 0; } figcaption { color:var(--muted); font-size:14px; }
+    summary { cursor:pointer; font-weight:600; margin:6px 0 14px; } .error { color:#8b3030; }
+    @media(max-width:750px) { main { padding:16px 12px 40px; } h1 { font-size:25px; } .filters,.cards { grid-template-columns:1fr; } section,.card { padding:16px; } .stats { gap:18px; } }
+  </style>
+</head>
+<body><main>
+  <nav><a href="{{ url_for('index') }}">← Experiment Lab</a><a href="{{ url_for('simulations.index') }}">Simulation Data · 仿真数据</a><span class="tag">SIMULATED · READ ONLY</span></nav>
+  {% if error %}
+    <h1>Simulation data unavailable</h1><section class="error">{{ error }}</section>
+    <p>The real experiment records have not been changed.</p>
+  {% elif not run %}
+    <h1>Simulation Data <span class="muted">/ 仿真数据</span></h1>
+    <p class="muted">Wind tunnel hover simulations · active export: {{ export_name }}</p>
+    <div class="notice">These are stochastic simulations, not real flights. Only the active export is listed; duplicate export folders and removed runs are excluded. No flight controls are available here.</div>
+    <div class="stats"><div><strong>{{ total }}</strong>simulated runs</div><div><strong>{{ conditions }}</strong>conditions</div><div><strong>{{ matched }}</strong>matching runs</div></div>
+    <section><form method="get" action="{{ url_for('simulations.index') }}" class="filters">
+      {% for key,label in [('formation','Formation'),('spacing_cm','Inter-drone distance (cm)'),('wind_direction','Wind direction'),('wind_level','Wind level')] %}
+      <label>{{ label }}<select name="{{ key }}"><option value="">All</option>{% for value in options[key] %}<option value="{{ value }}" {% if filters[key] == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></label>
+      {% endfor %}
+      <label class="search">Experiment ID search<input name="q" value="{{ query }}" placeholder="e.g. front_50_side_lv1"></label>
+      <div class="actions search"><button class="primary">Apply filters</button><a href="{{ url_for('simulations.index') }}">Reset</a></div>
+    </form></section>
+    <div class="pagination"><span class="muted">{{ matched }} matching simulations · page {{ page }} of {{ pages }}</span><div class="actions">{% if page > 1 %}<a href="{{ previous }}">← Previous</a>{% endif %}{% if page < pages %}<a href="{{ next }}">Next →</a>{% endif %}</div></div>
+    <div class="cards">{% for item in runs %}
+      <article class="card"><span class="tag">SIMULATED</span><h3><a href="{{ url_for('simulations.detail',run_id=item.experiment_id) }}">{{ item.experiment_id }}</a></h3>
+      <div>{{ item.formation }} · {{ item.spacing_cm }} cm · {{ item.wind_direction }} wind · Lv{{ item.wind_level }}</div>
+      <div class="muted small">5 drones · 100% → 20% · last drone ≈ {{ '%.1f'|format(item.duration_s) }} s<br>{{ '{:,}'.format(item.rows) }} logger rows · random seed {{ item.seed }}</div>
+      <div class="actions"><a class="button" href="{{ url_for('simulations.detail',run_id=item.experiment_id) }}">View data & plots</a></div></article>
+    {% else %}<section>No simulated runs match these filters.</section>{% endfor %}</div>
+    <div class="pagination"><span class="muted">Page {{ page }} of {{ pages }}</span><div class="actions">{% if page > 1 %}<a href="{{ previous }}">← Previous</a>{% endif %}{% if page < pages %}<a href="{{ next }}">Next →</a>{% endif %}</div></div>
+  {% else %}
+    <h1>{{ run.experiment_id }}</h1>
+    <p>{{ run.formation }} · {{ run.spacing_cm }} cm · {{ run.wind_direction }} wind · Lv{{ run.wind_level }} · seed {{ run.seed }}</p>
+    <div class="notice"><strong>仿真数据 / Simulated data.</strong> Battery SOC and times are simulated. Actual coordinates, attitude and temperature are not modelled, so no measured-position/attitude/temperature plots are shown. Target coordinates below are layout settings, not trajectories.</div>
+    <div class="actions"><form method="post" action="{{ url_for('simulations.generate',run_id=run.experiment_id) }}" class="generate-form"><button class="primary">{% if plots %}View plots · 查看数据图{% else %}Generate plots · 生成数据图{% endif %}</button></form><a class="button" href="{{ url_for('simulations.download',run_id=run.experiment_id) }}">Download CSV.gz</a><a href="{{ url_for('simulations.index',formation=run.formation,spacing_cm=run.spacing_cm,wind_direction=run.wind_direction,wind_level=run.wind_level) }}">All runs for this condition</a></div>
+    <section><h2>Drone summary</h2><p class="muted small">Time is measured from simulation start to the first logged 20% sample (0.1 s resolution). Initial plateau included; landing completion not included.</p>
+      <div class="scroll"><table><thead><tr><th>Drone</th><th>Battery</th><th>Mission Pad</th><th>Target X / Y / Z (cm)</th><th>Start → end SOC</th><th>Time to 20%</th></tr></thead><tbody>
+      {% for d in data.drones %}<tr><td>{{ d.name }}</td><td>{{ d.battery_id }}</td><td>{{ d.mission_pad }}</td><td>{{ d.target_x }} / {{ d.target_y }} / {{ d.target_z }}</td><td>{{ d.soc[0] }}% → {{ d.soc[-1] }}%</td><td class="number">{{ '%.1f'|format(d.end_s) }} s</td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+    <section id="plots"><h2>Data plots</h2><p class="muted small">Generated only on request, then cached. Source CSVs and real experiment records remain unchanged.</p>
+      {% for plot in plots %}<figure><a href="{{ url_for('simulations.plot',run_id=run.experiment_id,kind=plot.key) }}" target="_blank" rel="noopener"><img class="plot" loading="lazy" src="{{ url_for('simulations.plot',run_id=run.experiment_id,kind=plot.key) }}" alt="{{ plot.title }}"></a><figcaption>{{ plot.title }} · Click image to open full size.</figcaption></figure>
+      {% else %}<p>No plots yet. Click <strong>Generate plots</strong> above to create the battery curves, threshold-time comparison and stage-rate charts.</p>{% endfor %}
+    </section>
+    <section><h2>Discharge rates by stage</h2><p class="muted small">Simulated stage summaries from the export. Each battery uses its own stage boundaries; the initial non-dropping interval is excluded. Unit: SOC percentage points per minute, not watts.</p>
+      <div class="scroll"><table><thead><tr><th>Position</th><th>Battery</th><th>Stage</th><th>Raw SOC window</th><th>Duration (s)</th><th>Raw rate (pp/min)</th><th>Bideal rate (pp/min)</th></tr></thead><tbody>
+      {% for r in rates %}<tr><td>{{ r.position }}</td><td>{{ r.battery_id }}</td><td>{{ r.stage|title }}</td><td>{{ '%g'|format(r.soc_start) }}% → {{ '%g'|format(r.soc_end) }}%</td><td class="number">{{ '%.2f'|format(r.duration_s) }}</td><td class="number">{{ '%.3f'|format(r.raw_rate_pp_min) }}</td><td class="number">{{ '%.3f'|format(r.bideal_rate_pp_min) }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+    <section><details><summary>Logger CSV preview · first {{ data.preview|length }} of {{ '{:,}'.format(data.count) }} rows · all {{ data.header|length }} columns</summary><p class="muted small">“—” means blank / not modelled, not zero. Download the CSV.gz above for the complete data.</p><div class="scroll"><table><thead><tr>{% for name in data.header %}<th>{{ name }}</th>{% endfor %}</tr></thead><tbody>{% for row in data.preview %}<tr>{% for name in data.header %}<td>{{ row[name] if row[name] else '—' }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div></details></section>
+    <p class="muted small">Source: simulation_data/{{ export_name }}/{{ run.file }}<br>Data origin: empirical stochastic simulation · Model version and provenance are retained in the downloaded CSV.</p>
+  {% endif %}
+</main>
+<script>
+  document.querySelectorAll('.generate-form').forEach(form => form.addEventListener('submit', () => {
+    const button = form.querySelector('button'); button.disabled = true; button.textContent = 'Generating plots…';
+  }));
+</script>
+</body></html>

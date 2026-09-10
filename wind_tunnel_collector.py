@@ -819,7 +819,10 @@ def run(experiment_id):
     print(
         "Physical wind direction: "
         + ("source at -Y; airflow -Y -> +Y (from behind the +Y-facing noses)"
-           if front_tail else WIND_FLOW_DESCRIPTIONS.get(
+           if front_tail else
+           "source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
+           if configs[0]["formation"] == "vee" and configs[0]["wind_direction"] == "head wind"
+           else WIND_FLOW_DESCRIPTIONS.get(
             str(experiment.get("wind_direction", "")).strip().lower(),
             "unknown; verify fan placement before takeoff",
         )),

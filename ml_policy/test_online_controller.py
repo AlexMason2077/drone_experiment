@@ -29,6 +29,14 @@ class _FixedCrossingTimeModel:
 
 
 class OnlineIntervalTests(unittest.TestCase):
+    def test_generator_defaults_match_25_second_interval(self) -> None:
+        from ml_policy.generate_training_states import _build_parser
+
+        args = _build_parser().parse_args([])
+        self.assertEqual(args.history_step_min_m, 2.5)
+        self.assertEqual(args.history_step_max_m, 2.5)
+        self.assertIn('interval25s', str(args.output_csv))
+
     def _controller(self) -> OnlineConfigurationController:
         return OnlineConfigurationController(
             charging_pad_availability=2,
@@ -39,7 +47,6 @@ class OnlineIntervalTests(unittest.TestCase):
                 Configuration("column", ("D1", "D2", "D3", "D4", "D5"), 50),
             ),
             evaluation_distance_m=10.0,
-            decision_interval_seconds=30.0,
         )
 
     def test_every_epoch_refreshes_k_and_observations(self) -> None:
@@ -47,19 +54,32 @@ class OnlineIntervalTests(unittest.TestCase):
         initial = controller.start(WindCondition("head", 1), timestamp_seconds=0.0)
         self.assertEqual(initial.charging_pad_availability, 2)
         self.assertEqual(initial.projected_flight_seconds, 20.0)
-        self.assertEqual(controller.next_decision_timestamp, 30.0)
+        self.assertEqual(controller.decision_interval_seconds, 25.0)
+        self.assertEqual(controller.next_decision_timestamp, 25.0)
+        self.assertFalse(controller.decision_due(24.9))
+        self.assertTrue(controller.decision_due(25.0))
 
         updated = controller.on_decision_interval(
             WindCondition("side", 2),
             measured_battery=(98, 97, 98, 99, 98),
-            timestamp_seconds=30.0,
+            timestamp_seconds=25.0,
             charging_pad_availability=4,
             remaining_distance_m=7.0,
         )
         self.assertEqual(updated.charging_pad_availability, 4)
         self.assertEqual(updated.observed_condition, WindCondition("side", 2))
         self.assertEqual(updated.evaluation_distance_m, 7.0)
-        self.assertEqual(controller.next_decision_timestamp, 60.0)
+        self.assertEqual(controller.next_decision_timestamp, 50.0)
+        self.assertEqual(controller.current_battery, (98, 97, 98, 99, 98))
+
+        controller.on_decision_interval(
+            WindCondition("tail", 1),
+            measured_battery=(96, 95, 96, 97, 96),
+            timestamp_seconds=50.0,
+            charging_pad_availability=1,
+            remaining_distance_m=4.0,
+        )
+        self.assertEqual(controller.next_decision_timestamp, 75.0)
 
     def test_update_before_next_epoch_is_rejected(self) -> None:
         controller = self._controller()
@@ -68,7 +88,7 @@ class OnlineIntervalTests(unittest.TestCase):
             controller.on_decision_interval(
                 WindCondition("head", 2),
                 measured_battery=(99, 99, 99, 99, 99),
-                timestamp_seconds=29.9,
+                timestamp_seconds=24.9,
                 charging_pad_availability=3,
                 remaining_distance_m=8.0,
             )

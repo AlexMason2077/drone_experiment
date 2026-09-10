@@ -2,7 +2,7 @@
 
 The controller knows only the wind condition that is observable *now*.  It
 does not receive future wind conditions and does not plan a complete schedule
-before take-off.  Every 30 seconds, the caller supplies the currently observed
+before take-off.  Every 25 seconds by default, the caller supplies the currently observed
 wind, charging-pad availability K, battery levels, and remaining distance.
 The controller then chooses a new configuration c = (f, p, d).
 
@@ -466,7 +466,8 @@ class OnlineConfigurationController:
         """Compatibility wrapper for the fixed-interval update method.
 
         New controller integrations should call :meth:`on_decision_interval`
-        and explicitly refresh K and remaining distance every 30 seconds.
+        and explicitly refresh K and remaining distance every configured interval
+        (25 seconds by default).
         """
 
         if charging_pad_availability is None:
@@ -490,7 +491,7 @@ class OnlineConfigurationController:
         charging_pad_availability: int,
         remaining_distance_m: float,
     ) -> OnlineDecision:
-        """Refresh all observable inputs at one 30-second decision epoch."""
+        """Refresh all observable inputs at one decision epoch (default: 25 s)."""
 
         self._require_started()
         self._validate_timestamp(timestamp_seconds)
@@ -818,7 +819,7 @@ def online_example() -> MissionResult:
     changed_decision = controller.on_decision_interval(
         WindCondition(wind_direction="side", wind_level=2),
         measured_battery=(96.0, 95.0, 96.0, 96.0, 97.0),
-        timestamp_seconds=30.0,
+        timestamp_seconds=DECISION_INTERVAL_SECONDS,
         charging_pad_availability=3,
         remaining_distance_m=1.0,
     )
@@ -828,7 +829,7 @@ def online_example() -> MissionResult:
     # Node B arrival telemetry and timestamp are supplied when arrival occurs.
     return controller.finish_at_node_b(
         arrival_battery=(90.0, 89.0, 90.0, 90.0, 91.0),
-        arrival_timestamp_seconds=60.0,
+        arrival_timestamp_seconds=2 * DECISION_INTERVAL_SECONDS,
     )
 
 

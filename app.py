@@ -16,6 +16,8 @@ from urllib.parse import urlencode
 
 from flask import Flask, abort, jsonify, redirect, render_template_string, request, send_file, url_for
 
+from simulation_viewer import create_simulation_blueprint
+
 
 BASE_DIR = Path(__file__).resolve().parent
 os.environ.setdefault("MPLCONFIGDIR", str(BASE_DIR / ".matplotlib_cache"))
@@ -233,6 +235,7 @@ WIND_LEVEL_ALIASES = {
 
 
 app = Flask(__name__)
+app.register_blueprint(create_simulation_blueprint(BASE_DIR))
 
 
 @app.after_request
@@ -3412,7 +3415,7 @@ INDEX_TEMPLATE = """
       <h1>Tello Experiment Lab</h1>
       <div class="path">App: {{ base_dir }} · Data: {{ data_dir }}</div>
     </div>
-    <div class="badge">Local GUI prototype</div>
+    <a class="badge" href="{{ url_for('simulations.index') }}">Simulation Data · 仿真数据与图表 →</a>
   </header>
 
   <main>
@@ -3429,6 +3432,11 @@ INDEX_TEMPLATE = """
         <div class="stat"><strong>{{ stats.experiments }}</strong><span>experiments</span></div>
       </div>
       <div class="section-body">
+        <div class="filter-panel" style="margin-bottom:14px;">
+          <h3>Simulation Data · 仿真数据</h3>
+          <p class="small">View simulated wind tunnel runs and generate battery / stage-rate plots. Kept separate from real experiments.</p>
+          <a class="badge" href="{{ url_for('simulations.index') }}">Open simulation data &amp; plots →</a>
+        </div>
         <div class="tabs" role="tablist">
           <button class="tab" type="button" data-filter="all">All</button>
           <button class="tab" type="button" data-filter="coordination">Coordination</button>
@@ -3927,7 +3935,7 @@ INDEX_TEMPLATE = """
             </label>
             <div class="mission-board">
               <h3 style="margin-top:0;">Fixed Mission Pad Assignment</h3>
-              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Both 50 cm and 75 cm use the same controller, pad order, and orientation for each formation/wind setting; only the layout coordinates scale with the selected distance. Every printed rocket (+pad X) points global +X. For front + tail wind: pads 5→6→7→8→1 run left-to-right along the arrows (+X), all noses point up (+Y), and the fan behind them blows -Y→+Y. Front head/side wind retains pads along +Y and noses along +X; other side-wind layouts also retain noses along +X, while other head/tail-wind formations retain noses along +Y. Other wind-flow labels remain unchanged: head +X→-X; tail -X→+X; side +Y→-Y. For side wind at either spacing: column runs 5→6→7→8→1 along +X; diamond has Pad 7 at centre with 8 top, 6 bottom, 5 left, 1 right; vee has Pad 7 at the +X apex and a 90° included angle; echelon has Pad 1 nearest the +Y fan and Pad 5 farthest on a 45° diagonal. The selected distance is the adjacent-centre spacing for front/column/vee/echelon and the centre-to-outer-pad distance for diamond. All five take off together; each lands independently at 20%.</div>
+              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Both 50 cm and 75 cm use the same controller, pad order, and orientation for each formation/wind setting; only the layout coordinates scale with the selected distance. Every printed rocket (+pad X) points global +X. For front + tail wind: pads 5→6→7→8→1 run left-to-right along the arrows (+X), all noses point up (+Y), and the fan behind them blows -Y→+Y. Front head/side wind retains pads along +Y and noses along +X; other side-wind layouts also retain noses along +X, while other head/tail-wind formations retain noses along +Y. For vee + head wind at both 50 cm and 75 cm: Pad 7 is the +Y apex, all noses face +Y, and the fan at +Y blows +Y→-Y. Other formations retain their existing head-wind label +X→-X; other tail-wind labels remain -X→+X; side wind remains +Y→-Y. For side wind at either spacing: column runs 5→6→7→8→1 along +X; diamond has Pad 7 at centre with 8 top, 6 bottom, 5 left, 1 right; vee has Pad 7 at the +X apex and a 90° included angle; echelon has Pad 1 nearest the +Y fan and Pad 5 farthest on a 45° diagonal. The selected distance is the adjacent-centre spacing for front/column/vee/echelon and the centre-to-outer-pad distance for diamond. All five take off together; each lands independently at 20%.</div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;">
                 {% for drone_number, ip_suffix in drone_options %}
                   <div class="pad-cell active">
