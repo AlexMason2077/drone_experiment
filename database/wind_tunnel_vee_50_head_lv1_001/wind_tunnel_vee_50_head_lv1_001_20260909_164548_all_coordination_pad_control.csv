@@ -1,0 +1,25 @@
+timestamp,drone,event,detail
+2026-09-09T16:45:52.813,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:45:52.813,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:45:52.814,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:45:52.814,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:45:52.815,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:45:56.744,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:45:57.258,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:45:57.476,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:45:57.568,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:45:57.800,drone_4,MOVE_REQUESTED,"pose=(8, 0, -20, 77); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-09T16:45:58.943,drone_3,MOVE_REQUESTED,"pose=(7, 14, -16, 88); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-09T16:46:00.084,drone_4,ARRIVAL_VERIFIED,"(8, 6, -5, 85)"
+2026-09-09T16:46:01.616,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:46:01.640,drone_3,FAULT,"recenter deadline exceeded without verified completion; last_pose=(7, -2, -4, 85); brake not confirmed"
+2026-09-09T16:46:02.313,drone_1,MOVE_REQUESTED,"pose=(5, -16, -8, 85); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-09T16:46:03.662,drone_1,ARRIVAL_VERIFIED,"(5, 5, -9, 81)"
+2026-09-09T16:46:09.042,drone_1,MOVE_REQUESTED,"pose=(5, 10, -17, 81); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-09T16:46:11.609,drone_2,MOVE_REQUESTED,"pose=(6, 0, -18, 71); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-09T16:46:11.633,drone_1,FAULT,"recenter deadline exceeded without verified completion; last_pose=(5, 12, -13, 80); brake not confirmed"
+2026-09-09T16:46:13.694,drone_2,ARRIVAL_VERIFIED,"(6, 6, -8, 77)"
+2026-09-09T16:46:20.046,drone_2,MOVE_REQUESTED,"pose=(6, 6, -17, 82); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-09T16:46:22.540,drone_2,FAULT,"recenter deadline exceeded without verified completion; last_pose=(6, 3, -3, 83); brake not confirmed"
+2026-09-09T16:46:23.377,drone_5,MOVE_REQUESTED,"pose=(1, 3, -18, 83); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-09T16:46:25.857,drone_5,FAULT,"recenter deadline exceeded without verified completion; last_pose=(1, 0, -15, 80); brake not confirmed"

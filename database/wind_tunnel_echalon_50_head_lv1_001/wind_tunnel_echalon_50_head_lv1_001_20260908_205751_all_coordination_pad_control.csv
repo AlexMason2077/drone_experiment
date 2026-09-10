@@ -1,0 +1,13 @@
+timestamp,drone,event,detail
+2026-09-08T20:58:02.167,drone_5,MOVE_REQUESTED,"pose=(1, 0, -16, 88); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-08T20:58:02.169,drone_1,MOVE_REQUESTED,"pose=(5, -9, -21, 82); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-08T20:58:02.686,drone_2,MOVE_REQUESTED,"pose=(7, -26, 18, 78); reference=m7; own=m6; target=(-35.35533905932737, 35.35533905932736, 80)"
+2026-09-08T20:58:03.927,drone_1,ARRIVAL_VERIFIED,"(5, 7, -11, 85)"
+2026-09-08T20:58:04.656,drone_5,FAULT,"recenter deadline exceeded without verified completion; last_pose=(1, 5, -6, 86); brake not confirmed"
+2026-09-08T20:58:05.277,drone_2,FAULT,"recenter deadline exceeded without verified completion; last_pose=(6, 5, -3, 78); brake not confirmed"
+2026-09-08T20:58:05.594,drone_1,MOVE_REQUESTED,"pose=(5, 16, -4, 81); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-08T20:58:07.979,drone_1,FAULT,"recenter deadline exceeded without verified completion; last_pose=(5, 6, -6, 82); brake not confirmed"
+2026-09-08T20:58:27.342,drone_4,MOVE_REQUESTED,"pose=(8, -5, -16, 86); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-08T20:58:29.423,drone_4,ARRIVAL_VERIFIED,"(8, -3, -8, 85)"
+2026-09-08T20:58:30.025,drone_3,MOVE_REQUESTED,"pose=(8, -23, 11, 86); reference=m8; own=m7; target=(-35.35533905932736, 35.35533905932737, 80)"
+2026-09-08T20:58:30.130,drone_3,FAULT,"position jumped by more than 20 cm between checks; last_pose=(7, 19, -1, 80); brake not confirmed"

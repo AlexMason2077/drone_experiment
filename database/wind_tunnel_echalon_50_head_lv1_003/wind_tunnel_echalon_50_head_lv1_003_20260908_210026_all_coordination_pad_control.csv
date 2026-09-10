@@ -1,0 +1,5 @@
+timestamp,drone,event,detail
+2026-09-08T21:00:37.404,drone_1,MOVE_REQUESTED,"pose=(5, -18, 4, 82); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-08T21:00:37.406,drone_3,MOVE_REQUESTED,"pose=(7, -11, -27, 85); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-08T21:00:37.826,drone_3,FAULT,"go failed: Command 'go 0 0 80 20 m7' was unsuccessful for 2 tries. Latest response:	'error Not joystick'; last_pose=(7, -11, -27, 85); brake not confirmed"
+2026-09-08T21:00:39.790,drone_1,FAULT,"no known Pad detected, invalid height, stale state or frozen off-target pose; last_pose=(5, -28, 2, 86); brake not confirmed"

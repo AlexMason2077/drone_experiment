@@ -1,0 +1,23 @@
+timestamp,drone,event,detail
+2026-09-09T16:48:09.412,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:48:09.413,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:48:09.413,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:48:09.414,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:48:09.414,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-09T16:48:13.551,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:48:16.644,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:48:17.058,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:48:17.697,drone_1,MOVE_REQUESTED,"pose=(5, -16, -32, 86); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-09T16:48:18.117,drone_1,FAULT,"position jumped by more than 20 cm between checks; last_pose=(5, -37, -28, 74); brake not confirmed"
+2026-09-09T16:48:18.222,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:48:18.235,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-09T16:48:23.889,drone_2,MOVE_REQUESTED,"pose=(7, -31, -19, 97); reference=m7; own=m6; target=(-35.35533905932737, -35.35533905932737, 80)"
+2026-09-09T16:48:23.961,drone_4,MOVE_REQUESTED,"pose=(8, 8, 0, 96); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-09T16:48:25.102,drone_4,ARRIVAL_VERIFIED,"(8, 6, 0, 93)"
+2026-09-09T16:48:26.070,drone_2,FAULT,"go failed: Command 'go -35 -35 80 20 m7' was unsuccessful for 2 tries. Latest response:	'error No valid marker'; last_pose=(6, -2, 8, 81); brake not confirmed"
+2026-09-09T16:48:33.225,drone_3,MOVE_REQUESTED,"pose=(7, -16, -2, 81); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-09T16:48:34.582,drone_3,ARRIVAL_VERIFIED,"(7, -7, 0, 82)"
+2026-09-09T16:51:23.886,drone_4,MOVE_REQUESTED,"pose=(8, 5, 16, 86); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-09T16:51:25.343,drone_4,ARRIVAL_VERIFIED,"(8, 3, 11, 84)"
+2026-09-09T16:51:25.740,drone_3,MOVE_REQUESTED,"pose=(7, -16, -11, 72); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-09T16:51:28.331,drone_3,FAULT,"recenter deadline exceeded without verified completion; last_pose=(7, -3, -5, 65); brake not confirmed"

@@ -1,0 +1,7 @@
+timestamp,drone,event,detail
+2026-09-08T20:04:11.847,drone_3,MOVE_REQUESTED,"(7, 24, 7, 82)"
+2026-09-08T20:04:11.947,drone_1,MOVE_REQUESTED,"(5, 8, -17, 83)"
+2026-09-08T20:04:12.676,drone_3,FAULT,"assigned Pad lost/changed, invalid height, stale state or frozen off-target pose; last_pose=(8, -28, -13, 84); brake not confirmed"
+2026-09-08T20:04:14.436,drone_1,FAULT,"recenter deadline exceeded without verified completion; last_pose=(5, 9, -8, 82); brake not confirmed"
+2026-09-08T20:04:19.420,drone_4,MOVE_REQUESTED,"(8, -1, -5, 24)"
+2026-09-08T20:04:20.978,drone_4,FAULT,"go failed: Command 'go 0 0 80 20 m8' was unsuccessful for 2 tries. Latest response:	'error Motor stop'; last_pose=(8, -7, -8, 71); brake not confirmed"
