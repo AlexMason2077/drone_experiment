@@ -26,30 +26,6 @@ FIXED_PAD_MAX_XY_CONTROL = 12
 FIXED_PAD_MAX_Z_CONTROL = 8
 MISSION_PAD_CAMERA_YAW_BASELINE_DEG = 180.0
 MISSION_PAD_HEADING_TOLERANCE_DEG = 35.0
-# A recenter has to cover the SDK round trip, the travel itself, the brake, and
-# then three fresh post-command state packets.  Budgeting travel plus a flat
-# 1.5 s made the allowance shrink relative to that fixed cost as the error grew,
-# so the aircraft that most needed correcting was the one whose correction timed
-# out.  Give the fixed overhead its own term and let the ceiling absorb it.
-FIXED_PAD_MOVE_OVERHEAD_SEC = 3.0
-FIXED_PAD_MOVE_MAX_SEC = 6.0
-FIXED_PAD_CROSS_PAD_MOVE_MAX_SEC = 8.0
-# A timed-out or explicitly rejected recenter is not by itself evidence of a
-# misbehaving aircraft.  Brake, wait for the outstanding go to return, re-confirm
-# the pose, and try again; only repeated consecutive failures disable correction
-# for the rest of the run.  Divergence, jumps, pad loss and stale telemetry stay
-# single-shot hard faults.
-SOFT_FAULT_MAX_CONSECUTIVE = 3
-SOFT_FAULT_COOLDOWN_SEC = 5.0
-# A retry is only safe once the braked go has reported back.  If it never does,
-# escalate instead of waiting in the retry state forever.
-SOFT_FAULT_BRAKE_GRACE_SEC = 10.0
-# An aircraft that has just taken off is still bleeding off drift.  Let its own
-# hold settle before the first pad-relative go so that move is not fighting
-# residual velocity.  Must stay below PadObservationGuard's 1.5 s frozen-pose
-# threshold, or an aircraft holding still at integer-cm resolution would be
-# declared stale before it is ever allowed to move.
-TAKEOFF_SETTLE_SEC = 1.0
 GROUND_HEIGHT_THRESHOLD_CM = 15
 GROUND_CONFIRMATION_HITS = 8
 WIND_FLOW_DESCRIPTIONS = {
@@ -58,20 +34,16 @@ WIND_FLOW_DESCRIPTIONS = {
     "side wind": "source at +Y; airflow +Y -> -Y (down the pad line)",
 }
 
-# Default front head/side-wind frame shown on the Wind Tunnel floor plan:
+# Physical frame shown on the Wind Tunnel floor plan:
 #   * Pad 5 -> 6 -> 7 -> 8 -> 1 runs from global -Y to +Y.
 #   * The official Mission Pad guide defines the printed rocket as +pad X.
 #   * Each printed rocket therefore points global +X.
 #   * Each aircraft nose also points global +X.
 # Consequently +pad Y is global +Y, while aircraft body-right is global -Y.
-# Front tail wind instead uses pads along +X and noses along +Y, as confirmed
-# on site. The printed pad axes remain +X/+Y; only origins and body mapping differ.
 FRONT_PAD_X_AXIS_GLOBAL = (1.0, 0.0)
 FRONT_PAD_Y_AXIS_GLOBAL = (0.0, 1.0)
 
 # Wind Tunnel Vee geometry from left/rear to centre/front to right/rear.
-# These are the existing 75 cm reference layouts. build_configs scales their
-# coordinates for 50 cm runs without changing pad order or controller axes.
 # Each adjacent pair is exactly 75 cm apart along a 45-degree arm.
 VEE_75_ARM_PROJECTION_CM = 75.0 / math.sqrt(2.0)
 WIND_TUNNEL_VEE_75_POSITIONS_CM = [
@@ -140,68 +112,63 @@ def build_configs(experiment):
     spacing = dc.experiment_inter_drone_distance_cm(experiment)
     wind_direction = str(experiment.get("wind_direction", "")).strip().lower()
     front = formation == "front"
-    front_tail = front and wind_direction == "tail wind"
     front_side = front and wind_direction == "side wind"
-    vee = formation == "vee"
-    echalon = dc.is_echalon_formation(formation)
-    column = formation == "column"
-    diamond = formation == "diamond"
-    vee_side = vee and wind_direction == "side wind"
-    echalon_side = echalon and wind_direction == "side wind"
-    column_side = column and wind_direction == "side wind"
-    diamond_side = diamond and wind_direction == "side wind"
-    side_rocket_x_layout = (
-        vee_side or echalon_side or column_side or diamond_side
+    vee_75 = formation == "vee" and spacing == 75
+    echalon_75 = dc.is_echalon_formation(formation) and spacing == 75
+    column_75 = formation == "column" and spacing == 75
+    diamond_75 = formation == "diamond" and spacing == 75
+    vee_75_side = vee_75 and wind_direction == "side wind"
+    echalon_75_side = echalon_75 and wind_direction == "side wind"
+    column_75_side = column_75 and wind_direction == "side wind"
+    diamond_75_side = diamond_75 and wind_direction == "side wind"
+    side_75_rocket_x_layout = (
+        vee_75_side or echalon_75_side or column_75_side or diamond_75_side
     )
     wind_tunnel_pads = [5, 6, 7, 8, 1]
     fixed_positions = []
     for idx in range(len(wind_tunnel_pads)):
-        if front_tail:
-            # Pad 5 -> 6 -> 7 -> 8 -> 1 follows the printed arrows (+X).
-            # Noses face +Y; the fan behind the drones blows from -Y to +Y.
-            fixed_positions.append((idx * spacing, 0))
-        elif front:
+        if front:
             # Actual floor layout: Pad 5 is at the global -Y end and Pad 1 is
             # at the +Y end.  Rocket/nose direction is global +X (right).
             fixed_positions.append((0, idx * spacing))
-        elif vee_side:
+        elif vee_75_side:
             # Pad 7 is the +X apex. Each arm step is 75 cm and the included
             # angle between Pad 7->6 and Pad 7->8 is exactly 90 degrees.
             fixed_positions.append(WIND_TUNNEL_VEE_75_SIDE_POSITIONS_CM[idx])
-        elif vee:
+        elif vee_75:
             # Physical Vee layout: pads 5,6,7,8,1. Pad 7 is the +Y apex;
             # printed Mission Pad arrows face +X and every aircraft nose faces +Y.
             fixed_positions.append(WIND_TUNNEL_VEE_75_POSITIONS_CM[idx])
-        elif echalon_side:
+        elif echalon_75_side:
             # Pad 1 is nearest the +Y fan and Pad 5 is farthest. Adjacent pad
             # centres are 75 cm apart on a 45-degree diagonal.
             fixed_positions.append(WIND_TUNNEL_ECHALON_75_SIDE_POSITIONS_CM[idx])
-        elif echalon:
+        elif echalon_75:
             # Physical echelon layout: pads 5,6,7,8,1 descend along +X/-Y;
             # printed Mission Pad arrows face +X and every aircraft nose faces +Y.
             fixed_positions.append(WIND_TUNNEL_ECHALON_75_POSITIONS_CM[idx])
-        elif column_side:
+        elif column_75_side:
             # Pad 5 -> 6 -> 7 -> 8 -> 1 runs left-to-right along global +X.
             fixed_positions.append(WIND_TUNNEL_COLUMN_75_SIDE_POSITIONS_CM[idx])
-        elif column:
+        elif column_75:
             # Physical column layout: pads 5,6,7,8,1 descend along -Y;
             # all pad centres share the same global X coordinate.
             fixed_positions.append(WIND_TUNNEL_COLUMN_75_POSITIONS_CM[idx])
-        elif diamond_side:
+        elif diamond_75_side:
             # Pad 7 centre; Pad 8 top, Pad 6 bottom, Pad 5 left, Pad 1 right.
             fixed_positions.append(WIND_TUNNEL_DIAMOND_75_SIDE_POSITIONS_CM[idx])
-        elif diamond:
+        elif diamond_75:
             # Physical diamond layout: Pad 7 is the centre, with Pads 5,6,8,1
             # respectively 75 cm to its -Y, -X, +X, and +Y sides.
             fixed_positions.append(WIND_TUNNEL_DIAMOND_75_POSITIONS_CM[idx])
+        elif formation == "diamond" and wind_direction == "head wind" and spacing == 50:
+            # Match the same diamond geometry at 50 cm centre-to-outer spacing.
+            fixed_positions.append(tuple(value * (spacing / 75.0)
+                                         for value in WIND_TUNNEL_DIAMOND_75_POSITIONS_CM[idx]))
         else:
             fixed_positions.append(
                 dc.position_at_column_row(formation, idx, 0, spacing, dc.ROW_SPACING_CM)
             )
-    if vee or echalon or column or diamond:
-        # Keep the established 75 cm geometry exactly; only scale distances.
-        scale = spacing / 75.0
-        fixed_positions = [(x * scale, y * scale) for x, y in fixed_positions]
     pad_origins_cm = {
         pad_id: fixed_positions[idx]
         for idx, pad_id in enumerate(wind_tunnel_pads)
@@ -230,11 +197,11 @@ def build_configs(experiment):
                 else ((1.0, 0.0), (0.0, 1.0))
             ),
             "mission_pad_yaw_baseline_deg": MISSION_PAD_CAMERA_YAW_BASELINE_DEG,
-            "pad_x_aligned_with_body_forward": (front and not front_tail) or side_rocket_x_layout,
+            "pad_x_aligned_with_body_forward": front or side_75_rocket_x_layout,
             "lateral_only_cross_pad_recovery": front_side,
             "mission_pad_heading_tolerance_deg": (
                 MISSION_PAD_HEADING_TOLERANCE_DEG
-                if front or side_rocket_x_layout
+                if front or side_75_rocket_x_layout
                 else None
             ),
             "formation": formation,
@@ -400,432 +367,98 @@ def fixed_pad_hover_command(config, state):
     return [left_right, forward_back, up_down, 0]
 
 
-class PadRecoveryGeometry:
-    """Translate the assigned global centre into a currently visible pad frame.
-
-    All configured pad axes must match the physical layout; no body-yaw or
-    remembered position is used. Unknown pads cannot provide localization.
-    """
-
-    @staticmethod
-    def target(config, observed_pad):
-        origins = config.get("pad_origins_cm") or {}
-        own = int(config["mission_pad"])
-        if observed_pad not in origins or own not in origins:
-            return None
-        u, v = config.get("mission_pad_axes_global", ((1., 0.), (0., 1.)))
-        if (abs(sum(a*a for a in u)-1) > 1e-6
-                or abs(sum(a*a for a in v)-1) > 1e-6
-                or abs(sum(a*b for a, b in zip(u, v))) > 1e-6):
-            raise ValueError("Pad recovery requires known orthonormal global pad axes")
-        dx = origins[own][0] - origins[observed_pad][0]
-        dy = origins[own][1] - origins[observed_pad][1]
-        target = (dx*u[0] + dy*u[1], dx*v[0] + dy*v[1], dc.TAKEOFF_HEIGHT_CM)
-        if not all(math.isfinite(a) for a in target) or max(abs(target[0]), abs(target[1])) > 500:
-            return None
-        return target
-
-
-def check_and_recenter_assigned_pad(tello, config, expected_pad=None):
-    """One checked pad-centre move; caller owns this aircraft's command lock."""
-    aligned, state = dc.start_pad_alignment_state(
-        tello, config, tolerance=dc.START_ALIGNMENT_TOLERANCE_CM,
-    )
-    observed_pad = int(state["mid"])
-    target = PadRecoveryGeometry.target(config, observed_pad)
-    if target is None or (expected_pad is not None and observed_pad != expected_pad):
-        # Never move using an unseen/unknown pad or a changed launch reference.
-        tello.send_rc_control(0, 0, 0, 0)
-        return "waiting_pad", state
-    if aligned:
-        # Heartbeat while idle only; never interrupt a pad-relative go command.
-        tello.send_rc_control(0, 0, 0, 0)
-        return "aligned", state
-
-    print(
-        f"PAD RECENTER: {config['name']} own=m{config['mission_pad']} reference=m{observed_pad} "
-        f"from ({state['x']},{state['y']},{state['z']}) "
-        f"-> {target} at {dc.TAKEOFF_CLIMB_SPEED_CM_S} cm/s",
-        flush=True,
-    )
-    # Use the original 2.5 m startup positioning command. The supervising
-    # controller latches failures; neither SDK nor controller blindly retries.
-    previous_retries = tello.retry_count
-    try:
-        tello.retry_count = 1
-        tello.go_xyz_speed_mid(
-            *(int(round(a)) for a in target),
-            dc.TAKEOFF_CLIMB_SPEED_CM_S, observed_pad,
-        )
-    finally:
-        tello.retry_count = previous_retries
-    aligned, state = dc.start_pad_alignment_state(
-        tello, config, tolerance=dc.START_ALIGNMENT_TOLERANCE_CM,
-    )
-    # An SDK "ok" is not proof of arrival: inspect the measured position.
-    return ("aligned" if aligned else "not_centered"), state
-
-
-class PadObservationGuard:
-    """Conservative packet/pose gates; a fresh packet does not prove a fresh pose."""
-
-    def __init__(self, pad, config=None):
-        self.pad = int(pad)
-        self.config = config
-        self.global_position = None
-        self.packet = None
-        self.packet_at = None
-        self.pose = None
-        self.pose_at = None
-        self.stable_at = None
-        self.hits = 0
-        self.outside_key = None
-        self.outside_at = None
-        self.outside_hits = 0
-
-    def observe(self, raw, now):
-        # djitellopy replaces its state dict on every UDP state packet. Keep the
-        # reference (not id(raw)) so stale cached packets cannot count as samples.
-        fresh = raw is not self.packet
-        pose = (tuple(int(raw[k]) for k in ("mid", "x", "y", "z"))
-                if all(k in raw for k in ("mid", "x", "y", "z"))
-                else (-1, 0, 0, 0))
-        previous = self.pose
-        target = (PadRecoveryGeometry.target(self.config, pose[0]) if self.config is not None
-                  else ((0, 0, dc.TAKEOFF_HEIGHT_CM) if pose[0] == self.pad else None))
-        known = target is not None
-        # A pad switch changes the local origin. Compare physical/global points,
-        # not the unrelated local x/y values on opposite sides of that switch.
-        global_position = None
-        if known and self.config is not None:
-            global_position = dc.to_global(self.config, dict(zip(("mid", "x", "y", "z"), pose)))
-        jump = (previous is not None and previous[0] == pose[0]
-                and max(abs(a-b) for a, b in zip(previous[1:], pose[1:])) > 20)
-        if global_position is not None and self.global_position is not None:
-            jump = max(abs(a-b) for a, b in zip(global_position, self.global_position)) > 20
-        if fresh:
-            self.packet, self.packet_at = raw, now
-            if pose != self.pose:
-                self.pose_at = now
-            stable = (previous is not None and previous[0] == pose[0]
-                      and max(abs(a-b) for a, b in zip(previous[1:], pose[1:])) <= 5)
-            if not stable or not known:
-                self.hits, self.stable_at = 0, now
-            self.hits += 1
-            self.pose = pose
-            self.global_position = global_position
-        age = float("inf") if self.packet_at is None else now - self.packet_at
-        offsets = tuple(pose[i+1] - target[i] for i in range(3)) if known else (0, 0, 0)
-        error = max(abs(a) for a in offsets) if known else float("inf")
-        aligned = pose[0] == self.pad and pose[3] > 0 and error <= dc.START_ALIGNMENT_TOLERANCE_CM
-        if fresh:
-            key = tuple((1 if v > 0 else -1) if abs(v) > dc.START_ALIGNMENT_TOLERANCE_CM else 0
-                        for v in offsets)
-            if aligned or not known or key != self.outside_key or previous is None or previous[0] != pose[0]:
-                self.outside_hits, self.outside_at = 0, now
-            self.outside_key = key
-            if not aligned:
-                self.outside_hits += 1
-        frozen = (not aligned and self.pose_at is not None and now-self.pose_at >= 1.5)
-        valid = known and pose[3] > 0 and age <= 0.6 and not frozen
-        stable = valid and self.hits >= 3 and now-self.stable_at >= 0.3
-        if not aligned:
-            stable = (stable and self.outside_hits >= 3
-                      and self.outside_at is not None and now-self.outside_at >= 0.3)
-        return dict(pose=pose, fresh=fresh, valid=valid, stable=stable,
-                    aligned=aligned, error=error, jump=jump, frozen=frozen, age=age,
-                    target=target, offsets=offsets)
-
-
-class IndependentTakeoff:
-    """Simultaneous dispatch, but each aircraft releases its own control gate."""
-
-    def __init__(self, swarm, configs, stop_event, command_locks, event_sink=None):
-        self.swarm, self.configs = swarm, configs
-        self.stop_event, self.command_locks = stop_event, command_locks
-        self.event_sink = event_sink
-        self.ready = [threading.Event() for _ in configs]
-        self.errors = [None] * len(configs)
-        self.release = threading.Event()
-        self.threads = []
-
-    def report(self, idx, kind, detail):
-        print(f"{kind}: {self.configs[idx]['name']}: {detail}", flush=True)
-        if self.event_sink is not None:
-            try:
-                self.event_sink(idx, kind, detail)
-            except Exception as exc:
-                print(f"TAKEOFF EVENT LOG ERROR: {exc}", flush=True)
-
-    def launch(self, idx):
-        while not self.release.wait(0.05):
-            if self.stop_event.is_set():
-                return
-        tello = self.swarm.tellos[idx]
-        try:
-            with self.command_locks[idx]:
-                if self.stop_event.is_set():
-                    return
-                self.report(idx, "TAKEOFF_REQUESTED", "single attempt; awaiting this aircraft's reply")
-                previous_retries = tello.retry_count
-                try:
-                    tello.retry_count = 1
-                    tello.takeoff()
-                finally:
-                    tello.retry_count = previous_retries
-            # An interrupted/failed takeoff must never enable positioning.
-            if not self.stop_event.is_set():
-                dc.set_phase(idx, "wind_tunnel_acquire_pad")
-                self.ready[idx].set()
-                self.report(idx, "TAKEOFF_CONFIRMED", "independent pad control enabled")
-        except Exception as exc:
-            self.errors[idx] = str(exc)
-            if not self.stop_event.is_set():
-                dc.set_phase(idx, "wind_tunnel_takeoff_error")
-            self.report(idx, "TAKEOFF_FAILED", str(exc))
-
-    def start(self):
-        try:
-            for idx in range(len(self.configs)):
-                thread = threading.Thread(target=self.launch, args=(idx,), daemon=True)
-                self.threads.append(thread)
-                thread.start()
-        except Exception:
-            self.stop_event.set()
-            raise
-        finally:
-            self.release.set()
-
-    def wait(self):
-        for thread in self.threads:
-            thread.join()
-        failures = [f"{self.configs[i]['name']}: {error}" for i, error in enumerate(self.errors)
-                    if error is not None]
-        if failures:
-            raise RuntimeError("Takeoff not confirmed; partial data retained: " + "; ".join(failures))
-
-
-def go_was_rejected_without_motion(error):
-    """True only when the aircraft itself answered the go with 'error ...'.
-
-    djitellopy reports the drone's literal reply as the latest response, so an
-    'error ...' reply proves the command was received and refused and that no
-    motion is outstanding.  Its timeout text ("Aborting command ... Did not
-    receive a response"), "max retries exceeded" and decode errors prove nothing
-    about what the aircraft is doing, and must stay single-shot hard faults.
-    """
-    _, marker, response = str(error).partition("Latest response:")
-    return bool(marker) and response.strip().strip("'\"\t ").lower().startswith("error")
-
-
 def run_fixed_pad_hover_control(
-    swarm, configs, stop_event=None, landed=None, duration_sec=None,
-    command_locks=None, event_sink=None, ready_events=None,
+    swarm,
+    configs,
+    stop_event=None,
+    landed=None,
+    duration_sec=None,
 ):
-    """Monitor each single-attempt go concurrently; uncertain results latch off."""
-    stop_event = stop_event if stop_event is not None else threading.Event()
-    landed = landed if landed is not None else [False] * len(configs)
-    command_locks = (command_locks if command_locks is not None
-                     else [threading.Lock() for _ in configs])
+    """Continuously keep each drone above only its own assigned Mission Pad."""
     start = time.monotonic()
+    next_tick = start
+    last_report = -999.0
+    if landed is None:
+        landed = [False] * len(configs)
 
-    def active(idx):
-        return (not stop_event.is_set() and not landed[idx]
-                and (duration_sec is None or time.monotonic() - start < duration_sec))
-
-    def worker(idx):
-        tello, config = swarm.tellos[idx], configs[idx]
-        settle_until = 0.0
-        if ready_events is not None:
-            while active(idx) and not ready_events[idx].is_set():
-                # No RC/go is allowed while this aircraft is still taking off.
-                stop_event.wait(0.05)
-            if not active(idx):
-                return
-            settle_until = time.monotonic() + TAKEOFF_SETTLE_SEC
-        guard = PadObservationGuard(config["mission_pad"], config)
-        pending = None
-        fault = None
-        soft_faults = 0
-        recover_at = None
-        brake_grace = 0.0
-        retry_until = 0.0
-        last_report = -999.0
-        next_move = settle_until
-
-        def report_event(kind, detail):
-            if event_sink is not None:
-                try:
-                    event_sink(idx, kind, str(detail))
-                except Exception as exc:
-                    print(f"PAD EVENT LOG ERROR: {config['name']}: {exc}", flush=True)
-
-        def brake(reason, kind, note):
-            # stop is an SDK motion brake, NOT emergency (motor cut).
-            # Its untagged ACK may satisfy the outstanding go wait: never treat
-            # that result as proof of arrival or as permission to move again.
-            print(f"PAD CONTROL {kind}: {config['name']}: {reason}. {note}", flush=True)
-            try:
-                tello.send_command_without_return("stop")
-            except Exception as exc:
-                print(f"PAD BRAKE SEND FAILED: {config['name']}: {exc}", flush=True)
-            report_event(kind, f"{reason}; last_pose={guard.pose}; brake not confirmed")
-
-        def latch(reason):
-            nonlocal fault
-            if fault is not None:
-                return
-            fault = reason
-            brake(reason, "FAULT",
-                  "Automatic recentering disabled for this run; operator attention required.")
-
-        def fail(reason, recoverable, now):
-            """Hard-latch, or brake for one bounded retry.  Returns recover_at."""
-            nonlocal soft_faults
-            if fault is not None:
-                return None
-            if recoverable and soft_faults + 1 < SOFT_FAULT_MAX_CONSECUTIVE:
-                soft_faults += 1
-                brake(reason, "SOFT_FAULT",
-                      f"Attempt {soft_faults} of {SOFT_FAULT_MAX_CONSECUTIVE - 1} recoverable; "
-                      f"braking, then re-confirming for {SOFT_FAULT_COOLDOWN_SEC:g}s before retry.")
-                return now + SOFT_FAULT_COOLDOWN_SEC
-            latch(reason)
-            return None
-
-        def execute_move(task):
-            try:
-                with command_locks[idx]:
-                    if not active(idx) or task["cancel"].is_set():
-                        return
-                    task["result"] = check_and_recenter_assigned_pad(tello, config, task["reference_pad"])
-            except Exception as exc:
-                task["error"] = str(exc)
-            finally:
-                task["done"].set()
+    while True:
+        now = time.monotonic()
+        elapsed = now - start
+        if stop_event is not None and stop_event.is_set():
+            break
+        active_indices = [idx for idx in range(len(configs)) if not landed[idx]]
+        if not active_indices:
+            break
+        if duration_sec is not None and elapsed >= duration_sec:
+            break
+        if now < next_tick:
+            time.sleep(min(0.02, next_tick - now))
+            continue
 
         try:
-            while active(idx):
-                now = time.monotonic()
-                try:
-                    observation = guard.observe(tello.get_current_state(), now)
-                    if pending is not None and fault is None and recover_at is None:
-                        reason, recoverable = None, False
-                        if not observation["valid"]:
-                            reason = ("no known Pad detected, invalid height, "
-                                      "stale state or frozen off-target pose")
-                        elif observation["jump"]:
-                            reason = "position jumped by more than 20 cm between checks"
-                        elif observation["error"] > pending["initial_error"] + 15:
-                            reason = "position error increased by more than 15 cm during recenter"
-                        elif pending["done"].is_set() and pending.get("error"):
-                            reason = "go failed: " + pending["error"]
-                            recoverable = go_was_rejected_without_motion(pending["error"])
-                        elif now >= pending["deadline"]:
-                            reason = "recenter deadline exceeded without verified completion"
-                            recoverable = True
-                        if reason:
-                            pending["cancel"].set()
-                            recover_at = fail(reason, recoverable, now)
-                            if recover_at is not None:
-                                retry_until = recover_at
-                                brake_grace = now + SOFT_FAULT_BRAKE_GRACE_SEC
-                        elif pending["done"].is_set() and pending.get("result", (None,))[0] == "waiting_pad":
-                            # No go was sent: reconfirm the newly observed reference.
-                            pending = None
-                            next_move = now + 0.3
-                        elif pending["done"].is_set():
-                            # Require NEW post-command observations, not just SDK ok.
-                            if observation["fresh"] and observation["aligned"]:
-                                pending["arrival_hits"] += 1
-                            else:
-                                pending["arrival_hits"] = 0
-                            if pending["arrival_hits"] >= 3:
-                                report_event("ARRIVAL_VERIFIED", observation["pose"])
-                                pending = None
-                                soft_faults = 0
-                                next_move = now + 1.0
-                    if recover_at is not None and pending is not None:
-                        if pending["done"].is_set():
-                            # Only once the braked go has actually returned can no
-                            # command race a retry.  The cooldown then still has to
-                            # elapse, and PadObservationGuard still has to re-confirm
-                            # a stable off-target pose, before any new move is armed.
-                            next_move = max(next_move, recover_at)
-                            pending, recover_at = None, None
-                        elif now >= brake_grace:
-                            # No result means no safe retry, and no bound on the
-                            # wait would leave this aircraft silently uncorrected.
-                            latch("braked recenter did not return within "
-                                  f"{SOFT_FAULT_BRAKE_GRACE_SEC:g}s")
-                            recover_at = None
+            states = [dc.get_state_safe(tello) for tello in swarm.tellos]
+            commands = [
+                fixed_pad_hover_command(configs[idx], states[idx])
+                if idx in active_indices
+                else [0, 0, 0, 0]
+                for idx in range(len(configs))
+            ]
+            for idx in active_indices:
+                if not landed[idx]:
+                    swarm.tellos[idx].send_rc_control(*commands[idx])
 
-                    if fault is not None:
-                        status = "control_fault"
-                    elif recover_at is not None or now < retry_until:
-                        status = "correction_retry"
-                    elif pending is not None:
-                        status = ("global_pad_recovery" if pending["reference_pad"] != config["mission_pad"]
-                                  else "centering")
-                    elif not observation["valid"]:
-                        status = "acquire_pad"
-                    elif observation["aligned"]:
-                        status = "hover"
-                    elif observation["stable"] and not observation["jump"] and now >= next_move:
-                        distance = math.sqrt(sum(v*v for v in observation["offsets"]))
-                        pending = dict(done=threading.Event(), cancel=threading.Event(),
-                                       reference_pad=observation["pose"][0],
-                                       initial_error=observation["error"], arrival_hits=0,
-                                       deadline=now + min(
-                                           FIXED_PAD_CROSS_PAD_MOVE_MAX_SEC
-                                           if observation["pose"][0] != config["mission_pad"]
-                                           else FIXED_PAD_MOVE_MAX_SEC,
-                                           distance / dc.TAKEOFF_CLIMB_SPEED_CM_S
-                                           + FIXED_PAD_MOVE_OVERHEAD_SEC))
-                        pending["thread"] = threading.Thread(
-                            target=execute_move, args=(pending,), daemon=True)
-                        pending["thread"].start()
-                        report_event("MOVE_REQUESTED", f"pose={observation['pose']}; reference=m{pending['reference_pad']}; "
-                                     f"own=m{config['mission_pad']}; target={observation['target']}")
-                        status = "centering"
+            if elapsed - last_report >= 1.0:
+                status = []
+                for idx in active_indices:
+                    state = states[idx]
+                    mid = int(state.get("mid", -1))
+                    mpyaw = state.get("mission_pad_yaw")
+                    cmd = commands[idx]
+                    heading_note = ""
+                    heading_tolerance = configs[idx].get("mission_pad_heading_tolerance_deg")
+                    if mpyaw is not None and heading_tolerance is not None:
+                        heading_error = _signed_angle_degrees(
+                            float(mpyaw) - float(configs[idx]["mission_pad_yaw_baseline_deg"])
+                        )
+                        if abs(heading_error) > float(heading_tolerance):
+                            heading_note = " HEADING_MISMATCH_HOLD"
+                    if mid == int(configs[idx]["mission_pad"]):
+                        status.append(
+                            f"{configs[idx]['name']} m{mid} "
+                            f"local=({state['x']},{state['y']}) yaw={mpyaw} "
+                            f"rc={tuple(cmd[:3])}{heading_note}"
+                        )
+                    elif mid >= 0:
+                        status.append(
+                            f"{configs[idx]['name']} sees_m{mid} expects_m{configs[idx]['mission_pad']} "
+                            f"yaw={mpyaw} rc={tuple(cmd[:3])}{heading_note}"
+                        )
                     else:
-                        status = "confirming_position"
+                        status.append(
+                            f"{configs[idx]['name']} NO_PAD_DETECTED yaw={mpyaw} rc={tuple(cmd[:3])}"
+                        )
+                print("  STATION KEEPING: " + " | ".join(status), flush=True)
+                last_report = elapsed
+        except Exception as exc:
+            print(
+                f"  RECOVERABLE STATION-KEEPING ERROR: {exc}. Holding all active "
+                "aircraft; no landing command sent.",
+                flush=True,
+            )
+            for idx in active_indices:
+                try:
+                    swarm.tellos[idx].send_rc_control(0, 0, 0, 0)
+                except Exception:
+                    pass
+            time.sleep(0.2)
+        next_tick += FIXED_PAD_CONTROL_INTERVAL_SEC
 
-                    # Never interleave RC with a go still awaiting its result.
-                    # A braked-but-outstanding go is exactly that case, so the
-                    # heartbeat stays off until its SDK wait has ended.
-                    if pending is None or (fault is not None and pending["done"].is_set()):
-                        with command_locks[idx]:
-                            if active(idx):
-                                tello.send_rc_control(0, 0, 0, 0)
-                    if active(idx):
-                        dc.set_phase(idx, "wind_tunnel_" + status)
-                    if now-last_report >= 1.0:
-                        print(f"PAD HOLD: {config['name']} status={status} "
-                              f"expected=m{config['mission_pad']} pose={observation['pose']} "
-                              f"packet_age={observation['age']:.2f}s fault={fault}", flush=True)
-                        last_report = now
-                except Exception as exc:
-                    if pending is not None:
-                        pending["cancel"].set()
-                    latch("control/telemetry error: " + str(exc))
-                    if active(idx):
-                        dc.set_phase(idx, "wind_tunnel_control_fault")
-                stop_event.wait(0.1)
-        finally:
-            if pending is not None and not pending["done"].is_set():
-                pending["cancel"].set()
-                latch("controller stopped or landing requested during active recenter")
-                # Keep the per-drone command lock owned by the executor until its
-                # bounded SDK wait ends; no new go may race with normal landing.
-                pending["thread"].join(timeout=8.0)
-
-    threads = [threading.Thread(target=worker, args=(idx,), daemon=True)
-               for idx in range(len(configs))]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
+    for idx, tello in enumerate(swarm.tellos):
+        if not landed[idx]:
+            try:
+                tello.send_rc_control(0, 0, 0, 0)
+            except Exception:
+                pass
 
 
 def run(experiment_id):
@@ -833,10 +466,6 @@ def run(experiment_id):
     if experiment.get("protocol") != "wind_tunnel":
         raise ValueError("This collector only runs records whose protocol is wind_tunnel.")
     configs = build_configs(experiment)
-    front_tail = (
-        configs[0]["formation"] == "front"
-        and configs[0]["wind_direction"] == "tail wind"
-    )
     dc.reset_runtime_state(configs)
     paths = dc.output_paths(experiment_id, configs)
     run_id, experiment_dir, coordination_path, battery_path, timeseries_path, drone_paths, battery_plot, temp_plot = paths
@@ -846,68 +475,53 @@ def run(experiment_id):
     for item in drone_paths.values():
         dc.write_header(item["coordination"], dc.COORDINATION_COLUMNS)
         dc.write_header(item["battery"], dc.BATTERY_COLUMNS)
-    pad_event_path = coordination_path.with_name(coordination_path.stem + "_pad_control.csv")
-    dc.write_header(pad_event_path, ["timestamp", "drone", "event", "detail"])
-    pad_event_lock = threading.Lock()
-
-    def save_pad_event(idx, kind, detail):
-        with pad_event_lock:
-            dc.append_row(pad_event_path, [datetime.now().isoformat(timespec="milliseconds"),
-                                          configs[idx]["name"], kind, detail])
 
     print(f"Wind Tunnel experiment: {experiment_id}", flush=True)
     print(f"Formation={experiment['formation']}, distance={experiment['inter_drone_distance_cm']}cm, wind={experiment['wind_direction']} / {experiment['wind_speed']}", flush=True)
-    if front_tail:
-        print(
-            "Front tail-wind frame: Pad 5 -> 6 -> 7 -> 8 -> 1 and printed "
-            "arrows run left-to-right (+X); aircraft noses point up (+Y). "
-            "The fan is behind the drones (-Y), blowing toward +Y.",
-            flush=True,
-        )
-    elif str(experiment.get("formation", "")).strip().lower() == "front":
+    if str(experiment.get("formation", "")).strip().lower() == "front":
         print(
             "Front physical frame: Pad 5 -> 6 -> 7 -> 8 -> 1 runs bottom-to-top "
             "along global +Y; every pad rocket (+pad X) and aircraft nose points "
             "global +X (right).",
             flush=True,
         )
-    elif str(experiment.get("wind_direction", "")).strip().lower() == "side wind":
-        spacing = dc.experiment_inter_drone_distance_cm(experiment)
+    elif (
+        dc.experiment_inter_drone_distance_cm(experiment) == 75
+        and str(experiment.get("wind_direction", "")).strip().lower() == "side wind"
+    ):
         side_layouts = {
             "vee": (
                 "Vee: Pad 7 is the +X apex; 5-6-7 and 1-8-7 form the two arms; "
-                f"adjacent centres are {spacing} cm and the included angle is 90 degrees."
+                "adjacent centres are 75 cm and the included angle is 90 degrees."
             ),
             "diamond": (
                 "Diamond: Pad 7 centre, Pad 8 top, Pad 6 bottom, Pad 5 left, "
-                f"Pad 1 right; centre-to-outer-pad distance is {spacing} cm."
+                "Pad 1 right; centre-to-outer-pad distance is 75 cm."
             ),
-            "column": f"Column: Pad 5 -> 6 -> 7 -> 8 -> 1 runs left-to-right along global +X at {spacing} cm spacing.",
+            "column": "Column: Pad 5 -> 6 -> 7 -> 8 -> 1 runs left-to-right along global +X at 75 cm spacing.",
             "echalon": (
                 "Echelon: Pad 1 is nearest the +Y fan and Pad 5 is farthest; "
-                f"1-8-7-6-5 follows a 45-degree diagonal with {spacing} cm between adjacent centres."
+                "1-8-7-6-5 follows a 45-degree diagonal with 75 cm between adjacent centres."
             ),
             "echelon": (
                 "Echelon: Pad 1 is nearest the +Y fan and Pad 5 is farthest; "
-                f"1-8-7-6-5 follows a 45-degree diagonal with {spacing} cm between adjacent centres."
+                "1-8-7-6-5 follows a 45-degree diagonal with 75 cm between adjacent centres."
             ),
             "echolon": (
                 "Echelon: Pad 1 is nearest the +Y fan and Pad 5 is farthest; "
-                f"1-8-7-6-5 follows a 45-degree diagonal with {spacing} cm between adjacent centres."
+                "1-8-7-6-5 follows a 45-degree diagonal with 75 cm between adjacent centres."
             ),
         }
         description = side_layouts.get(str(experiment.get("formation", "")).strip().lower())
         if description:
             print(
-                f"{spacing} cm side-wind layout: " + description + " "
+                "75 cm side-wind layout: " + description + " "
                 "Every pad rocket (+pad X) and aircraft nose points global +X (right).",
                 flush=True,
             )
     print(
         "Physical wind direction: "
-        + ("source at -Y; airflow -Y -> +Y (from behind the +Y-facing noses)"
-           if front_tail else
-           "source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
+        + ("source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
            if configs[0]["formation"] == "vee" and configs[0]["wind_direction"] == "head wind"
            else WIND_FLOW_DESCRIPTIONS.get(
             str(experiment.get("wind_direction", "")).strip().lower(),
@@ -926,8 +540,6 @@ def run(experiment_id):
     logger_thread = None
     takeoff_started = False
     landed = [False] * 5
-    control_inactive = [False] * 5
-    command_locks = [threading.Lock() for _ in configs]
     start_timestamp = ""
     start_time = None
     outputs_finalized = False
@@ -939,14 +551,7 @@ def run(experiment_id):
         print("Preflight: connecting and enabling downward Mission Pad detection...", flush=True)
         dc.connect_and_check(swarm, configs, experiment=None)
         dc.prepare_formal_takeoff_state(swarm, configs)
-        if front_tail:
-            print(
-                "Place drones 1-5 on Pads 5,6,7,8,1 left-to-right along the "
-                "printed arrows (+X). Keep all noses pointing up (+Y), away "
-                "from the fan at -Y. Press Enter to take off all five drones...",
-                flush=True,
-            )
-        elif str(experiment.get("formation", "")).strip().lower() == "front":
+        if str(experiment.get("formation", "")).strip().lower() == "front":
             print(
                 "Place drone 1-5 above Mission Pads 5,6,7,8,1 bottom-to-top. "
                 "Confirm every pad rocket (+pad X) and aircraft nose points right (+X). "
@@ -980,23 +585,36 @@ def run(experiment_id):
         print("Full-flight telemetry recording started before takeoff.", flush=True)
 
         takeoff_started = True
-        takeoffs = IndependentTakeoff(swarm, configs, abort_event, command_locks, save_pad_event)
-        # Controllers wait on independent gates. A slow takeoff reply from one
-        # aircraft must not prevent another confirmed aircraft from centering.
+        swarm.takeoff()
+        # The SDK owns each aircraft during automatic takeoff, so RC correction
+        # must not race the takeoff command. Start station keeping immediately
+        # after takeoff returns, before waiting for the group pad-lock check.
         controller_thread = threading.Thread(
             target=run_fixed_pad_hover_control,
             args=(swarm, configs),
-            kwargs={"stop_event": abort_event, "landed": control_inactive,
-                    "command_locks": command_locks, "event_sink": save_pad_event,
-                    "ready_events": takeoffs.ready},
+            kwargs={"stop_event": abort_event, "landed": landed},
             daemon=True,
         )
         controller_thread.start()
-        takeoffs.start()
-        takeoffs.wait()  # Pad controllers are already running as each reply arrives.
-        # Each aircraft enters hover only after its own measured alignment
-        # check passes. Battery monitoring starts now, including acquisition
-        # and re-centering; no fixed six-second success assumption.
+        # Acquire every assigned marker, then use short feedback-controlled RC
+        # corrections.  Do not use a blocking go_xyz_speed_mid command here:
+        # if a marker changes during that command, the aircraft can keep moving
+        # on a stale coordinate frame.
+        dc.set_phase_all("wind_tunnel_acquire_pad")
+        try:
+            dc.wait_for_all_expected_start_pads(swarm, configs)
+        except Exception as alignment_exc:
+            # One failed lock must not disable station keeping for the other
+            # four aircraft. The controller remains active and can also guide
+            # an aircraft back from another known pad to its assigned pad.
+            print(
+                f"RECOVERABLE ALIGNMENT WARNING: {alignment_exc}. "
+                "Continuing station keeping for every aircraft; no landing command sent.",
+                flush=True,
+            )
+        dc.set_phase_all("wind_tunnel_centering")
+        time.sleep(INITIAL_POSITION_CORRECTION_DURATION_SEC)
+        dc.set_phase_all("wind_tunnel_hover")
 
         monitor_start_readings = dc.read_all_batteries(swarm, configs)
         last_valid_batteries = [int(monitor_start_readings[config["ip"]]) for config in configs]
@@ -1026,7 +644,6 @@ def run(experiment_id):
                         ground_confirmation_hits[idx] = 0
                     if ground_confirmation_hits[idx] >= GROUND_CONFIRMATION_HITS:
                         dc.hover_end_batteries[config["ip"]] = str(battery)
-                        control_inactive[idx] = True
                         landed[idx] = True
                         # Keep djitellopy.end() from issuing a redundant land()
                         # after telemetry has already confirmed the aircraft is
@@ -1086,22 +703,15 @@ def run(experiment_id):
                         dc.set_phase(idx, "wind_tunnel_landing_20_percent")
                         # Remove this drone from the shared controller before
                         # issuing land, so no later RC command can overwrite it.
-                        control_inactive[idx] = True
+                        landed[idx] = True
+                        tello.send_rc_control(0, 0, 0, 0)
                         print(
                             f"PROGRAM LAND COMMAND: {config['name']} confirmed battery <= "
                             f"{TARGET_BATTERY_PERCENT}% for {LOW_BATTERY_CONFIRMATION_HITS} "
-                            f"consecutive readings (latest {battery}%). Landing requested; "
-                            "waiting for any active pad command to finish.",
+                            f"consecutive readings (latest {battery}%). Sending land now.",
                             flush=True,
                         )
-                        # Prevent a new correction after landing is requested.
-                        # An outstanding SDK go must return before normal land.
-                        with command_locks[idx]:
-                            if abort_event.is_set():
-                                return
-                            tello.send_rc_control(0, 0, 0, 0)
-                            tello.land()
-                        landed[idx] = True
+                        tello.land()
                         dc.set_phase(idx, "wind_tunnel_landed")
                         return
                     time.sleep(0.1)
@@ -1122,8 +732,10 @@ def run(experiment_id):
                         "No landing command will be sent; holding and resuming monitoring.",
                         flush=True,
                     )
-                    # The pad worker owns movement; battery read errors must
-                    # not send RC zero in the middle of its go command.
+                    try:
+                        tello.send_rc_control(0, 0, 0, 0)
+                    except Exception:
+                        pass
                     time.sleep(1.0)
 
         for idx, tello in enumerate(swarm.tellos):
@@ -1208,8 +820,7 @@ def run(experiment_id):
                 if landed[idx]:
                     continue
                 try:
-                    with command_locks[idx]:
-                        tello.land()
+                    tello.land()
                 except Exception:
                     pass
         # djitellopy Tello.end() calls land() when is_flying is true. Therefore

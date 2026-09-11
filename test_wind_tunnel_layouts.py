@@ -1,31 +1,29 @@
-"""Offline geometry/control tests: never import the aircraft SDK or start a run."""
+"""Historical Wind Tunnel layout checks using AST-isolated helpers only.
 
+No data_collector/aircraft SDK module is imported; no flight entry point runs.
+"""
 import ast
 import itertools
 import math
-import subprocess
-import threading
-import time
 from pathlib import Path
+import subprocess
 from types import SimpleNamespace
 import unittest
 
-
 ROOT = Path(__file__).resolve().parent
+REFERENCE_COMMIT = "3ff2f14c"
+PADS = (5, 6, 7, 8, 1)
 FORMATIONS = ("front", "vee", "column", "diamond", "echalon", "echelon", "echolon")
 WINDS = ("head wind", "tail wind", "side wind")
-PADS = (5, 6, 7, 8, 1)
-REFERENCE_COMMIT = "3ff2f14c"
 
 
 def load_offline(source=None):
-    """Load isolated helpers, excluding SDK imports, file output and main."""
     dc_names = {
-        "IP_PREFIX", "DRONE_NUMBER_TO_IP_SUFFIX", "ROW_SPACING_CM",
-        "TAKEOFF_HEIGHT_CM", "int_field", "experiment_inter_drone_distance_cm",
-        "TAKEOFF_CLIMB_SPEED_CM_S", "START_ALIGNMENT_TOLERANCE_CM",
-        "start_pad_alignment_state",
-        "clamp", "is_echalon_formation", "pad_origin_for_detection", "to_global",
+        "IP_PREFIX", "DRONE_NUMBER_TO_IP_SUFFIX", "COLUMN_SPACING_CM", "ROW_SPACING_CM",
+        "TAKEOFF_HEIGHT_CM", "VEE_COLUMN_ORIGINS_CM", "VEE_75_COLUMN_ORIGINS_CM",
+        "ECHALON_COLUMN_ORIGINS_CM", "int_field", "experiment_inter_drone_distance_cm",
+        "clamp", "is_echalon_formation", "position_at_column_row",
+        "pad_origin_for_detection", "to_global",
     }
     tree = ast.parse((ROOT / "data_collector.py").read_text())
     nodes = [n for n in tree.body if (
@@ -34,30 +32,24 @@ def load_offline(source=None):
         isinstance(n, ast.Assign)
         and any(isinstance(t, ast.Name) and t.id in dc_names for t in n.targets)
     )]
-    dc_namespace = {}
-    exec(compile(ast.Module(body=nodes, type_ignores=[]), "data_collector.py", "exec"), dc_namespace)
-    namespace = {"math": math, "threading": threading, "time": time,
-                 "dc": SimpleNamespace(**dc_namespace)}
+    dc_namespace = {"math": math}
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), "isolated-dc", "exec"), dc_namespace)
+    namespace = {"math": math, "dc": SimpleNamespace(**dc_namespace)}
     tree = ast.parse(source if source is not None else (ROOT / "wind_tunnel_collector.py").read_text())
     pure_functions = {
         "build_configs", "_minimum_effective_control", "_signed_angle_degrees",
-        "fixed_pad_hover_command",
-        "go_was_rejected_without_motion",
-        "run_fixed_pad_hover_control",
-        "check_and_recenter_assigned_pad",
+        "fixed_pad_hover_command", "run_fixed_pad_hover_control",
     }
     nodes = [n for n in tree.body if isinstance(n, ast.Assign) or (
-        isinstance(n, ast.ClassDef) and n.name in {"PadObservationGuard", "PadRecoveryGeometry", "IndependentTakeoff"}
-    ) or (
         isinstance(n, ast.FunctionDef) and n.name in pure_functions
     )]
-    exec(compile(ast.Module(body=nodes, type_ignores=[]), "wind_tunnel_collector.py", "exec"), namespace)
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), "isolated-wind-tunnel", "exec"), namespace)
     return SimpleNamespace(**namespace)
 
 
-def experiment(formation, wind, spacing, level="Level1"):
+def experiment(formation, wind, spacing):
     return {
-        "formation": formation, "wind_direction": wind, "wind_speed": level,
+        "formation": formation, "wind_direction": wind, "wind_speed": "Level2",
         "inter_drone_distance_cm": spacing,
         "drones": [
             {"drone_number": str(i), "takeoff_order": str(i),
@@ -67,200 +59,76 @@ def experiment(formation, wind, spacing, level="Level1"):
     }
 
 
-class WindTunnelLayoutTests(unittest.TestCase):
+class LegacyLayoutTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.wt = load_offline()
+        cls.w = load_offline()
+        cls.reference = load_offline(subprocess.check_output(
+            ["git", "show", REFERENCE_COMMIT + ":wind_tunnel_collector.py"],
+            cwd=ROOT, text=True))
 
-    def test_75_geometry_matches_each_confirmed_layout(self):
-        u = 75 / math.sqrt(2)
-        normal = {
-            "front": [(0, 0), (0, 75), (0, 150), (0, 225), (0, 300)],
-            "vee": [(0, 0), (u, u), (2*u, 2*u), (3*u, u), (4*u, 0)],
-            "column": [(0, 300), (0, 225), (0, 150), (0, 75), (0, 0)],
-            "diamond": [(75, 0), (0, 75), (75, 75), (150, 75), (75, 150)],
-            "echalon": [(0, 4*u), (u, 3*u), (2*u, 2*u), (3*u, u), (4*u, 0)],
-        }
-        side = {
-            "front": normal["front"],
-            "vee": [(0, 0), (u, u), (2*u, 2*u), (u, 3*u), (0, 4*u)],
-            "column": [(0, 0), (75, 0), (150, 0), (225, 0), (300, 0)],
-            "diamond": [(0, 75), (75, 0), (75, 75), (75, 150), (150, 75)],
-            "echalon": [(4*u, 0), (3*u, u), (2*u, 2*u), (u, 3*u), (0, 4*u)],
-        }
-        for formation, wind in itertools.product(FORMATIONS, WINDS):
-            with self.subTest(formation=formation, wind=wind):
-                configs = self.wt.build_configs(experiment(formation, wind, 75))
-                key = "echalon" if self.wt.dc.is_echalon_formation(formation) else formation
-                expected = (side if wind == "side wind" else normal)[key]
-                if formation == "front" and wind == "tail wind":
-                    expected = [(0, 0), (75, 0), (150, 0), (225, 0), (300, 0)]
-                self.assertEqual([(c["start_x"], c["start_y"]) for c in configs],
-                                 expected)
-
-    def test_front_tail_corrects_in_actual_body_axes(self):
-        for spacing in (50, 75):
-            for c in self.wt.build_configs(experiment("front", "tail wind", spacing)):
-                self.assertFalse(c["pad_x_aligned_with_body_forward"])
-                for x, y, expected in ((20, 0, [-8, 0, 0, 0]),
-                                       (-20, 0, [8, 0, 0, 0]),
-                                       (0, 20, [0, -8, 0, 0]),
-                                       (0, -20, [0, 8, 0, 0])):
-                    state = {"mid": c["mission_pad"], "x": x, "y": y,
-                             "z": 80, "mission_pad_yaw": 180}
-                    self.assertEqual(self.wt.fixed_pad_hover_command(c, state), expected)
-
-    def test_front_tail_pad_switch_preserves_global_position(self):
-        for spacing in (50, 75):
-            c = self.wt.build_configs(experiment("front", "tail wind", spacing))[0]
-            on_five = {"mid": 5, "x": 20, "y": -25, "z": 80, "mission_pad_yaw": 180}
-            on_six = dict(on_five, mid=6, x=20-spacing)
-            self.assertEqual(self.wt.dc.to_global(c, on_five),
-                             self.wt.dc.to_global(c, on_six))
-            self.assertEqual(self.wt.fixed_pad_hover_command(c, on_five),
-                             self.wt.fixed_pad_hover_command(c, on_six))
-
-    def test_only_spacing_and_coordinates_differ(self):
-        geometry = {"start_x", "start_y", "target_x", "target_y", "pad_origins_cm",
-                    "inter_drone_distance_cm", "column_spacing_cm"}
-        for formation, wind, level in itertools.product(FORMATIONS, WINDS, ("Level1", "Level2")):
-            with self.subTest(formation=formation, wind=wind, level=level):
-                small = self.wt.build_configs(experiment(formation, wind, 50, level))
-                large = self.wt.build_configs(experiment(formation, wind, 75, level))
-                for a, b in zip(small, large):
-                    self.assertEqual({k:v for k,v in a.items() if k not in geometry},
-                                     {k:v for k,v in b.items() if k not in geometry})
-                    for key in ("start_x", "start_y", "target_x", "target_y"):
-                        self.assertAlmostEqual(a[key], b[key] * 2/3)
-                    for pad in PADS:
-                        for axis in (0, 1):
-                            self.assertAlmostEqual(a["pad_origins_cm"][pad][axis],
-                                                   b["pad_origins_cm"][pad][axis] * 2/3)
-
-    def test_selected_distance_matches_physical_layout(self):
+    def test_only_diamond_head_50_coordinates_differ_from_historical_source(self):
+        geometry = {"start_x", "start_y", "target_x", "target_y", "pad_origins_cm"}
         for formation, wind, spacing in itertools.product(FORMATIONS, WINDS, (50, 75)):
+            record = experiment(formation, wind, spacing)
             with self.subTest(formation=formation, wind=wind, spacing=spacing):
-                configs = self.wt.build_configs(experiment(formation, wind, spacing))
-                positions = [(c["start_x"], c["start_y"]) for c in configs]
-                pairs = [(2, i) for i in (0, 1, 3, 4)] if formation == "diamond" else list(zip(range(4), range(1, 5)))
-                for a, b in pairs:
-                    self.assertAlmostEqual(math.dist(positions[a], positions[b]), spacing)
+                current = self.w.build_configs(record)
+                historical = self.reference.build_configs(record)
+                if (formation, wind, spacing) == ("diamond", "head wind", 50):
+                    self.assertNotEqual(current, historical)
+                    for a, b in zip(current, historical):
+                        self.assertEqual({k:v for k,v in a.items() if k not in geometry},
+                                         {k:v for k,v in b.items() if k not in geometry})
+                else:
+                    self.assertEqual(current, historical)
 
-    def test_same_local_error_produces_same_control(self):
-        for formation, wind in itertools.product(FORMATIONS, WINDS):
-            small = self.wt.build_configs(experiment(formation, wind, 50))
-            large = self.wt.build_configs(experiment(formation, wind, 75))
-            for a, b in zip(small, large):
-                for x, y, yaw in itertools.product((-24, 0, 24), (-24, 0, 24), (150, 180, -170)):
-                    state = {"mid": a["mission_pad"], "x": x, "y": y,
-                             "z": 80, "mission_pad_yaw": yaw}
-                    self.assertEqual(self.wt.fixed_pad_hover_command(a, state),
-                                     self.wt.fixed_pad_hover_command(b, state))
+    def test_diamond_head_50_centres_targets_and_pad_transforms(self):
+        configs = self.w.build_configs(experiment("diamond", "head wind", 50))
+        expected = {5:(50,0), 6:(0,50), 7:(50,50), 8:(100,50), 1:(50,100)}
+        for config, pad in zip(configs, PADS):
+            self.assertEqual(config["mission_pad"], pad)
+            self.assertEqual(config["target_pad"], pad)
+            self.assertEqual(config["pad_origins_cm"], expected)
+            self.assertEqual((config["start_x"], config["start_y"]), expected[pad])
+            self.assertEqual((config["target_x"], config["target_y"], config["target_z"]),
+                             (*expected[pad],80))
+            if pad != 7:
+                self.assertEqual(math.dist(expected[7], expected[pad]), 50)
+            for observed, origin in expected.items():
+                raw = dict(mid=observed,x=3,y=-7,z=81)
+                self.assertEqual(self.w.dc.to_global(config,raw),
+                                 (origin[0]+3,origin[1]-7,81))
+                self.assertEqual(raw,dict(mid=observed,x=3,y=-7,z=81))
+        # The existing RC implementation consumes the corrected coordinates;
+        # its gain, direction mapping and limits remain historical.
+        centre = configs[2]
+        for observed, command in ((5,[0,12,0,0]),(6,[12,0,0,0]),
+                                  (7,[0,0,0,0]),(8,[-12,0,0,0]),(1,[0,-12,0,0])):
+            raw = dict(mid=observed,x=0,y=0,z=80,mission_pad_yaw=180)
+            self.assertEqual(self.w.fixed_pad_hover_command(centre,raw),command)
 
-    def test_neighbour_pad_correction_points_toward_assigned_pad(self):
-        for formation, wind, spacing in itertools.product(FORMATIONS, WINDS, (50, 75)):
-            for config in self.wt.build_configs(experiment(formation, wind, spacing)):
-                for pad in PADS:
-                    state = {"mid": pad, "x": 0, "y": 0, "z": 80, "mission_pad_yaw": 180}
-                    lr, fb, ud, yaw = self.wt.fixed_pad_hover_command(config, state)
-                    command_x, command_y = ((fb, -lr) if config["pad_x_aligned_with_body_forward"] else (lr, fb))
-                    x, y = config["pad_origins_cm"][pad]
-                    progress = ((config["target_x"] - x) * command_x
-                                + (config["target_y"] - y) * command_y)
-                    if pad == config["mission_pad"]:
-                        self.assertEqual((lr, fb, ud, yaw), (0, 0, 0, 0))
-                    else:
-                        self.assertGreater(progress, 0, (formation, wind, spacing, pad))
+    def test_vee_head_50_and_75_have_actual_selected_arm_distance(self):
+        for spacing in (50, 75):
+            configs = self.w.build_configs(experiment("vee", "head wind", spacing))
+            step = spacing / math.sqrt(2)
+            expected = [(0,0),(step,step),(2*step,2*step),(3*step,step),(4*step,0)]
+            for config, point, pad in zip(configs, expected, PADS):
+                self.assertEqual(config["mission_pad"], pad)
+                self.assertEqual(config["target_pad"], pad)
+                self.assertEqual(set(config["pad_origins_cm"]), set(PADS))
+                self.assertEqual(config["target_z"], 80)
+                self.assertAlmostEqual(config["start_x"], point[0])
+                self.assertAlmostEqual(config["start_y"], point[1])
+                self.assertEqual((config["target_x"], config["target_y"]),
+                                 (config["start_x"], config["start_y"]))
+            positions = [(c["start_x"], c["start_y"]) for c in configs]
+            for first, second in zip(positions, positions[1:]):
+                self.assertAlmostEqual(math.dist(first, second), spacing)
 
-    def test_missing_pad_and_heading_hold_are_shared(self):
-        for formation, wind, spacing in itertools.product(FORMATIONS, WINDS, (50, 75)):
-            for config in self.wt.build_configs(experiment(formation, wind, spacing)):
-                state = {"mid": -1, "x": 40, "y": 40, "z": 80, "mission_pad_yaw": 180}
-                self.assertEqual(self.wt.fixed_pad_hover_command(config, state), [0, 0, 0, 0])
-                state["mid"] = config["mission_pad"]
-                state["mission_pad_yaw"] = None
-                self.assertEqual(self.wt.fixed_pad_hover_command(config, state), [0, 0, 0, 0])
-                if config["mission_pad_heading_tolerance_deg"] is not None:
-                    state["mission_pad_yaw"] = 100
-                    self.assertEqual(self.wt.fixed_pad_hover_command(config, state), [0, 0, 0, 0])
-
-
-class Published75RegressionTests(unittest.TestCase):
-    """Read-only comparison against the last published 75 cm implementation.
-
-    Geometry/body-frame adaptation is intentional; feedback gains, command
-    generation and the takeoff/landing lifecycle must not silently change.
-    These checks never connect to aircraft or execute the run function.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        cls.reference_source = subprocess.check_output(
-            ["git", "show", f"{REFERENCE_COMMIT}:wind_tunnel_collector.py"],
-            cwd=ROOT, text=True,
-        )
-        cls.current_source = (ROOT / "wind_tunnel_collector.py").read_text()
-
-    # Deliberate additions from the 2026-09-10 recenter-watchdog rework. The old
-    # budget shrank relative to the fixed SDK overhead as the position error grew,
-    # and any single missed deadline disabled correction for the whole run.
-    # Listing them here is what keeps an undeclared new gain from slipping in.
-    NEW_CONTROL_NAMES = {
-        "FIXED_PAD_MOVE_OVERHEAD_SEC", "FIXED_PAD_MOVE_MAX_SEC",
-        "FIXED_PAD_CROSS_PAD_MOVE_MAX_SEC", "SOFT_FAULT_MAX_CONSECUTIVE",
-        "SOFT_FAULT_COOLDOWN_SEC", "SOFT_FAULT_BRAKE_GRACE_SEC",
-        "TAKEOFF_SETTLE_SEC",
-        "go_was_rejected_without_motion",
-    }
-
-    def test_legacy_helpers_and_constants_unchanged_by_new_pad_controller(self):
-        def control_nodes(source):
-            nodes = {}
-            for node in ast.parse(source).body:
-                if isinstance(node, ast.Assign):
-                    for target in node.targets:
-                        if isinstance(target, ast.Name):
-                            nodes[target.id] = ast.dump(node)
-                elif isinstance(node, ast.FunctionDef) and node.name not in {
-                        "build_configs", "run", "run_fixed_pad_hover_control",
-                        "check_and_recenter_assigned_pad"}:
-                    nodes[node.name] = ast.dump(node)
-            return nodes
-        current = control_nodes(self.current_source)
-        reference = control_nodes(self.reference_source)
-        # Nothing that already existed may be changed, reordered or removed.
-        self.assertEqual({k: v for k, v in current.items() if k in reference}, reference)
-        self.assertEqual([k for k in current if k in reference], list(reference))
-        self.assertEqual(set(current) - set(reference), self.NEW_CONTROL_NAMES)
-
-    def test_new_lifecycle_has_no_fixed_time_alignment_success(self):
-        tree = ast.parse(self.current_source)
-        run = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "run")
-        text = ast.unparse(run)
-        self.assertNotIn('dc.set_phase_all("wind_tunnel_hover")', text.replace("'", '"'))
-        self.assertNotIn("time.sleep(INITIAL_POSITION_CORRECTION_DURATION_SEC)", text)
-        self.assertIn("command_locks", text)
-        self.assertIn("control_inactive", text)
-        self.assertNotIn("swarm.takeoff()", text)
-        self.assertIn("ready_events", text)
-        self.assertLess(text.index("controller_thread.start()"), text.index("takeoffs.start()"))
-        self.assertLess(text.index("logger_thread.start()"), text.index("takeoffs.start()"))
-        control = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
-                       and n.name == "run_fixed_pad_hover_control")
-        self.assertNotIn("fixed_pad_hover_command(", ast.unparse(control))
-
-    def test_75_configs_keep_only_confirmed_front_tail_frame_exception(self):
-        reference = load_offline(self.reference_source)
-        current = load_offline(self.current_source)
-        frame_fields = {"start_x", "start_y", "target_x", "target_y",
-                        "pad_origins_cm", "pad_x_aligned_with_body_forward"}
-        for formation, wind in itertools.product(FORMATIONS, WINDS):
-            record = experiment(formation, wind, 75)
-            for old, new in zip(reference.build_configs(record), current.build_configs(record)):
-                if formation == "front" and wind == "tail wind":
-                    old = {k: v for k, v in old.items() if k not in frame_fields}
-                    new = {k: v for k, v in new.items() if k not in frame_fields}
-                self.assertEqual(old, new, (formation, wind))
+    def test_current_dc_dependency_matches_historical_blob(self):
+        historical = subprocess.check_output(
+            ["git", "show", REFERENCE_COMMIT + ":data_collector.py"], cwd=ROOT)
+        self.assertEqual((ROOT / "data_collector.py").read_bytes(), historical)
 
 
 if __name__ == "__main__":

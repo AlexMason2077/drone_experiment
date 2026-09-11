@@ -265,6 +265,7 @@ RUN_STATE = {
     "returncode": None,
     "process": None,
     "output": [],
+    "wind_tunnel_faults": [],
     "baseline_config": None,
 }
 
@@ -1563,6 +1564,7 @@ def public_run_state():
             if key != "process"
         }
         state["output"] = RUN_STATE["output"][-240:]
+        state["wind_tunnel_faults"] = list(RUN_STATE.get("wind_tunnel_faults", []))
     state["live_batteries"] = build_live_battery_status(state.get("experiment_id"), state.get("output", []))
     return state
 
@@ -1577,6 +1579,11 @@ def append_run_output(line):
     with RUN_LOCK:
         RUN_STATE["output"].append(line)
         RUN_STATE["output"] = RUN_STATE["output"][-500:]
+        if line.startswith("WIND TUNNEL INVALID:"):
+            detail = line.partition(":")[2].strip()
+            faults = RUN_STATE.setdefault("wind_tunnel_faults", [])
+            if detail and detail not in faults:
+                faults.append(detail)
         if FORMAL_TAKEOFF_PROMPT in line:
             RUN_STATE["ready_for_takeoff"] = True
             RUN_STATE["ready_for_discharge"] = False
@@ -1618,6 +1625,7 @@ def reset_run_state():
             "returncode": None,
             "process": None,
             "output": [],
+            "wind_tunnel_faults": [],
             "baseline_config": None,
         })
 
@@ -1631,9 +1639,12 @@ def monitor_experiment_process(process):
     with RUN_LOCK:
         RUN_STATE["returncode"] = returncode
         RUN_STATE["ended_at"] = ended_at
+        invalid = bool(RUN_STATE.get("wind_tunnel_faults"))
         if RUN_STATE["status"] not in {"stopped", "error"}:
-            RUN_STATE["status"] = "finished" if returncode == 0 else "error"
-        if returncode == 0:
+            RUN_STATE["status"] = "finished" if returncode == 0 and not invalid else "error"
+        if invalid:
+            RUN_STATE["message"] = "Wind Tunnel run invalid: position control failed. Recorded data retained."
+        elif returncode == 0:
             RUN_STATE["message"] = "Experiment process finished."
         else:
             RUN_STATE["message"] = f"Experiment process exited with code {returncode}."
@@ -1708,6 +1719,7 @@ def start_experiment_process(experiment):
         returncode=None,
         process=process,
         output=[f"$ {' '.join(command)}", f"IP order: {ip_order}"],
+        wind_tunnel_faults=[],
     )
     thread = threading.Thread(target=monitor_experiment_process, args=(process,), daemon=True)
     thread.start()
@@ -1791,6 +1803,7 @@ def start_baseline_process(form):
         run_id=run_id,
         experiment_id=None,
         formation="single_baseline",
+        wind_tunnel_faults=[],
         script=script_name,
         status="preflight",
         message=f"Started {script_name}; waiting for single-drone preflight and takeoff prompt.",
@@ -3935,7 +3948,9 @@ INDEX_TEMPLATE = """
             </label>
             <div class="mission-board">
               <h3 style="margin-top:0;">Fixed Mission Pad Assignment</h3>
-              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Both 50 cm and 75 cm use the same controller, pad order, and orientation for each formation/wind setting; only the layout coordinates scale with the selected distance. Every printed rocket (+pad X) points global +X. For front + tail wind: pads 5→6→7→8→1 run left-to-right along the arrows (+X), all noses point up (+Y), and the fan behind them blows -Y→+Y. Front head/side wind retains pads along +Y and noses along +X; other side-wind layouts also retain noses along +X, while other head/tail-wind formations retain noses along +Y. For vee + head wind at both 50 cm and 75 cm: Pad 7 is the +Y apex, all noses face +Y, and the fan at +Y blows +Y→-Y. Other formations retain their existing head-wind label +X→-X; other tail-wind labels remain -X→+X; side wind remains +Y→-Y. For side wind at either spacing: column runs 5→6→7→8→1 along +X; diamond has Pad 7 at centre with 8 top, 6 bottom, 5 left, 1 right; vee has Pad 7 at the +X apex and a 90° included angle; echelon has Pad 1 nearest the +Y fan and Pad 5 farthest on a 45° diagonal. The selected distance is the adjacent-centre spacing for front/column/vee/echelon and the centre-to-outer-pad distance for diamond. All five take off together; each lands independently at 20%.</div>
+              <p class="small"><strong>Legacy Wind Tunnel control (3ff2f14c).</strong> After group takeoff, the original controller sends small velocity corrections every 0.1 seconds toward each assigned pad centre at 80 cm height. It can use neighbouring mapped pads for position feedback.</p>
+              <p class="small">Diamond + head wind at 50 cm: Pad 7 is the centre at (50, 50) cm; Pads 5, 6, 8, 1 are at (50, 0), (0, 50), (100, 50), (50, 100) cm respectively. Each outer pad is 50 cm from the centre, with a target height of 80 cm.</p>
+              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. The selected 50 cm or 75 cm spacing uses the legacy controller's layout. For vee + head wind at both spacings: Pad 7 is the +Y apex, printed pad arrows point +X, all noses face +Y, and the fan at +Y blows +Y→-Y. The selected Vee spacing is the distance between adjacent pad centres. All five take off together; each lands independently at 20%.</div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;">
                 {% for drone_number, ip_suffix in drone_options %}
                   <div class="pad-cell active">
@@ -4057,6 +4072,7 @@ INDEX_TEMPLATE = """
             <div>
               <h3>Experiment Runner</h3>
               <div class="small" id="runMessage">{{ run_state.message or 'No experiment is running.' }}</div>
+              <div id="runControlWarning" role="alert" hidden style="margin-top:8px;padding:10px;border:2px solid #b42318;border-radius:8px;background:#fff1f0;color:#8a1c13;font-weight:600;white-space:pre-line;"></div>
             </div>
             <div class="record-actions">
               <span class="badge" id="runStatus">{{ run_state.status }}</span>
@@ -4762,6 +4778,7 @@ INDEX_TEMPLATE = """
 
     const runStatus = document.getElementById("runStatus");
     const runMessage = document.getElementById("runMessage");
+    const runControlWarning = document.getElementById("runControlWarning");
     const runTerminal = document.getElementById("runTerminal");
     const runTerminalTitle = document.getElementById("runTerminalTitle");
     const runTerminalMeta = document.getElementById("runTerminalMeta");
@@ -4846,6 +4863,10 @@ INDEX_TEMPLATE = """
           wind_tunnel_acquire_pad: "acquiring Mission Pad",
           wind_tunnel_centering: "centering over Mission Pad",
           wind_tunnel_hover: "Wind Tunnel hover",
+          wind_tunnel_control_fault: "POSITION CONTROL FAILED — use Land all & stop",
+          wind_tunnel_localization_suspect: "Mission Pad position unreliable",
+          wind_tunnel_confirming_position: "confirming Mission Pad position",
+          wind_tunnel_global_pad_recovery: "returning from adjacent Mission Pad",
           wind_tunnel_recenter: "re-centering",
           wind_tunnel_correction_retry: "correction failed; hovering and retrying",
           wind_tunnel_recoverable_error: "recoverable error; still airborne",
@@ -4865,6 +4886,11 @@ INDEX_TEMPLATE = """
     function renderRunState(state) {
       runStatus.textContent = state.status || "idle";
       runMessage.textContent = state.message || "No experiment is running.";
+      const controlFaults = state.wind_tunnel_faults || [];
+      runControlWarning.hidden = controlFaults.length === 0;
+      runControlWarning.textContent = controlFaults.length
+        ? "POSITION CONTROL FAILED — this Wind Tunnel run is invalid. If drones are airborne, use Land all & stop.\\n" + controlFaults.join("\\n")
+        : "";
       runTerminalTitle.textContent = `${state.script || "data_collector.py"}${state.experiment_id ? " --experiment-id " + state.experiment_id : ""}`;
       runTerminalMeta.textContent = state.started_at || "idle";
       const lines = state.output || [];
@@ -4894,7 +4920,7 @@ INDEX_TEMPLATE = """
             ? "Ready for formal takeoff"
             : "Ready for takeoff";
           takeoffModalBody.textContent = isWindTunnel
-            ? `Confirm that drone 1-5 are centered over Mission Pads 5, 6, 7, 8, 1 respectively and the flight area is clear. All five will take off together, continuously re-center over their assigned pads, and each drone will land independently when it reaches ${windowInfo.target}%.`
+            ? `Confirm that drone 1-5 are centered over Mission Pads 5, 6, 7, 8, 1 respectively and the flight area is clear. All five will take off together. The legacy controller then uses small velocity corrections toward each assigned pad centre at 80 cm height, including position feedback from neighbouring mapped pads. Each drone will land independently when it reaches ${windowInfo.target}%.`
             : isFormalSocTakeoff
             ? `Each drone has reached the ${windowInfo.target + {{ soc_target_tolerance }}}% landing threshold (target ${windowInfo.target}% + {{ soc_target_tolerance }}%) and landed. Move them onto formal start pads 2-6, center them above the pads, verify +Y points from row 1 toward row 6, then confirm the simultaneous formal takeoff.`
             : state.script === "single_drone_baseline.py"
