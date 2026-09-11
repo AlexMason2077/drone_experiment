@@ -1,0 +1,44 @@
+timestamp,drone,event,detail
+2026-09-11T18:12:45.391,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:12:45.392,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:12:45.392,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:12:45.393,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:12:45.393,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:12:51.830,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:12:52.641,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:12:52.664,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:12:52.865,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:12:53.050,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:12:53.727,drone_3,MOVE_REQUESTED,"pose=(7, 18, 3, 86); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T18:12:53.728,drone_3,MOVE_DISPATCHED,"pose=(7, 18, 3, 86); reference=m7; target=(0.0, 0.0, 80); deadline_sec=3.960; no_progress_sec=1.5"
+2026-09-11T18:12:54.108,drone_1,MOVE_REQUESTED,"pose=(5, -31, -31, 85); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-11T18:12:54.109,drone_1,MOVE_DISPATCHED,"pose=(5, -31, -31, 85); reference=m5; target=(0.0, 0.0, 80); deadline_sec=5.206; no_progress_sec=1.5"
+2026-09-11T18:12:55.492,drone_3,ARRIVAL_VERIFIED,"(7, 6, -6, 85)"
+2026-09-11T18:12:55.874,drone_1,FAULT,"position jumped by more than 20 cm between checks; last_pose=(5, 13, -30, 84); brake not confirmed"
+2026-09-11T18:12:56.749,drone_3,MOVE_REQUESTED,"pose=(7, 4, -21, 87); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T18:12:56.750,drone_3,MOVE_DISPATCHED,"pose=(7, 4, -21, 87); reference=m7; target=(0.0, 0.0, 80); deadline_sec=4.125; no_progress_sec=1.5"
+2026-09-11T18:12:59.341,drone_3,ARRIVAL_VERIFIED,"(7, 4, -4, 81)"
+2026-09-11T18:13:00.796,drone_5,MOVE_REQUESTED,"pose=(1, 11, -16, 85); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:00.796,drone_5,MOVE_DISPATCHED,"pose=(1, 11, -16, 85); reference=m1; target=(0.0, 0.0, 80); deadline_sec=4.002; no_progress_sec=1.5"
+2026-09-11T18:13:02.664,drone_5,ARRIVAL_VERIFIED,"(1, 4, -7, 82)"
+2026-09-11T18:13:04.319,drone_3,MOVE_REQUESTED,"pose=(7, 16, -9, 84); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:04.319,drone_3,MOVE_DISPATCHED,"pose=(7, 16, -9, 84); reference=m7; target=(0.0, 0.0, 80); deadline_sec=3.939; no_progress_sec=1.5"
+2026-09-11T18:13:06.699,drone_3,ARRIVAL_VERIFIED,"(7, 2, 0, 85)"
+2026-09-11T18:13:09.039,drone_4,MOVE_REQUESTED,"pose=(8, -2, -17, 82); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:09.039,drone_4,MOVE_DISPATCHED,"pose=(8, -2, -17, 82); reference=m8; target=(0.0, 0.0, 80); deadline_sec=3.862; no_progress_sec=1.5"
+2026-09-11T18:13:09.107,drone_2,MOVE_REQUESTED,"pose=(6, -2, -16, 82); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:09.107,drone_2,MOVE_DISPATCHED,"pose=(6, -2, -16, 82); reference=m6; target=(0.0, 0.0, 80); deadline_sec=3.812; no_progress_sec=1.5"
+2026-09-11T18:13:09.194,drone_3,MOVE_REQUESTED,"pose=(7, 17, -13, 85); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:09.194,drone_3,MOVE_DISPATCHED,"pose=(7, 17, -13, 85); reference=m7; target=(0.0, 0.0, 80); deadline_sec=4.099; no_progress_sec=1.5"
+2026-09-11T18:13:09.614,drone_3,FAULT,"position jumped by more than 20 cm between checks; last_pose=(8, -30, 1, 83); brake not confirmed"
+2026-09-11T18:13:10.664,drone_2,FAULT,"no measured progress after go dispatch for 1.5 seconds; last_pose=(6, 5, -19, 80); brake not confirmed"
+2026-09-11T18:13:10.919,drone_4,ARRIVAL_VERIFIED,"(8, -7, -9, 81)"
+2026-09-11T18:13:13.448,drone_5,MOVE_REQUESTED,"pose=(1, 13, -18, 83); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:13.449,drone_5,MOVE_DISPATCHED,"pose=(1, 13, -18, 83); reference=m1; target=(0.0, 0.0, 80); deadline_sec=4.120; no_progress_sec=1.5"
+2026-09-11T18:13:17.093,drone_5,ARRIVAL_VERIFIED,"(1, 3, -5, 82)"
+2026-09-11T18:13:20.942,drone_5,MOVE_REQUESTED,"pose=(1, 3, -20, 81); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:20.943,drone_5,MOVE_DISPATCHED,"pose=(1, 3, -20, 81); reference=m1; target=(0.0, 0.0, 80); deadline_sec=4.012; no_progress_sec=1.5"
+2026-09-11T18:13:23.128,drone_5,ARRIVAL_VERIFIED,"(1, 2, -7, 83)"
+2026-09-11T18:13:26.901,drone_5,MOVE_REQUESTED,"pose=(1, 10, -19, 88); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-11T18:13:26.901,drone_5,MOVE_DISPATCHED,"pose=(1, 10, -19, 88); reference=m1; target=(0.0, 0.0, 80); deadline_sec=4.146; no_progress_sec=1.5"
+2026-09-11T18:13:27.850,drone_5,RECENTER_CANCELLED,"controller stopped or landing requested during active recenter; last_pose=(1, 3, -20, 88); brake not confirmed"

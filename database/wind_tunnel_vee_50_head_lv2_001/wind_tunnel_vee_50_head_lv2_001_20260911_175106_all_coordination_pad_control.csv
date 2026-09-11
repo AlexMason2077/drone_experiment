@@ -1,0 +1,27 @@
+timestamp,drone,event,detail
+2026-09-11T17:51:17.028,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:51:17.028,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:51:17.028,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:51:17.028,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:51:17.029,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:51:21.686,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:51:22.119,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:51:25.828,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:51:25.848,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:51:26.040,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:51:26.589,drone_2,MOVE_REQUESTED,"pose=(6, -17, -13, 84); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:26.928,drone_3,MOVE_REQUESTED,"pose=(7, 11, -16, 90); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:27.083,drone_1,MOVE_REQUESTED,"pose=(5, 33, -8, 76); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:27.603,drone_1,FAULT,"no known Pad detected, invalid height, stale state or frozen off-target pose; last_pose=(5, 33, -8, 76); brake not confirmed"
+2026-09-11T17:51:30.117,drone_2,ARRIVAL_VERIFIED,"(6, -1, -6, 76)"
+2026-09-11T17:51:31.082,drone_3,SOFT_FAULT,"recenter deadline exceeded without verified completion; last_pose=(7, 2, -9, 82); brake not confirmed"
+2026-09-11T17:51:32.030,drone_4,MOVE_REQUESTED,"pose=(8, -7, -19, 87); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:32.702,drone_2,MOVE_REQUESTED,"pose=(6, 3, -16, 76); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:34.154,drone_2,ARRIVAL_VERIFIED,"(6, 1, -6, 77)"
+2026-09-11T17:51:34.204,drone_4,ARRIVAL_VERIFIED,"(8, 2, -5, 83)"
+2026-09-11T17:51:35.713,drone_2,MOVE_REQUESTED,"pose=(6, 7, -18, 77); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:36.284,drone_3,MOVE_REQUESTED,"pose=(7, 14, -16, 84); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:36.389,drone_3,FAULT,"go failed: Command 'go 0 0 80 20 m7' was unsuccessful for 2 tries. Latest response:	'forced stop'; last_pose=(7, 13, -14, 82); brake not confirmed"
+2026-09-11T17:51:38.615,drone_2,ARRIVAL_VERIFIED,"(6, 3, -4, 78)"
+2026-09-11T17:51:41.223,drone_2,MOVE_REQUESTED,"pose=(6, 4, -17, 78); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-11T17:51:41.973,drone_2,FAULT,"controller stopped or landing requested during active recenter; last_pose=(6, 4, -16, 77); brake not confirmed"

@@ -1,0 +1,23 @@
+timestamp,drone,event,detail
+2026-09-11T18:14:18.644,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:14:18.645,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:14:18.645,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:14:18.646,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:14:18.646,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:14:22.582,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:14:24.116,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:14:24.854,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:14:25.274,drone_3,MOVE_REQUESTED,"pose=(7, -4, -19, 96); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T18:14:25.275,drone_3,MOVE_DISPATCHED,"pose=(7, -4, -19, 96); reference=m7; target=(0.0, 0.0, 80); deadline_sec=4.258; no_progress_sec=1.5"
+2026-09-11T18:14:25.290,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:14:25.895,drone_1,MOVE_REQUESTED,"pose=(5, -28, -1, 83); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-11T18:14:25.895,drone_1,MOVE_DISPATCHED,"pose=(5, -28, -1, 83); reference=m5; target=(0.0, 0.0, 80); deadline_sec=4.409; no_progress_sec=1.5"
+2026-09-11T18:14:25.994,drone_3,FAULT,"go failed: Command 'go 0 0 80 20 m7' was unsuccessful for 2 tries. Latest response:	'error Not joystick'; last_pose=(7, -4, -19, 96); brake not confirmed"
+2026-09-11T18:14:27.337,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:14:28.418,drone_4,MOVE_REQUESTED,"pose=(1, -36, 32, 87); reference=m1; own=m8; target=(-35.35533905932738, 35.35533905932737, 80)"
+2026-09-11T18:14:28.419,drone_4,MOVE_DISPATCHED,"pose=(1, -36, 32, 87); reference=m1; target=(-35.35533905932738, 35.35533905932737, 80); deadline_sec=3.389; no_progress_sec=1.5"
+2026-09-11T18:14:28.901,drone_1,ARRIVAL_VERIFIED,"(5, -13, -9, 76)"
+2026-09-11T18:14:30.559,drone_1,MOVE_REQUESTED,"pose=(5, -16, -7, 79); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-11T18:14:30.559,drone_1,MOVE_DISPATCHED,"pose=(5, -16, -7, 79); reference=m5; target=(0.0, 0.0, 80); deadline_sec=3.875; no_progress_sec=1.5"
+2026-09-11T18:14:30.694,drone_4,FAULT,"go failed: Command 'go -35 35 80 20 m1' was unsuccessful for 2 tries. Latest response:	'error No valid marker'; last_pose=(8, 2, -4, 84); brake not confirmed"
+2026-09-11T18:14:30.725,drone_1,RECENTER_CANCELLED,"controller stopped or landing requested during active recenter; last_pose=(5, -16, -7, 79); brake not confirmed"

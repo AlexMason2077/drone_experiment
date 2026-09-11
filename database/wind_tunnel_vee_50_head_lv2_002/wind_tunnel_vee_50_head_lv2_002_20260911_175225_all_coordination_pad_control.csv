@@ -1,0 +1,15 @@
+timestamp,drone,event,detail
+2026-09-11T17:52:28.239,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:52:28.241,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:52:28.241,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:52:28.241,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:52:28.242,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:52:34.134,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:52:34.160,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:52:34.237,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:52:35.296,drone_3,MOVE_REQUESTED,"pose=(7, 0, -30, 84); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-11T17:52:35.818,drone_3,FAULT,"no known Pad detected, invalid height, stale state or frozen off-target pose; last_pose=(7, 0, -30, 84); brake not confirmed"
+2026-09-11T17:52:35.996,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:52:37.042,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:52:38.127,drone_1,MOVE_REQUESTED,"pose=(5, -37, -25, 67); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-11T17:52:38.774,drone_1,FAULT,"controller stopped or landing requested during active recenter; last_pose=(5, -21, -26, 70); brake not confirmed"

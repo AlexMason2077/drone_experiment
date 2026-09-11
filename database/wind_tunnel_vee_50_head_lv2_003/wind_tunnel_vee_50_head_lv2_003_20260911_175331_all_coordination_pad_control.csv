@@ -1,0 +1,8 @@
+timestamp,drone,event,detail
+2026-09-11T17:53:35.587,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:53:35.588,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:53:35.588,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:53:35.588,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:53:35.589,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T17:53:37.457,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T17:53:39.723,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled

@@ -1,0 +1,12 @@
+timestamp,drone,event,detail
+2026-09-11T18:11:53.851,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:11:53.851,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:11:53.852,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:11:53.852,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:11:53.852,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:11:56.656,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:11:56.681,drone_2,FAULT,"localization_suspect: unchanged xyz/mpry despite body yaw change; last_pose=(6, 0, -3, 70); no go dispatched"
+2026-09-11T18:11:56.760,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:11:56.807,drone_1,FAULT,"localization_suspect: unchanged xyz/mpry despite body yaw change; last_pose=(6, -6, -17, 51); no go dispatched"
+2026-09-11T18:11:58.512,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:11:58.819,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled

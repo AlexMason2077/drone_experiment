@@ -1,0 +1,17 @@
+timestamp,drone,event,detail
+2026-09-11T18:34:51.974,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:34:51.975,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:34:51.975,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:34:51.976,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:34:51.976,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-11T18:34:56.627,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:34:56.728,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:34:57.906,drone_1,MOVE_REQUESTED,"pose=(5, -58, -28, 55); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-11T18:34:57.907,drone_1,MOVE_DISPATCHED,"pose=(5, -58, -28, 55); reference=m5; target=(0.0, 0.0, 80); deadline_sec=6.000; no_progress_sec=1.5"
+2026-09-11T18:34:58.116,drone_4,MOVE_REQUESTED,"pose=(8, -8, -17, 86); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-11T18:34:58.117,drone_4,MOVE_DISPATCHED,"pose=(8, -8, -17, 86); reference=m8; target=(0.0, 0.0, 80); deadline_sec=3.986; no_progress_sec=1.5"
+2026-09-11T18:34:58.294,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:35:00.508,drone_4,FAULT,"no measured progress after go dispatch for 1.5 seconds; last_pose=(8, -27, -21, 86); brake not confirmed"
+2026-09-11T18:35:00.665,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:35:00.687,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-11T18:35:03.159,drone_1,RECENTER_CANCELLED,"controller stopped or landing requested during active recenter; last_pose=(5, 9, -11, 80); brake not confirmed"
