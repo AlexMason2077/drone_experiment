@@ -1,0 +1,15 @@
+timestamp,drone,event,detail
+2026-09-10T21:38:00.205,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T21:38:00.205,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T21:38:00.206,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T21:38:00.206,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T21:38:00.206,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T21:38:04.568,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T21:38:06.432,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T21:38:06.543,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T21:38:06.595,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T21:38:07.543,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T21:38:07.639,drone_1,MOVE_REQUESTED,"pose=(5, -36, -6, 78); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-10T21:38:08.056,drone_1,FAULT,"position error increased by more than 15 cm during recenter; last_pose=(5, -55, -4, 63); brake not confirmed"
+2026-09-10T21:38:11.914,drone_2,MOVE_REQUESTED,"pose=(6, -16, 0, 80); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-10T21:38:13.261,drone_2,FAULT,"controller stopped or landing requested during active recenter; last_pose=(6, -11, -1, 79); brake not confirmed"

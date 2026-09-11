@@ -1,0 +1,13 @@
+timestamp,drone,event,detail
+2026-09-10T18:15:34.571,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:15:34.571,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:15:34.572,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:15:34.572,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:15:34.572,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:15:39.023,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:15:39.331,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:15:39.360,drone_1,MOVE_REQUESTED,"pose=(5, -36, -11, 80); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-10T18:15:39.880,drone_1,FAULT,"position error increased by more than 15 cm during recenter; last_pose=(5, -52, -10, 67); brake not confirmed"
+2026-09-10T18:15:41.022,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:15:42.045,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:15:43.292,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled

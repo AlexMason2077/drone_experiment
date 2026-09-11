@@ -26,6 +26,30 @@ FIXED_PAD_MAX_XY_CONTROL = 12
 FIXED_PAD_MAX_Z_CONTROL = 8
 MISSION_PAD_CAMERA_YAW_BASELINE_DEG = 180.0
 MISSION_PAD_HEADING_TOLERANCE_DEG = 35.0
+# A recenter has to cover the SDK round trip, the travel itself, the brake, and
+# then three fresh post-command state packets.  Budgeting travel plus a flat
+# 1.5 s made the allowance shrink relative to that fixed cost as the error grew,
+# so the aircraft that most needed correcting was the one whose correction timed
+# out.  Give the fixed overhead its own term and let the ceiling absorb it.
+FIXED_PAD_MOVE_OVERHEAD_SEC = 3.0
+FIXED_PAD_MOVE_MAX_SEC = 6.0
+FIXED_PAD_CROSS_PAD_MOVE_MAX_SEC = 8.0
+# A timed-out or explicitly rejected recenter is not by itself evidence of a
+# misbehaving aircraft.  Brake, wait for the outstanding go to return, re-confirm
+# the pose, and try again; only repeated consecutive failures disable correction
+# for the rest of the run.  Divergence, jumps, pad loss and stale telemetry stay
+# single-shot hard faults.
+SOFT_FAULT_MAX_CONSECUTIVE = 3
+SOFT_FAULT_COOLDOWN_SEC = 5.0
+# A retry is only safe once the braked go has reported back.  If it never does,
+# escalate instead of waiting in the retry state forever.
+SOFT_FAULT_BRAKE_GRACE_SEC = 10.0
+# An aircraft that has just taken off is still bleeding off drift.  Let its own
+# hold settle before the first pad-relative go so that move is not fighting
+# residual velocity.  Must stay below PadObservationGuard's 1.5 s frozen-pose
+# threshold, or an aircraft holding still at integer-cm resolution would be
+# declared stale before it is ever allowed to move.
+TAKEOFF_SETTLE_SEC = 1.0
 GROUND_HEIGHT_THRESHOLD_CM = 15
 GROUND_CONFIRMATION_HITS = 8
 WIND_FLOW_DESCRIPTIONS = {
@@ -581,6 +605,19 @@ class IndependentTakeoff:
             raise RuntimeError("Takeoff not confirmed; partial data retained: " + "; ".join(failures))
 
 
+def go_was_rejected_without_motion(error):
+    """True only when the aircraft itself answered the go with 'error ...'.
+
+    djitellopy reports the drone's literal reply as the latest response, so an
+    'error ...' reply proves the command was received and refused and that no
+    motion is outstanding.  Its timeout text ("Aborting command ... Did not
+    receive a response"), "max retries exceeded" and decode errors prove nothing
+    about what the aircraft is doing, and must stay single-shot hard faults.
+    """
+    _, marker, response = str(error).partition("Latest response:")
+    return bool(marker) and response.strip().strip("'\"\t ").lower().startswith("error")
+
+
 def run_fixed_pad_hover_control(
     swarm, configs, stop_event=None, landed=None, duration_sec=None,
     command_locks=None, event_sink=None, ready_events=None,
@@ -598,17 +635,23 @@ def run_fixed_pad_hover_control(
 
     def worker(idx):
         tello, config = swarm.tellos[idx], configs[idx]
+        settle_until = 0.0
         if ready_events is not None:
             while active(idx) and not ready_events[idx].is_set():
                 # No RC/go is allowed while this aircraft is still taking off.
                 stop_event.wait(0.05)
             if not active(idx):
                 return
+            settle_until = time.monotonic() + TAKEOFF_SETTLE_SEC
         guard = PadObservationGuard(config["mission_pad"], config)
         pending = None
         fault = None
+        soft_faults = 0
+        recover_at = None
+        brake_grace = 0.0
+        retry_until = 0.0
         last_report = -999.0
-        next_move = 0.0
+        next_move = settle_until
 
         def report_event(kind, detail):
             if event_sink is not None:
@@ -617,22 +660,38 @@ def run_fixed_pad_hover_control(
                 except Exception as exc:
                     print(f"PAD EVENT LOG ERROR: {config['name']}: {exc}", flush=True)
 
+        def brake(reason, kind, note):
+            # stop is an SDK motion brake, NOT emergency (motor cut).
+            # Its untagged ACK may satisfy the outstanding go wait: never treat
+            # that result as proof of arrival or as permission to move again.
+            print(f"PAD CONTROL {kind}: {config['name']}: {reason}. {note}", flush=True)
+            try:
+                tello.send_command_without_return("stop")
+            except Exception as exc:
+                print(f"PAD BRAKE SEND FAILED: {config['name']}: {exc}", flush=True)
+            report_event(kind, f"{reason}; last_pose={guard.pose}; brake not confirmed")
+
         def latch(reason):
             nonlocal fault
             if fault is not None:
                 return
             fault = reason
-            # stop is an SDK motion brake, NOT emergency (motor cut).
-            # Its untagged ACK may satisfy the outstanding go wait: ignore that
-            # result forever after a fault, never treat it as permission to retry.
-            print(f"PAD CONTROL FAULT: {config['name']}: {reason}. "
-                  "Automatic recentering disabled for this run; operator attention required.",
-                  flush=True)
-            try:
-                tello.send_command_without_return("stop")
-            except Exception as exc:
-                print(f"PAD BRAKE SEND FAILED: {config['name']}: {exc}", flush=True)
-            report_event("FAULT", f"{reason}; last_pose={guard.pose}; brake not confirmed")
+            brake(reason, "FAULT",
+                  "Automatic recentering disabled for this run; operator attention required.")
+
+        def fail(reason, recoverable, now):
+            """Hard-latch, or brake for one bounded retry.  Returns recover_at."""
+            nonlocal soft_faults
+            if fault is not None:
+                return None
+            if recoverable and soft_faults + 1 < SOFT_FAULT_MAX_CONSECUTIVE:
+                soft_faults += 1
+                brake(reason, "SOFT_FAULT",
+                      f"Attempt {soft_faults} of {SOFT_FAULT_MAX_CONSECUTIVE - 1} recoverable; "
+                      f"braking, then re-confirming for {SOFT_FAULT_COOLDOWN_SEC:g}s before retry.")
+                return now + SOFT_FAULT_COOLDOWN_SEC
+            latch(reason)
+            return None
 
         def execute_move(task):
             try:
@@ -650,8 +709,8 @@ def run_fixed_pad_hover_control(
                 now = time.monotonic()
                 try:
                     observation = guard.observe(tello.get_current_state(), now)
-                    if pending is not None and fault is None:
-                        reason = None
+                    if pending is not None and fault is None and recover_at is None:
+                        reason, recoverable = None, False
                         if not observation["valid"]:
                             reason = ("no known Pad detected, invalid height, "
                                       "stale state or frozen off-target pose")
@@ -661,11 +720,16 @@ def run_fixed_pad_hover_control(
                             reason = "position error increased by more than 15 cm during recenter"
                         elif pending["done"].is_set() and pending.get("error"):
                             reason = "go failed: " + pending["error"]
+                            recoverable = go_was_rejected_without_motion(pending["error"])
                         elif now >= pending["deadline"]:
                             reason = "recenter deadline exceeded without verified completion"
+                            recoverable = True
                         if reason:
                             pending["cancel"].set()
-                            latch(reason)
+                            recover_at = fail(reason, recoverable, now)
+                            if recover_at is not None:
+                                retry_until = recover_at
+                                brake_grace = now + SOFT_FAULT_BRAKE_GRACE_SEC
                         elif pending["done"].is_set() and pending.get("result", (None,))[0] == "waiting_pad":
                             # No go was sent: reconfirm the newly observed reference.
                             pending = None
@@ -679,10 +743,27 @@ def run_fixed_pad_hover_control(
                             if pending["arrival_hits"] >= 3:
                                 report_event("ARRIVAL_VERIFIED", observation["pose"])
                                 pending = None
+                                soft_faults = 0
                                 next_move = now + 1.0
+                    if recover_at is not None and pending is not None:
+                        if pending["done"].is_set():
+                            # Only once the braked go has actually returned can no
+                            # command race a retry.  The cooldown then still has to
+                            # elapse, and PadObservationGuard still has to re-confirm
+                            # a stable off-target pose, before any new move is armed.
+                            next_move = max(next_move, recover_at)
+                            pending, recover_at = None, None
+                        elif now >= brake_grace:
+                            # No result means no safe retry, and no bound on the
+                            # wait would leave this aircraft silently uncorrected.
+                            latch("braked recenter did not return within "
+                                  f"{SOFT_FAULT_BRAKE_GRACE_SEC:g}s")
+                            recover_at = None
 
                     if fault is not None:
                         status = "control_fault"
+                    elif recover_at is not None or now < retry_until:
+                        status = "correction_retry"
                     elif pending is not None:
                         status = ("global_pad_recovery" if pending["reference_pad"] != config["mission_pad"]
                                   else "centering")
@@ -695,8 +776,12 @@ def run_fixed_pad_hover_control(
                         pending = dict(done=threading.Event(), cancel=threading.Event(),
                                        reference_pad=observation["pose"][0],
                                        initial_error=observation["error"], arrival_hits=0,
-                                       deadline=now + min(6.0 if observation["pose"][0] != config["mission_pad"] else 4.0,
-                                                          distance / dc.TAKEOFF_CLIMB_SPEED_CM_S + 1.5))
+                                       deadline=now + min(
+                                           FIXED_PAD_CROSS_PAD_MOVE_MAX_SEC
+                                           if observation["pose"][0] != config["mission_pad"]
+                                           else FIXED_PAD_MOVE_MAX_SEC,
+                                           distance / dc.TAKEOFF_CLIMB_SPEED_CM_S
+                                           + FIXED_PAD_MOVE_OVERHEAD_SEC))
                         pending["thread"] = threading.Thread(
                             target=execute_move, args=(pending,), daemon=True)
                         pending["thread"].start()
@@ -707,6 +792,8 @@ def run_fixed_pad_hover_control(
                         status = "confirming_position"
 
                     # Never interleave RC with a go still awaiting its result.
+                    # A braked-but-outstanding go is exactly that case, so the
+                    # heartbeat stays off until its SDK wait has ended.
                     if pending is None or (fault is not None and pending["done"].is_set()):
                         with command_locks[idx]:
                             if active(idx):

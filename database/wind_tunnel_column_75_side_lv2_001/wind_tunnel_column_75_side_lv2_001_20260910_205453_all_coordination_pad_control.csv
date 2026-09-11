@@ -1,0 +1,21 @@
+timestamp,drone,event,detail
+2026-09-10T20:54:57.276,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T20:54:57.277,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T20:54:57.277,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T20:54:57.277,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T20:54:57.277,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T20:55:01.778,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T20:55:04.148,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T20:55:05.745,drone_3,MOVE_REQUESTED,"pose=(6, 36, 0, 84); reference=m6; own=m7; target=(75.0, 0.0, 80)"
+2026-09-10T20:55:06.020,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T20:55:06.088,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T20:55:06.114,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T20:55:07.183,drone_5,MOVE_REQUESTED,"pose=(1, -18, 3, 85); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-10T20:55:08.164,drone_2,MOVE_REQUESTED,"pose=(6, -9, -16, 81); reference=m6; own=m6; target=(0.0, 0.0, 80)"
+2026-09-10T20:55:09.419,drone_2,FAULT,"no known Pad detected, invalid height, stale state or frozen off-target pose; last_pose=(6, -9, -16, 81); brake not confirmed"
+2026-09-10T20:55:10.095,drone_5,ARRIVAL_VERIFIED,"(1, -10, 0, 82)"
+2026-09-10T20:55:10.747,drone_3,SOFT_FAULT,"recenter deadline exceeded without verified completion; last_pose=(6, 31, -5, 80); brake not confirmed"
+2026-09-10T20:55:12.378,drone_5,MOVE_REQUESTED,"pose=(1, -21, 1, 81); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-10T20:55:12.443,drone_1,MOVE_REQUESTED,"pose=(5, -24, -2, 83); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-10T20:55:13.683,drone_1,ARRIVAL_VERIFIED,"(5, -2, 0, 88)"
+2026-09-10T20:55:14.978,drone_5,FAULT,"controller stopped or landing requested during active recenter; last_pose=(1, -8, -1, 82); brake not confirmed"

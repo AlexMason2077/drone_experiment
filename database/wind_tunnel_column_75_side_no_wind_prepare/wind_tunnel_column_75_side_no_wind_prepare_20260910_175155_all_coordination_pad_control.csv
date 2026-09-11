@@ -1,0 +1,25 @@
+timestamp,drone,event,detail
+2026-09-10T17:52:05.962,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T17:52:05.963,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T17:52:05.963,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T17:52:05.963,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T17:52:05.964,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T17:52:10.537,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T17:52:10.746,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T17:52:11.289,drone_1,MOVE_REQUESTED,"pose=(5, -20, 1, 80); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-10T17:52:11.574,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T17:52:12.927,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T17:52:13.887,drone_1,FAULT,"recenter deadline exceeded without verified completion; last_pose=(5, 2, 3, 75); brake not confirmed"
+2026-09-10T17:52:14.676,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T17:52:15.496,drone_3,MOVE_REQUESTED,"pose=(7, -16, 0, 84); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-10T17:52:17.578,drone_3,ARRIVAL_VERIFIED,"(7, -3, 8, 85)"
+2026-09-10T17:52:26.684,drone_3,MOVE_REQUESTED,"pose=(7, -16, 7, 79); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-10T17:52:28.665,drone_3,ARRIVAL_VERIFIED,"(7, -6, 3, 77)"
+2026-09-10T17:52:32.004,drone_3,MOVE_REQUESTED,"pose=(7, -17, 7, 78); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-10T17:52:33.356,drone_3,ARRIVAL_VERIFIED,"(7, -11, 5, 78)"
+2026-09-10T17:54:40.397,drone_4,MOVE_REQUESTED,"pose=(8, 1, -1, 97); reference=m8; own=m8; target=(0.0, 0.0, 80)"
+2026-09-10T17:54:41.630,drone_4,ARRIVAL_VERIFIED,"(8, -1, 0, 85)"
+2026-09-10T17:56:27.821,drone_3,MOVE_REQUESTED,"pose=(7, 16, 10, 76); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-10T17:56:29.698,drone_3,ARRIVAL_VERIFIED,"(7, 7, 5, 80)"
+2026-09-10T17:57:08.611,drone_5,MOVE_REQUESTED,"pose=(1, 0, 16, 83); reference=m1; own=m1; target=(0.0, 0.0, 80)"
+2026-09-10T17:57:09.857,drone_5,ARRIVAL_VERIFIED,"(1, -1, 10, 82)"

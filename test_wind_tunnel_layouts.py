@@ -42,6 +42,7 @@ def load_offline(source=None):
     pure_functions = {
         "build_configs", "_minimum_effective_control", "_signed_angle_degrees",
         "fixed_pad_hover_command",
+        "go_was_rejected_without_motion",
         "run_fixed_pad_hover_control",
         "check_and_recenter_assigned_pad",
     }
@@ -200,16 +201,37 @@ class Published75RegressionTests(unittest.TestCase):
         )
         cls.current_source = (ROOT / "wind_tunnel_collector.py").read_text()
 
+    # Deliberate additions from the 2026-09-10 recenter-watchdog rework. The old
+    # budget shrank relative to the fixed SDK overhead as the position error grew,
+    # and any single missed deadline disabled correction for the whole run.
+    # Listing them here is what keeps an undeclared new gain from slipping in.
+    NEW_CONTROL_NAMES = {
+        "FIXED_PAD_MOVE_OVERHEAD_SEC", "FIXED_PAD_MOVE_MAX_SEC",
+        "FIXED_PAD_CROSS_PAD_MOVE_MAX_SEC", "SOFT_FAULT_MAX_CONSECUTIVE",
+        "SOFT_FAULT_COOLDOWN_SEC", "SOFT_FAULT_BRAKE_GRACE_SEC",
+        "TAKEOFF_SETTLE_SEC",
+        "go_was_rejected_without_motion",
+    }
+
     def test_legacy_helpers_and_constants_unchanged_by_new_pad_controller(self):
         def control_nodes(source):
-            return [ast.dump(n) for n in ast.parse(source).body if (
-                isinstance(n, ast.Assign)
-                or isinstance(n, ast.FunctionDef) and n.name not in {
-                    "build_configs", "run", "run_fixed_pad_hover_control",
-                    "check_and_recenter_assigned_pad"}
-            )]
-        self.assertEqual(control_nodes(self.current_source),
-                         control_nodes(self.reference_source))
+            nodes = {}
+            for node in ast.parse(source).body:
+                if isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name):
+                            nodes[target.id] = ast.dump(node)
+                elif isinstance(node, ast.FunctionDef) and node.name not in {
+                        "build_configs", "run", "run_fixed_pad_hover_control",
+                        "check_and_recenter_assigned_pad"}:
+                    nodes[node.name] = ast.dump(node)
+            return nodes
+        current = control_nodes(self.current_source)
+        reference = control_nodes(self.reference_source)
+        # Nothing that already existed may be changed, reordered or removed.
+        self.assertEqual({k: v for k, v in current.items() if k in reference}, reference)
+        self.assertEqual([k for k in current if k in reference], list(reference))
+        self.assertEqual(set(current) - set(reference), self.NEW_CONTROL_NAMES)
 
     def test_new_lifecycle_has_no_fixed_time_alignment_success(self):
         tree = ast.parse(self.current_source)

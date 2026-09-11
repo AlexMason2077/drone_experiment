@@ -6,7 +6,12 @@ from test_wind_tunnel_layouts import load_offline, experiment
 
 
 class FakeTello:
-    def __init__(self, pad=5, x=30, y=-20, z=80):
+    def __init__(self, pad=5, x=30, y=-20, z=80, jitter=False):
+        # A real Tello reports a new pose on every packet. A fake whose pose
+        # never changes trips the guard's frozen/stale check instead of the
+        # path under test, so tests that must survive >1.5 s set jitter=True.
+        self.jitter = jitter
+        self._jittered = False
         self.state = dict(mid=pad, x=x, y=y, z=z)
         self.retry_count = 3
         self.calls = []
@@ -19,6 +24,9 @@ class FakeTello:
         self.cached = False
 
     def get_current_state(self):
+        if self.jitter:
+            self.state["y"] += 1 if self._jittered else -1
+            self._jittered = not self._jittered
         return self.state if self.cached else dict(self.state)
 
     def send_command_without_return(self, command):
@@ -61,7 +69,7 @@ class FakeTakeoffTello(FakeTello):
         self.calls.append(("takeoff", self.retry_count))
         self.takeoff_entered.set()
         try:
-            if not self.takeoff_release.wait(3):
+            if not self.takeoff_release.wait(8):
                 raise TimeoutError("test takeoff timed out")
             if self.takeoff_failure:
                 raise RuntimeError("takeoff reply missing")
@@ -75,6 +83,36 @@ class FakeTakeoffTello(FakeTello):
     def send_rc_control(self, *args):
         assert not self.in_takeoff, "RC must wait for this drone's takeoff reply"
         super().send_rc_control(*args)
+
+
+class RetryTello(FakeTello):
+    """First go outlives the watchdog; the retry after the brake arrives."""
+
+    def __init__(self, brake_releases_go=True, **kwargs):
+        super().__init__(jitter=True, **kwargs)
+        self.arrive = False
+        self.release = threading.Event()
+        self.braked = threading.Event()
+        self.second_go = threading.Event()
+        # The brake is fire-and-forget. Whether the outstanding go actually
+        # returns because of it is the variable under test, so the test drives
+        # `release` itself when this is False.
+        self.brake_releases_go = brake_releases_go
+        self.gos = 0
+
+    def send_command_without_return(self, command):
+        assert command == "stop"
+        self.calls.append(("stop",))
+        self.braked.set()
+        if self.brake_releases_go:
+            self.release.set()
+
+    def go_xyz_speed_mid(self, *args):
+        self.gos += 1
+        if self.gos > 1:
+            self.arrive = True
+            self.second_go.set()
+        super().go_xyz_speed_mid(*args)
 
 
 class PadCenteringTests(unittest.TestCase):
@@ -245,12 +283,15 @@ class PadCenteringTests(unittest.TestCase):
             self.assertFalse(a.entered.is_set())
             self.assertFalse(b.heartbeat.is_set())
             a.takeoff_release.set()
-            self.assertTrue(a.entered.wait(1))
+            # Own control resumes at once; only the first go waits out the
+            # post-takeoff settle window.
+            self.assertTrue(a.heartbeat.wait(1))
+            self.assertTrue(a.entered.wait(self.w.TAKEOFF_SETTLE_SEC + 1))
             self.assertTrue(b.in_takeoff)
             self.assertFalse(b.entered.is_set())
             self.assertFalse(b.heartbeat.is_set())
             b.takeoff_release.set()
-            self.assertTrue(b.entered.wait(1))
+            self.assertTrue(b.entered.wait(self.w.TAKEOFF_SETTLE_SEC + 1))
             takeoffs.wait()
             self.assertEqual(a.calls[0], ("takeoff", 1))
             self.assertEqual(b.calls[0], ("takeoff", 1))
@@ -310,7 +351,15 @@ class PadCenteringTests(unittest.TestCase):
 
     def run_one(self, tello, duration=1.5):
         swarm = type("Swarm", (), {"tellos": [tello]})()
-        self.w.run_fixed_pad_hover_control(swarm, self.configs[:1], duration_sec=duration)
+        events = []
+        self.w.run_fixed_pad_hover_control(
+            swarm, self.configs[:1], duration_sec=duration,
+            event_sink=lambda *row: events.append(row))
+        return [e for e in events if e[1] in ("SOFT_FAULT", "FAULT")]
+
+    def tune(self, **constants):
+        """Shrink control timing so behaviour, not wall-clock, is under test."""
+        self.w.run_fixed_pad_hover_control.__globals__.update(constants)
 
     def test_cached_packet_cannot_arm_a_move(self):
         t = FakeTello(); t.cached = True
@@ -392,6 +441,10 @@ class PadCenteringTests(unittest.TestCase):
         self.assertEqual(sum(c[0] == "stop" for c in t.calls), 1)
 
     def test_watchdog_deadline_works_with_fresh_changing_telemetry(self):
+        # Fresh, changing, non-diverging telemetry defeats every other guard,
+        # so only the deadline can end this move. It is a recoverable failure:
+        # brake and retry, never disable the aircraft for the whole run.
+        self.tune(FIXED_PAD_MOVE_MAX_SEC=0.8)
         t = FakeTello(x=16, y=0); t.release = threading.Event()
         original_read = t.get_current_state
         def read():
@@ -399,10 +452,12 @@ class PadCenteringTests(unittest.TestCase):
                 t.state["x"] = 17 if t.state["x"] == 16 else 16
             return original_read()
         t.get_current_state = read
-        self.run_one(t, 3.1)
-        self.assertEqual(sum(c[0] == "go" for c in t.calls), 1)
+        events = self.run_one(t, 2.0)
         self.assertEqual(sum(c[0] == "stop" for c in t.calls), 1)
-        self.assertIn((0, "wind_tunnel_control_fault"), self.phases)
+        self.assertEqual([e[1] for e in events], ["SOFT_FAULT"])
+        self.assertIn("deadline exceeded", events[0][2])
+        self.assertIn((0, "wind_tunnel_correction_retry"), self.phases)
+        self.assertNotIn((0, "wind_tunnel_control_fault"), self.phases)
 
     def test_missing_startup_fields_wait_instead_of_arming(self):
         guard = self.w.PadObservationGuard(5)
@@ -425,6 +480,148 @@ class PadCenteringTests(unittest.TestCase):
         self.assertIn("no valid marker", faults[0][2])
         self.assertIn((1, "wind_tunnel_hover"), self.phases)
         self.assertFalse(any(c[0] == "stop" for c in b.calls))
+
+    def test_recenter_budget_covers_sdk_overhead_not_only_travel(self):
+        """Field regression, 2026-09-10 column/side runs.
+
+        drone_1 needed 3.42 s to complete a 36 cm recenter and drone_2 2.50 s
+        for 18 cm.  The old distance/speed + 1.5 s budget allowed 3.34 s and
+        2.40 s, so both were failed and disabled for the rest of the flight.
+        """
+        g = self.w.run_fixed_pad_hover_control.__globals__
+        for distance, measured in ((36.8, 3.42), (18.0, 2.50), (13.0, 2.07)):
+            budget = min(g["FIXED_PAD_MOVE_MAX_SEC"],
+                         distance / self.w.dc.TAKEOFF_CLIMB_SPEED_CM_S
+                         + g["FIXED_PAD_MOVE_OVERHEAD_SEC"])
+            self.assertGreater(budget, measured, f"{distance} cm recenter")
+
+    def test_larger_error_never_gets_a_smaller_budget(self):
+        g = self.w.run_fixed_pad_hover_control.__globals__
+        budgets = [min(g["FIXED_PAD_MOVE_MAX_SEC"],
+                       d / self.w.dc.TAKEOFF_CLIMB_SPEED_CM_S + g["FIXED_PAD_MOVE_OVERHEAD_SEC"])
+                   for d in range(0, 120, 5)]
+        self.assertEqual(budgets, sorted(budgets))
+
+    def test_only_an_explicit_error_reply_counts_as_motionless(self):
+        prefix = "Command 'go 0 0 80 20 m5' was unsuccessful for 1 tries. Latest response:\t"
+        self.assertTrue(self.w.go_was_rejected_without_motion(prefix + "'error Not joystick'"))
+        self.assertTrue(self.w.go_was_rejected_without_motion(prefix + "'error Motor stop'"))
+        # A timeout, an exhausted retry loop or a decode failure prove nothing
+        # about whether the aircraft is moving: those must stay hard faults.
+        for ambiguous in ("'Aborting command 'go 0 0 80 20 m5'. Did not receive a "
+                          "response after 7 seconds'",
+                          "'max retries exceeded'", "'response decode error'", "'ok'"):
+            self.assertFalse(self.w.go_was_rejected_without_motion(prefix + ambiguous), ambiguous)
+        self.assertFalse(self.w.go_was_rejected_without_motion("no valid marker"))
+
+    def test_timed_out_recenter_brakes_then_retries_and_succeeds(self):
+        self.tune(FIXED_PAD_MOVE_MAX_SEC=0.8, SOFT_FAULT_COOLDOWN_SEC=0.4)
+        t = RetryTello(x=16, y=0)
+        events = self.run_one(t, 3.5)
+        self.assertEqual(sum(c[0] == "go" for c in t.calls), 2)
+        self.assertEqual([e[1] for e in events], ["SOFT_FAULT"])
+        self.assertIn((0, "wind_tunnel_correction_retry"), self.phases)
+        self.assertIn((0, "wind_tunnel_hover"), self.phases)
+        self.assertNotIn((0, "wind_tunnel_control_fault"), self.phases)
+
+    def test_retry_waits_for_the_braked_go_to_return_before_moving_again(self):
+        self.tune(FIXED_PAD_MOVE_MAX_SEC=0.8, SOFT_FAULT_COOLDOWN_SEC=0.4)
+        t = RetryTello(x=16, y=0, brake_releases_go=False)
+        runner = threading.Thread(target=self.run_one, args=(t, 4.0))
+        runner.start()
+        try:
+            self.assertTrue(t.braked.wait(2), "watchdog must brake the stuck go")
+            # The first go is still inside its SDK wait. Until it returns, no
+            # second go and no RC heartbeat may be issued for this aircraft,
+            # even though the cooldown itself has already elapsed.
+            before = len(t.calls)
+            time.sleep(0.8)
+            self.assertEqual([c[0] for c in t.calls[before:]], [])
+            self.assertFalse(t.second_go.is_set())
+            t.release.set()  # the outstanding go finally reports back
+            self.assertTrue(t.second_go.wait(2))
+        finally:
+            t.release.set(); runner.join(5)
+        self.assertFalse(runner.is_alive())
+
+    def test_braked_go_that_never_returns_escalates_to_a_hard_fault(self):
+        self.tune(FIXED_PAD_MOVE_MAX_SEC=0.5, SOFT_FAULT_COOLDOWN_SEC=0.2,
+                  SOFT_FAULT_BRAKE_GRACE_SEC=0.6)
+        t = RetryTello(x=16, y=0, brake_releases_go=False)
+        events = []
+        runner = threading.Thread(target=lambda: events.extend(self.run_one(t, 2.0)))
+        runner.start()
+        try:
+            self.assertTrue(t.braked.wait(2))
+            time.sleep(1.0)  # longer than the brake grace
+            self.assertIn((0, "wind_tunnel_control_fault"), self.phases)
+        finally:
+            t.release.set(); runner.join(5)
+        self.assertFalse(runner.is_alive())
+        self.assertEqual([e[1] for e in events], ["SOFT_FAULT", "FAULT"])
+        self.assertIn("did not return", events[1][2])
+        self.assertEqual(sum(c[0] == "go" for c in t.calls), 1)
+
+    def test_repeated_soft_faults_still_latch_the_run(self):
+        self.tune(FIXED_PAD_MOVE_MAX_SEC=0.5, SOFT_FAULT_COOLDOWN_SEC=0.2)
+        t = FakeTello(x=16, y=0, jitter=True); t.arrive = False
+        t.release = threading.Event()
+        events = self.run_one(t, 6.0)
+        maximum = self.w.run_fixed_pad_hover_control.__globals__["SOFT_FAULT_MAX_CONSECUTIVE"]
+        self.assertEqual([e[1] for e in events],
+                         ["SOFT_FAULT"] * (maximum - 1) + ["FAULT"])
+        self.assertEqual(sum(c[0] == "go" for c in t.calls), maximum)
+        self.assertIn((0, "wind_tunnel_control_fault"), self.phases)
+        # Latched means latched: nothing after the hard fault may move again.
+        last_go = max(i for i, c in enumerate(t.calls) if c[0] == "go")
+        self.assertNotIn("go", [c[0] for c in t.calls[last_go + 1:]])
+
+    def test_divergence_and_pad_loss_are_never_retried(self):
+        for setup in ("diverge", "lose_pad"):
+            with self.subTest(setup):
+                self.setUp()
+                self.tune(SOFT_FAULT_COOLDOWN_SEC=0.2)
+                t = FakeTello(x=16, y=0); t.release = threading.Event()
+                runner = threading.Thread(target=self.run_one, args=(t, 2.5))
+                runner.start()
+                try:
+                    self.assertTrue(t.entered.wait(2))
+                    if setup == "diverge":
+                        t.state["x"] = 34  # <20 cm jump, but >15 cm deterioration
+                    else:
+                        t.state["mid"] = -1
+                finally:
+                    runner.join(5)
+                self.assertEqual(sum(c[0] == "go" for c in t.calls), 1)
+                self.assertIn((0, "wind_tunnel_control_fault"), self.phases)
+
+    def test_takeoff_settle_window_is_configured_and_stays_fresh(self):
+        settle = self.w.run_fixed_pad_hover_control.__globals__["TAKEOFF_SETTLE_SEC"]
+        self.assertGreater(settle, 0.0, "takeoff drift needs time to bleed off")
+        # PadObservationGuard calls a pose frozen after 1.5 s without a change,
+        # so a longer settle would strand an aircraft in acquire_pad instead.
+        self.assertLess(settle, 1.5)
+
+    def test_first_recenter_waits_for_takeoff_drift_to_settle(self):
+        self.tune(TAKEOFF_SETTLE_SEC=0.8)
+        t = FakeTakeoffTello(); t.takeoff_release.set()
+        swarm = type("Swarm", (), {"tellos": [t]})()
+        stop = threading.Event(); locks = [threading.Lock()]
+        takeoffs = self.w.IndependentTakeoff(swarm, self.configs[:1], stop, locks)
+        control = threading.Thread(target=self.w.run_fixed_pad_hover_control,
+                                   args=(swarm, self.configs[:1]),
+                                   kwargs=dict(stop_event=stop, command_locks=locks,
+                                               ready_events=takeoffs.ready))
+        control.start(); takeoffs.start(); takeoffs.wait()
+        try:
+            released = time.monotonic()
+            self.assertTrue(t.heartbeat.wait(1), "RC hold must start immediately")
+            self.assertFalse(t.entered.wait(0.5), "first go must wait out the settle")
+            self.assertTrue(t.entered.wait(2))
+            self.assertGreaterEqual(time.monotonic() - released, 0.8)
+        finally:
+            stop.set(); control.join(3)
+        self.assertFalse(control.is_alive())
 
 
 if __name__ == "__main__":

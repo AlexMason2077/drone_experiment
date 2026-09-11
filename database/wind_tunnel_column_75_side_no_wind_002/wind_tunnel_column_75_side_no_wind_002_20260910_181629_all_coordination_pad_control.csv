@@ -1,0 +1,15 @@
+timestamp,drone,event,detail
+2026-09-10T18:16:32.876,drone_5,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:16:32.877,drone_2,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:16:32.878,drone_3,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:16:32.878,drone_4,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:16:32.878,drone_1,TAKEOFF_REQUESTED,single attempt; awaiting this aircraft's reply
+2026-09-10T18:16:36.919,drone_5,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:16:38.789,drone_3,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:16:38.818,drone_2,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:16:39.105,drone_3,MOVE_REQUESTED,"pose=(7, -17, -3, 75); reference=m7; own=m7; target=(0.0, 0.0, 80)"
+2026-09-10T18:16:39.701,drone_1,TAKEOFF_CONFIRMED,independent pad control enabled
+2026-09-10T18:16:40.038,drone_1,MOVE_REQUESTED,"pose=(5, -40, 3, 74); reference=m5; own=m5; target=(0.0, 0.0, 80)"
+2026-09-10T18:16:40.652,drone_1,FAULT,"go failed: Command 'go 0 0 80 20 m5' was unsuccessful for 2 tries. Latest response:	'error Not joystick'; last_pose=(5, -43, 5, 74); brake not confirmed"
+2026-09-10T18:16:41.079,drone_3,ARRIVAL_VERIFIED,"(7, -7, 2, 83)"
+2026-09-10T18:16:41.606,drone_4,TAKEOFF_CONFIRMED,independent pad control enabled
