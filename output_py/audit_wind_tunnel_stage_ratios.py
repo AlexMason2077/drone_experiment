@@ -16,11 +16,12 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from battery_normalization import BatteryNormalizer
+from wind_tunnel_battery_correction import correct_battery_dataframe
 
 MODEL=ROOT/'analysis_results/battery_normalization_v3_with_b15_20260909/model.json'
 OUT=ROOT/'analysis_results/wind_tunnel_stage_ratio_check_20260909'
 STAGES=['high','medium','low']
-FIELDS=['run_id','experiment_id','drone_name','battery_id','phase','elapsed_time','battery',
+FIELDS=['run_id','experiment_id','drone_name','battery_id','soc_mode','phase','elapsed_time','battery',
         'formation','wind_direction','wind_speed','inter_drone_distance_cm','mid','mission_pad','x','y','h','tof']
 
 
@@ -89,6 +90,7 @@ def run():
             audit.append(dict(**basic,status='excluded_prepare_merged_or_outlier'));continue
         hashes[basic['source']]=sha(p)
         d=pd.read_csv(p,usecols=lambda c:c in FIELDS,low_memory=False)
+        d=correct_battery_dataframe(d)
         if d.empty or not {'phase','battery','elapsed_time'}.issubset(d):
             audit.append(dict(**basic,status='empty_or_missing_columns'));continue
         if d.phase.str.contains('merge|simulat|interpol',case=False,na=False).any():

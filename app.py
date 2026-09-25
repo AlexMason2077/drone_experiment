@@ -17,6 +17,7 @@ from urllib.parse import urlencode
 from flask import Flask, abort, jsonify, redirect, render_template_string, request, send_file, url_for
 
 from simulation_viewer import create_simulation_blueprint
+from wind_tunnel_battery_correction import correct_battery_row
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -914,6 +915,7 @@ def summarize_experiment_archive(experiment_id):
         "plots": [],
         "drones": [],
         "all_battery": [],
+        "battery_metadata_corrected": False,
     }
     if not experiment_dir.exists():
         return summary
@@ -937,7 +939,12 @@ def summarize_experiment_archive(experiment_id):
     if battery_path:
         try:
             with battery_path.open("r", newline="", encoding="utf-8-sig") as f:
-                summary["all_battery"] = list(csv.DictReader(f))
+                raw_rows = list(csv.DictReader(f))
+                summary["all_battery"] = [correct_battery_row(row) for row in raw_rows]
+                summary["battery_metadata_corrected"] = any(
+                    row.get("battery_id") != corrected.get("battery_id")
+                    for row, corrected in zip(raw_rows, summary["all_battery"])
+                )
         except (OSError, csv.Error):
             pass
     return summary
@@ -1253,7 +1260,7 @@ def drone_archive_summary(experiment_id, drone):
         try:
             with battery.open("r", newline="", encoding="utf-8-sig") as f:
                 rows = list(csv.DictReader(f))
-                battery_row = rows[0] if rows else {}
+                battery_row = correct_battery_row(rows[0]) if rows else {}
         except (OSError, csv.Error):
             pass
     return {
@@ -2038,9 +2045,33 @@ def experiment_detail(experiment_id):
     registry = load_registry()
     idx = find_experiment_index(registry["experiments"], experiment_id)
     if idx is None:
+        canonical_id = next(
+            (
+                exp.get("experiment_id")
+                for exp in registry["experiments"]
+                if experiment_id in exp.get("merged_from_experiment_ids", [])
+            ),
+            None,
+        )
+        if canonical_id:
+            return redirect(url_for("experiment_detail", experiment_id=canonical_id))
         abort(404)
     experiment = registry["experiments"][idx]
     archive = summarize_experiment_archive(experiment_id)
+    merged_run_groups = []
+    if experiment.get("merged_from_experiment_ids"):
+        manifest = read_json_file(DATA_DIR / experiment_id / "merge_manifest.json")
+        for source_run in manifest.get("source_runs", []):
+            run_id = source_run.get("run_id", "")
+            if not run_id:
+                continue
+            merged_run_groups.append({
+                **source_run,
+                "files": [
+                    item for item in archive["files"]
+                    if f"_{run_id}_" in item["name"]
+                ],
+            })
     selected_suffix = request.args.get("drone", "")
     drone_cards = []
     selected_drone = None
@@ -2062,6 +2093,7 @@ def experiment_detail(experiment_id):
         EXPERIMENT_TEMPLATE,
         experiment=experiment,
         archive=archive,
+        merged_run_groups=merged_run_groups,
         drone_cards=drone_cards,
         selected_drone=selected_drone,
         mission_pad_columns=mission_pad_columns,
@@ -4339,7 +4371,7 @@ INDEX_TEMPLATE = """
 
     function updateWindTunnelBatteryDefaults() {
       if (!windTunnelWindDirectionInput) return;
-      const drone5Battery = windTunnelWindDirectionInput.value === "side wind" ? "B06" : "B12";
+      const drone5Battery = "B12";
       windTunnelBatteryInputs.forEach((input) => {
         const droneNumber = input.dataset.windTunnelDrone;
         if (droneNumber === "5") input.value = drone5Battery;
@@ -5167,6 +5199,7 @@ EXPERIMENT_TEMPLATE = """
     .metric strong { display:block; font-size:20px; }
     .file-list { display:grid; gap:8px; }
     .file-row { border:1px solid var(--line); border-radius:8px; padding:10px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .file-row a { overflow-wrap:anywhere; }
     .plots { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
     .plots img { width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
     button { border:0; border-radius:8px; background:var(--brand); color:#fff; padding:9px 12px; font:inherit; font-weight:650; cursor:pointer; }
@@ -5266,6 +5299,9 @@ EXPERIMENT_TEMPLATE = """
         </form>
       </div>
       <div class="body">
+        {% if archive.battery_metadata_corrected %}
+          <p class="small">Drone 5's original CSV records B06 by mistake. Its effective battery is B12; original files are retained unchanged.</p>
+        {% endif %}
         <div class="grid">
           {% for row in archive.all_battery %}
             <div class="metric">
@@ -5280,9 +5316,31 @@ EXPERIMENT_TEMPLATE = """
       </div>
     </section>
 
+    {% if merged_run_groups %}
+    <section>
+      <div class="head"><h2>Original Runs</h2></div>
+      <div class="body">
+        {% for run in merged_run_groups %}
+          <details>
+            <summary>{{ run.experiment_id }} · {{ run.run_id }} ({{ run.files|length }} files)</summary>
+            <p class="small">{{ run.assessment }}</p>
+            <div class="file-list">
+              {% for file in run.files %}
+                <div class="file-row"><a href="{{ url_for('file_detail', relpath=file.relpath) }}">{{ file.name }}</a></div>
+              {% endfor %}
+            </div>
+          </details>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
     <section>
       <div class="head"><h2>Generated Images</h2></div>
       <div class="body">
+        {% if archive.battery_metadata_corrected %}
+          <p class="small">Original plots may retain the historical B06 label. Newly generated plots use the corrected B12 identity.</p>
+        {% endif %}
         <div class="plots">
           {% for plot in archive.plots %}
             <a href="{{ url_for('file_detail', relpath=plot.relpath) }}"><img src="{{ url_for('raw_file', relpath=plot.relpath) }}" alt="{{ plot.name }}"></a>

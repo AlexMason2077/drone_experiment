@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT/'output_py'))
 from audit_wind_tunnel_stage_ratios import stage_stats, crossing, sha, FIELDS
 from battery_normalization import BatteryNormalizer
+from wind_tunnel_battery_correction import correct_battery_dataframe
 
 PRIOR = ROOT/'analysis_results/wind_tunnel_stage_ratio_check_20260909/first_drop_recalculation'
 OUT = ROOT/'analysis_results/wind_strength_stage_ratio_diagnosis_20260909'
@@ -64,6 +65,7 @@ def scan_partial_pairs():
             audit.append(dict(source=source,status='excluded_prepare_merged_outlier'));continue
         hashes[source]=sha(p)
         d=pd.read_csv(p,usecols=lambda c:c in FIELDS,low_memory=False)
+        d=correct_battery_dataframe(d)
         if d.empty or not {'phase','battery','elapsed_time'}.issubset(d):
             audit.append(dict(source=source,status='empty_or_missing'));continue
         if d.phase.str.contains('merge|simulat|interpol',case=False,na=False).any():

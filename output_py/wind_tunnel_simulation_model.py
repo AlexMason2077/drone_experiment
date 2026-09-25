@@ -14,6 +14,7 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from battery_normalization import BatteryNormalizer
+from wind_tunnel_battery_correction import correct_battery_dataframe
 
 BASELINE_PATH=ROOT/'analysis_results/battery_normalization_v3_with_b15_20260909/model.json'
 OUTPUT=ROOT/'analysis_results/wind_tunnel_simulator_20260909'
@@ -22,7 +23,7 @@ STAGES=('high','medium','low')
 FORMATIONS=('front','column','vee','echelon','diamond')
 WINDS=('head','tail','side')
 BASE_SEED=20260909
-READ_COLS=['run_id','drone_name','battery_id','phase','elapsed_time','battery','formation','wind_direction','wind_speed',
+READ_COLS=['run_id','drone_name','battery_id','soc_mode','phase','elapsed_time','battery','formation','wind_direction','wind_speed',
  'inter_drone_distance_cm','mid','mission_pad','x','y','h','target_x','target_y','target_z','pitch','roll','yaw','templ','temph',
  'vgx','vgy','vgz','agx','agy','agz','tof','baro','motor_time','z','mission_pad_pitch','mission_pad_roll','mission_pad_yaw']
 
@@ -57,11 +58,12 @@ def extract():
         if excluded:
             audit.append(dict(source=source,reason='prepare_practice_merged_outlier'));continue
         d=pd.read_csv(p,usecols=lambda c:c in READ_COLS,low_memory=False)
+        d=correct_battery_dataframe(d)
         if d.empty or not set(['run_id','phase','elapsed_time','battery','drone_name','battery_id']).issubset(d):
             audit.append(dict(source=source,reason='empty_missing_columns'));continue
         if d.phase.str.contains('simulat|merged|interpol',case=False,na=False).any():
             audit.append(dict(source=source,reason='synthetic_phase'));continue
-        for col in set(READ_COLS)-{'run_id','drone_name','battery_id','phase','formation','wind_direction','wind_speed'}:
+        for col in set(READ_COLS)-{'run_id','drone_name','battery_id','soc_mode','phase','formation','wind_direction','wind_speed'}:
             if col in d:d[col]=pd.to_numeric(d[col],errors='coerce')
         formation=normalize_formation(rec.get('formation',d.formation.iloc[0]))
         wind=str(rec.get('wind_direction',d.wind_direction.iloc[0])).lower().replace(' wind','')

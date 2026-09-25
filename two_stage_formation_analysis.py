@@ -31,6 +31,7 @@ from typing import Iterable
 import joblib
 import numpy as np
 import pandas as pd
+from wind_tunnel_battery_correction import correct_battery_dataframe
 from sklearn.base import clone
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import (
@@ -489,6 +490,7 @@ def audit_new_experiments(database: Path) -> tuple[pd.DataFrame, pd.DataFrame, d
             frame = pd.read_csv(path)
         except (pd.errors.EmptyDataError, UnicodeDecodeError):
             continue
+        frame = correct_battery_dataframe(frame)
         run_date = _run_date(frame, path)
         if run_date is None or run_date < NEW_DATA_CUTOFF:
             continue
@@ -828,7 +830,7 @@ def write_briefs(
 
 固定 battery-to-drone mapping 已执行，这是改进；但三次 pilot 的五机 entry SOC 都不完全相同，而且 high/medium/low 均没有形成跨 formation 的 matched comparison。
 
-这三次 pilot 的平均 drop 为 2.4、7.2、4.6 pp，并不随 high→medium→low 单调变化；在每档只有一次、Tello SOC 只有整数分辨率且机间起始电量不同的情况下，这应视为测量离散/硬件差异信号，不能解释成 SOC 的真实效应。风洞数据中有 {audit_summary.get('nonempty_stationary_wind_tunnel_files', 0)} 个非空定点放电文件，但 SOC、时长和独立重复尚未配平；其中 {audit_summary.get('nonstandard_mapping_nonempty_wind_tunnel_files', 0)} 个 Diamond-side/no-wind 文件把 drone_5 从 B12 换成 B06，跨编队比较前需要恢复统一硬件映射或显式校正 battery effect。
+这三次 pilot 的平均 drop 为 2.4、7.2、4.6 pp，并不随 high→medium→low 单调变化；在每档只有一次、Tello SOC 只有整数分辨率且机间起始电量不同的情况下，应视为测量离散/硬件差异信号，不能解释成 SOC 的真实效应。风洞数据中有 {audit_summary.get('nonempty_stationary_wind_tunnel_files', 0)} 个非空定点放电文件，但 SOC、时长和独立重复尚未配平。原 CSV 中 side-wind 风洞 drone_5 的 B06 是历史元数据误录；本审计在读取时将其有效电池标为 B12，原件不变。纠正后仍有 {audit_summary.get('nonstandard_mapping_nonempty_wind_tunnel_files', 0)} 个非空风洞文件不符合固定配对，须另行核查，不能直接用于跨编队比较。
 
 ## 需要补充的实验
 
@@ -849,7 +851,7 @@ For one available charging pad, the empirical recommendations are: """ + "; ".jo
         for row in base.itertuples(index=False)
     ) + f""".
 
-The new data do not yet improve this selector. Wind-tunnel runs are stationary depletion tests and contain no crossing-time label. The controlled-SOC crossing data contain only one Front–50 cm–Head-L1 run at each of high, medium and low SOC, and none has identical entry SOC across all five drones. Their mean drops (2.4, 7.2 and 4.6 percentage points) are not monotonic, so three single runs with unequal entry SOC cannot establish an SOC effect. In addition, {audit_summary.get('nonstandard_mapping_nonempty_wind_tunnel_files', 0)} non-empty Diamond side/no-wind calibration files use B06 on drone_5 instead of the otherwise fixed B12 mapping. The next runs should prioritize {', '.join(priority)} at 75 cm, using matched formation comparisons at high (85–95%), medium (75%) and low (35–40%) SOC with at least three independent runs per cell. Keep each battery assigned to one drone and rotate drone positions, not batteries.
+The new data do not yet improve this selector. Wind-tunnel runs are stationary depletion tests and contain no crossing-time label. The controlled-SOC crossing data contain only one Front–50 cm–Head-L1 run at each of high, medium and low SOC, and none has identical entry SOC across all five drones. Their mean drops (2.4, 7.2 and 4.6 percentage points) are not monotonic, so three single runs with unequal entry SOC cannot establish an SOC effect. Historical B06 metadata on drone 5 in side-wind wind-tunnel CSVs are interpreted as B12 by this audit, while the original files remain unchanged. After correction, {audit_summary.get('nonstandard_mapping_nonempty_wind_tunnel_files', 0)} non-empty wind-tunnel files still lack the fixed battery mapping and require separate review. The next runs should prioritize {', '.join(priority)} at 75 cm, using matched formation comparisons at high (85–95%), medium (75%) and low (35–40%) SOC with at least three independent runs per cell. Keep each battery assigned to one drone and rotate drone positions, not batteries.
 """
     (output / "analysis_brief_zh.md").write_text(zh, encoding="utf-8")
     (output / "analysis_brief_en.md").write_text(en, encoding="utf-8")

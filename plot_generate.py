@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -11,6 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
+from wind_tunnel_battery_correction import correct_battery_dataframe
 
 
 DATA_DIR = BASE_DIR / "database"
@@ -41,9 +43,13 @@ def outlier_experiment_ids():
 
 
 def latest_file(folder, pattern):
-    # Archive filenames contain the run timestamp.  Sorting by name keeps the
-    # newest run stable even when an older CSV is corrected and its mtime changes.
-    files = sorted(folder.glob(pattern), key=lambda path: path.name, reverse=True)
+    # Run timestamps determine chronology even when a merged archive contains
+    # filenames with different experiment ID prefixes.
+    def run_key(path):
+        match = re.search(r"_(\d{8}_\d{6})(?=_)", path.name)
+        return (bool(match), match.group(1) if match else "", path.name)
+
+    files = sorted(folder.glob(pattern), key=run_key, reverse=True)
     return files[0] if files else None
 
 
@@ -52,6 +58,7 @@ def read_csv(path):
         return pd.DataFrame()
     df = pd.read_csv(path, on_bad_lines="skip", engine="python")
     df.columns = df.columns.str.strip()
+    df = correct_battery_dataframe(df)
     for col in [
         "hover_elapsed_time", "node_elapsed_time", "elapsed_time", "X_global", "Y_global", "Z_global",
         "target_x", "target_y", "target_z", "battery", "battery_hover_start",

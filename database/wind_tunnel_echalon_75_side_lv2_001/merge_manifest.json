@@ -1,0 +1,249 @@
+{
+  "canonical_experiment_id": "wind_tunnel_echalon_75_side_lv2_001",
+  "merge_type": "archive_consolidation_only",
+  "source_runs": [
+    {
+      "experiment_id": "wind_tunnel_echalon_75_side_lv2_001",
+      "run_id": "20260925_000055",
+      "assessment": "Short run (hover 4.8 s) ended before the 20% SOC target; interruption reason has not been verified."
+    },
+    {
+      "experiment_id": "wind_tunnel_echalon_75_side_lv2_001",
+      "run_id": "20260925_000135",
+      "assessment": "Short run (hover 28.5 s) ended before the 20% SOC target; interruption reason has not been verified."
+    },
+    {
+      "experiment_id": "wind_tunnel_echalon_75_side_lv2_002",
+      "run_id": "20260925_000251",
+      "assessment": "Subsequent separate run (hover 429.7 s) reached the 20% SOC target for all five drones."
+    }
+  ],
+  "interpretation": "The three runs remain separate observed runs with their original timestamps, run_id and experiment_id fields. No time-series concatenation or synthetic measurements were performed.",
+  "original_files": [
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_1_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_1_battery.csv",
+      "sha256": "fee4fb7a13e1a2a2ad253d1f7a77f261d428c46f143f82225a66aea7cf25e771"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_1_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_1_coordination.csv",
+      "sha256": "d9a10cd597c0f366463351b8fac8078a9b4b29c0767c2aecd1e362171dea6371"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_1_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_1_battery.csv",
+      "sha256": "96ae5ecc17abd9f2f1b3a5dc7f1bcbb32e48838cf47519777cc2e22a2fcd4700"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_1_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_1_coordination.csv",
+      "sha256": "0ff007c15d8f7c647a70d1b829557c25b679cb23c37d8cbd0dc63ab5d03a6998"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_2_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_2_battery.csv",
+      "sha256": "99efd5cc046ffd99294364ff9f05b6a2b195f17a7a0de16f67b8d2affe27b156"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_2_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_2_coordination.csv",
+      "sha256": "001d1d7464e3a4ad98659882e3903a3239dee157f7c90b1c8cb42464b60a0f84"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_2_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_2_battery.csv",
+      "sha256": "5ba5cd892c53157d4edce9f75c53309cde655c5a9dc9cb63621bc6a21f241c1e"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_2_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_2_coordination.csv",
+      "sha256": "8ae5110f693fff46778a7db5c24f4aa04a91e3e2b0e9912ce0a387cb1a305628"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_3_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_3_battery.csv",
+      "sha256": "f59d0f0e2a19410e4541cdf41d1d3cb8d8a5dc297b7e2881a03889525637ace5"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_3_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_3_coordination.csv",
+      "sha256": "ceb29b66b3a091261bfe9b958eda9f5bc1287333ef037692b83fe38603590858"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_3_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_3_battery.csv",
+      "sha256": "84d38ea61f2f14be0e3d299bff919494c80c819db11cb42c6481659e03e441f5"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_3_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_3_coordination.csv",
+      "sha256": "da31d2a54eb49084a13e6121a5b8015b7e745867b6b7e4382939501a7d864248"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_4_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_4_battery.csv",
+      "sha256": "6a9f730ab7d61d0228421aa98b01af51413c9e88243a1eb200f0410cd3e9ac31"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_4_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_4_coordination.csv",
+      "sha256": "5a4da0f88f5edacdd19c7666c042907b6603ef44c5e6b29efc04e208d9c568e6"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_4_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_4_battery.csv",
+      "sha256": "89105cccf83075a854c6d0568f38baf56ed737a23e0cbcc35d43915db1407fb1"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_4_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_4_coordination.csv",
+      "sha256": "c131f23db827ce84a9b18e5663108a38e36f5775daf1a7ad5825d824e59d3f7f"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_5_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_5_battery.csv",
+      "sha256": "959e52f6029734155ec0e3aa0e6ef4fed9d17193977ab01cbe70fe6cfb24b290"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_5_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_drone_5_coordination.csv",
+      "sha256": "b637af9e70583a548c1ae63a5f7ac15c6e9592c29239f64f00b84cf7379b3ff5"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_5_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_5_battery.csv",
+      "sha256": "3957ee497c4f31cdb5463f49fc06f902203328100c1816ee16b26545db3c6b4b"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_5_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_drone_5_coordination.csv",
+      "sha256": "5daf04612a7d398110e6c4ec1aeb25f190d18c6741c7862f4511637a4803ee98"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_battery_lines.png",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_battery_lines.png",
+      "sha256": "be00a37d4755e4243bbc3437a72f187261bf37ced2c1d4500f355f43c3ded7d5"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_temperature_lines.png",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_temperature_lines.png",
+      "sha256": "2bdb3b93181fc3e5dda72f1c6b5d7f363f1bed1f56075c62df44640c2e44d3ad"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_battery_lines.png",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_battery_lines.png",
+      "sha256": "7dea96a391f97954bbe003e318ab10fd3f3b6e67269bce609d3f56e11e5047c2"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_temperature_lines.png",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_temperature_lines.png",
+      "sha256": "e530e3cc36db9b8153ab6303a48b33f345576ba580f8b20f6ea69c25ccbc365d"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_battery.csv",
+      "sha256": "988ab24590531801409018187f4e190bc33b191fd6fcd8927924a3be18f25187"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_battery_timeseries.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_battery_timeseries.csv",
+      "sha256": "539197200bc85457e6a673ef7859f01851dd164a6e4dcf6ee504b0ad45cc4fe4"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000055_all_coordination.csv",
+      "sha256": "317133603fc1527eec17941baa49f8f4d8de7771a3cac037c29ca00f057f09c2"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_battery.csv",
+      "sha256": "0c9c531c1f1191f4ea32d2f6acef38c5c3ec087f4377cae6a189e485d5392af1"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_battery_timeseries.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_battery_timeseries.csv",
+      "sha256": "3c57a2e8085f700b4b92abdf44f0bcb1b755829f063844270d147e05c61080fa"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_001_20260925_000135_all_coordination.csv",
+      "sha256": "73e5d7e755c6ee8447d6149c7707d0ea37c276f9e73213ee0899b51da6213cf5"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_1_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_1_battery.csv",
+      "sha256": "d032fc6ec69129238aae54b98828d74433ebc4083a26bb18894d89f299e48a38"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_1_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_1_100_pad5/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_1_coordination.csv",
+      "sha256": "413fc52562f3ef32b37f94df4b1d297ac545df3f8a00cbbe7b71886486735783"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_2_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_2_battery.csv",
+      "sha256": "847868de66c64202d47da9dfb442f88cad8f704830896b039e8b20dd6470e7f1"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_2_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_2_101_pad6/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_2_coordination.csv",
+      "sha256": "43b994ff2ac6a1531cf7a5c36788d2c7947dce1bed4c9d2cc5b79d2e1f88ef23"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_3_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_3_battery.csv",
+      "sha256": "826ca270ace2c7b4eb84019cdeaaad4f2888802d15075d55f23826d3143d342c"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_3_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_3_102_pad7/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_3_coordination.csv",
+      "sha256": "24aa31840b699576b1f027b314dc7a46ae775cdbfe18f02f2d818ae71ed108ee"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_4_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_4_battery.csv",
+      "sha256": "62ba1ec830f64fe656d8573de3d3b48339d0bbe327e587d80f595d661305f251"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_4_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_4_103_pad8/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_4_coordination.csv",
+      "sha256": "9e258f58616ed5d99711c79cfe130fa11fd88dc4f107c22468ffe16701423edf"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_5_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_5_battery.csv",
+      "sha256": "77650a335713b456cc3716c80b35fb475187bf05c9e824a64b0fd362f01de583"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_5_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/drones/drone_5_104_pad1/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_drone_5_coordination.csv",
+      "sha256": "fa33bda87c8d2281d31624bff2f082e66afd18721a74eb73c1a8fb4cfd49fcdb"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/plots/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_battery_lines.png",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_battery_lines.png",
+      "sha256": "19219121a9e9a223fd13472ea06a333d37b125de535bf68f1313f9e4d1ea7609"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/plots/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_temperature_lines.png",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/plots/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_temperature_lines.png",
+      "sha256": "6420139b450b1987bad4686690a67b735990f4f34d4c42e696f1a644891cfe63"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_battery.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_battery.csv",
+      "sha256": "d7d0e8474c77efec154f09c1b540fdce087eec6a026f36566efa38c219314cfd"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_battery_timeseries.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_battery_timeseries.csv",
+      "sha256": "b2b13bfebcf8601e89490c893e6be020a9325de2024b3ae20f864d5a316b9dae"
+    },
+    {
+      "source_path": "database/wind_tunnel_echalon_75_side_lv2_002/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_coordination.csv",
+      "target_path": "database/wind_tunnel_echalon_75_side_lv2_001/wind_tunnel_echalon_75_side_lv2_002_20260925_000251_all_coordination.csv",
+      "sha256": "98a49961f25be3bd23735bac7ff875dd095d0a88c7caa726d5f57218a01dde65"
+    }
+  ]
+}
