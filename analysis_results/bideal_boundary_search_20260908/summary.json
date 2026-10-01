@@ -1,0 +1,124 @@
+{
+  "method": "shared SOC knots, endpoint-anchored continuous lines, equal-flight pooled RMSE on real95→20 samples",
+  "current_runs": 5,
+  "candidates": 1886,
+  "best": {
+    "upper": 80.0,
+    "lower": 56.0,
+    "rmse": 1.6669969627976235,
+    "worst_battery_rmse": 2.2924363754618726,
+    "min_stage_seconds": 29.141,
+    "top": 95.0,
+    "bottom": 20.0,
+    "min_width": 5.0,
+    "min_seconds": 10.0,
+    "B10_rmse": 1.2678976971902565,
+    "B11_rmse": 1.469413822548195,
+    "B12_rmse": 1.4560440352734676,
+    "B13_rmse": 1.6590129744068443,
+    "B14_rmse": 2.2924363754618726
+  },
+  "original": {
+    "upper": 75.0,
+    "lower": 40.0,
+    "rmse": 2.5040823566211863,
+    "worst_battery_rmse": 3.774724121715773,
+    "min_stage_seconds": 56.275,
+    "top": 95.0,
+    "bottom": 20.0,
+    "min_width": 5.0,
+    "min_seconds": 10.0,
+    "B10_rmse": 1.5157258045708135,
+    "B11_rmse": 1.5138375753532762,
+    "B12_rmse": 1.6005033176592618,
+    "B13_rmse": 3.774724121715773,
+    "B14_rmse": 3.1548154081678104
+  },
+  "rounded": {
+    "upper": 80.0,
+    "lower": 55.0,
+    "rmse": 1.7282110715514405,
+    "worst_battery_rmse": 2.3766883041863744,
+    "min_stage_seconds": 29.141,
+    "top": 95.0,
+    "bottom": 20.0,
+    "min_width": 5.0,
+    "min_seconds": 10.0,
+    "B10_rmse": 1.3219549078232498,
+    "B11_rmse": 1.5725625422513785,
+    "B12_rmse": 1.4412388326334324,
+    "B13_rmse": 1.7283614042230613,
+    "B14_rmse": 2.3766883041863744
+  },
+  "in_sample_improvement_fraction": 0.33428828393370436,
+  "near_optimal_2pct": [
+    {
+      "upper": 80,
+      "lower": 56,
+      "rmse": 1.6669969627976235
+    },
+    {
+      "upper": 79,
+      "lower": 56,
+      "rmse": 1.6820732412633277
+    },
+    {
+      "upper": 81,
+      "lower": 56,
+      "rmse": 1.6858435640351743
+    },
+    {
+      "upper": 80,
+      "lower": 54,
+      "rmse": 1.695462290890299
+    },
+    {
+      "upper": 79,
+      "lower": 51,
+      "rmse": 1.6973568628927298
+    },
+    {
+      "upper": 79,
+      "lower": 54,
+      "rmse": 1.6993359453638448
+    }
+  ],
+  "validation_scope": "LOBO measures shared-boundary sensitivity with held-battery endpoint recalibration; not held-out-flight prediction accuracy.",
+  "source_rows": [
+    {
+      "battery_id": "B10",
+      "drone": "drone_2",
+      "run_id": "20260906_173013",
+      "source": "database/baselines/drone_2_B10/drone_2_B10_hover_lv1_20260906_173013_20260906_173013_all_coordination.csv",
+      "sha256": "da6993e538d3970ee930b10053fd605082d5b8899e1dd46c3a565a0e30d2b2db"
+    },
+    {
+      "battery_id": "B11",
+      "drone": "drone_1",
+      "run_id": "20260906_164725",
+      "source": "database/baselines/drone_1_B11/drone_1_B11_hover_lv1_20260906_164725_20260906_164725_all_coordination.csv",
+      "sha256": "64f7fc219e0ed81e8a8fa3e2ec04db8ad7e0d1eb3c3970b3e4d7becc631d73e6"
+    },
+    {
+      "battery_id": "B12",
+      "drone": "drone_5",
+      "run_id": "20260906_182131",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260906_182131_20260906_182131_all_coordination.csv",
+      "sha256": "f037c27f085a75ea3b0c9d8a991922a3bb47b316a9d40abb83904b5620352a9a"
+    },
+    {
+      "battery_id": "B13",
+      "drone": "drone_3",
+      "run_id": "20260906_170951",
+      "source": "database/baselines/drone_3_B13/drone_3_B13_hover_lv1_20260906_170951_20260906_170951_all_coordination.csv",
+      "sha256": "bc7ef3eef2c2bce1ecf141f6ae5d0468e5a9fdbf0448649f4d6b1bc08c087ead"
+    },
+    {
+      "battery_id": "B14",
+      "drone": "drone_4",
+      "run_id": "20260906_171938",
+      "source": "database/baselines/drone_4_B14/drone_4_B14_hover_lv1_20260906_171938_20260906_171938_all_coordination.csv",
+      "sha256": "6ec0bf99e3f1a469884c61b85913685259ae688aa22f778a59f05233fb745c75"
+    }
+  ]
+}

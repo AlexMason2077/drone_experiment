@@ -1,0 +1,117 @@
+{
+  "passed": true,
+  "complete_collection_coverage": true,
+  "coefficients_byte_unchanged": true,
+  "fixed_baseline_unchanged": true,
+  "raw_inputs_unchanged": true,
+  "exclusions_absent": true,
+  "forward_outputs_byte_preserved": true,
+  "all_25_png_dimensions": {
+    "front_50_side_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "vee_50_side_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "front_50_head_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "vee_50_head_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "echalon_50_side_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "echalon_50_head_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "column_50_side_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "diamond_50_side_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "diamond_50_head_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "front_50_tail_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "vee_50_tail_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "echalon_50_tail_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "echalon_50_head_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "echalon_50_side_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "column_50_tail_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "front_50_head_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "vee_50_head_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "diamond_50_tail_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "front_50_side_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "vee_50_side_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "echalon_50_tail_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "column_50_head_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "front_50_tail_lv1_three_stage.png": [
+      3300,
+      2040
+    ],
+    "vee_50_tail_lv2_three_stage.png": [
+      3300,
+      2040
+    ],
+    "diamond_50_head_lv1_three_stage.png": [
+      3300,
+      2040
+    ]
+  },
+  "initial_plateau_policy_preserved": true,
+  "hardware_commands_sent": false,
+  "active_training_changed": false,
+  "protocols_averaged": false,
+  "figure_labels_and_filenames_updated": true,
+  "individual_figure_subtitle_removed": true
+}

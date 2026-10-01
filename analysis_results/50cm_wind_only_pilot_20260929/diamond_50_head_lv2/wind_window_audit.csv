@@ -1,0 +1,6 @@
+position,battery_id,component,status,original_hover_rows,initial_plateau_removed_s,retained_first_soc,retained_last_soc,own_20_percent_observed,retained_rows,own_hover_duration_s
+1,B11,original,retained,3985,7.517000000000001,93.0,20.0,True,3907,416.937
+2,B10,original,retained,3331,2.5299999999999994,86.0,20.0,True,3301,351.04100000000005
+3,B13,original,retained,2928,10.9,80.0,20.0,True,2818,298.91900000000004
+4,B14,original,retained,2817,8.883000000000001,77.0,20.0,True,2727,289.038
+5,B12,original,retained,2591,10.792,80.0,20.0,True,2483,262.98900000000003

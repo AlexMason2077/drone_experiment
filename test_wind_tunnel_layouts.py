@@ -67,14 +67,21 @@ class LegacyLayoutTests(unittest.TestCase):
             ["git", "show", REFERENCE_COMMIT + ":wind_tunnel_collector.py"],
             cwd=ROOT, text=True))
 
-    def test_only_diamond_head_50_coordinates_differ_from_historical_source(self):
+    def test_only_requested_50_cm_coordinates_differ_from_historical_source(self):
         geometry = {"start_x", "start_y", "target_x", "target_y", "pad_origins_cm"}
         for formation, wind, spacing in itertools.product(FORMATIONS, WINDS, (50, 75)):
             record = experiment(formation, wind, spacing)
             with self.subTest(formation=formation, wind=wind, spacing=spacing):
                 current = self.w.build_configs(record)
                 historical = self.reference.build_configs(record)
-                if (formation, wind, spacing) == ("diamond", "head wind", 50):
+                if (formation, wind, spacing) in {
+                    ("diamond", "head wind", 50),
+                    ("diamond", "tail wind", 50),
+                    ("diamond", "side wind", 50),
+                    ("column", "head wind", 50),
+                    ("column", "tail wind", 50),
+                    ("column", "side wind", 50),
+                }:
                     self.assertNotEqual(current, historical)
                     for a, b in zip(current, historical):
                         self.assertEqual({k:v for k,v in a.items() if k not in geometry},
@@ -107,6 +114,84 @@ class LegacyLayoutTests(unittest.TestCase):
             raw = dict(mid=observed,x=0,y=0,z=80,mission_pad_yaw=180)
             self.assertEqual(self.w.fixed_pad_hover_command(centre,raw),command)
 
+    def test_diamond_tail_and_side_50_share_headwind_targets_and_control_parameters(self):
+        expected = {5: (50, 0), 6: (0, 50), 7: (50, 50), 8: (100, 50), 1: (50, 100)}
+        for level in ("Level1", "Level2"):
+            record = experiment("diamond", "head wind", 50)
+            record["wind_speed"] = level
+            head = self.w.build_configs(record)
+            for wind in ("tail wind", "side wind"):
+                record = dict(record, wind_direction=wind)
+                configs = self.w.build_configs(record)
+                for reference, config, pad in zip(head, configs, PADS):
+                    with self.subTest(level=level, wind=wind, pad=pad):
+                        self.assertEqual(config["pad_origins_cm"], expected)
+                        self.assertEqual((config["target_x"], config["target_y"]), expected[pad])
+                        self.assertEqual({k: v for k, v in reference.items() if k != "wind_direction"},
+                                         {k: v for k, v in config.items() if k != "wind_direction"})
+                        for observed in PADS:
+                            state = dict(mid=observed, x=3, y=-7, z=81, mission_pad_yaw=180)
+                            self.assertEqual(self.w.fixed_pad_hover_command(config, state),
+                                             self.w.fixed_pad_hover_command(reference, state))
+
+    def test_column_head_50_and_75_follow_the_physical_pad_line(self):
+        for spacing in (50, 75):
+            with self.subTest(spacing=spacing):
+                configs = self.w.build_configs(experiment("column", "head wind", spacing))
+                expected = {pad: (0.0, (4 - i) * spacing)
+                            for i, pad in enumerate(PADS)}
+                for config, pad in zip(configs, PADS):
+                    self.assertEqual((config["start_x"], config["start_y"]), expected[pad])
+                    self.assertEqual((config["target_x"], config["target_y"]), expected[pad])
+                    self.assertEqual(config["pad_origins_cm"], expected)
+                    self.assertFalse(config["pad_x_aligned_with_body_forward"])
+                    self.assertEqual(config["target_z"], 80)
+                for first, second in zip(configs, configs[1:]):
+                    self.assertEqual(first["start_y"] - second["start_y"], spacing)
+
+    def test_column_tail_50_shares_headwind_targets_and_pad_recovery(self):
+        head = self.w.build_configs(experiment("column", "head wind", 50))
+        tail = self.w.build_configs(experiment("column", "tail wind", 50))
+        expected = {5: (0, 200), 6: (0, 150), 7: (0, 100), 8: (0, 50), 1: (0, 0)}
+        for head_config, tail_config, pad in zip(head, tail, PADS):
+            self.assertEqual(tail_config["wind_direction"], "tail wind")
+            self.assertEqual({k: v for k, v in head_config.items() if k != "wind_direction"},
+                             {k: v for k, v in tail_config.items() if k != "wind_direction"})
+            self.assertEqual(tail_config["mission_pad"], pad)
+            self.assertEqual(tail_config["target_pad"], pad)
+            self.assertEqual(tail_config["pad_origins_cm"], expected)
+            for observed, origin in expected.items():
+                state = dict(mid=observed, x=3, y=-7, z=81)
+                self.assertEqual(self.w.dc.to_global(tail_config, state),
+                                 (origin[0] + 3, origin[1] - 7, 81))
+        centre = tail[2]
+        for observed, expected_command in ((6, [0, -12, 0, 0]),
+                                           (7, [0, 0, 0, 0]),
+                                           (8, [0, 12, 0, 0])):
+            state = dict(mid=observed, x=0, y=0, z=80, mission_pad_yaw=180)
+            self.assertEqual(self.w.fixed_pad_hover_command(centre, state), expected_command)
+
+    def test_column_side_50_is_identical_to_head_and_tail_except_wind_direction(self):
+        for level in ("Level1", "Level2"):
+            configs_by_wind = {}
+            for wind in WINDS:
+                record = experiment("column", wind, 50)
+                record["wind_speed"] = level
+                configs_by_wind[wind] = self.w.build_configs(record)
+            for index, pad in enumerate(PADS):
+                side = configs_by_wind["side wind"][index]
+                with self.subTest(level=level, pad=pad):
+                    self.assertEqual((side["target_x"], side["target_y"]),
+                                     (0, (4 - index) * 50))
+                    for wind in ("head wind", "tail wind"):
+                        other = configs_by_wind[wind][index]
+                        self.assertEqual({k: v for k, v in side.items() if k != "wind_direction"},
+                                         {k: v for k, v in other.items() if k != "wind_direction"})
+                        for observed in PADS:
+                            state = dict(mid=observed, x=3, y=-7, z=81, mission_pad_yaw=180)
+                            self.assertEqual(self.w.fixed_pad_hover_command(side, state),
+                                             self.w.fixed_pad_hover_command(other, state))
+
     def test_vee_head_50_and_75_have_actual_selected_arm_distance(self):
         for spacing in (50, 75):
             configs = self.w.build_configs(experiment("vee", "head wind", spacing))
@@ -125,10 +210,20 @@ class LegacyLayoutTests(unittest.TestCase):
             for first, second in zip(positions, positions[1:]):
                 self.assertAlmostEqual(math.dist(first, second), spacing)
 
-    def test_current_dc_dependency_matches_historical_blob(self):
+    def test_current_dc_dependency_matches_historical_blob_except_ip_mapping(self):
         historical = subprocess.check_output(
-            ["git", "show", REFERENCE_COMMIT + ":data_collector.py"], cwd=ROOT)
-        self.assertEqual((ROOT / "data_collector.py").read_bytes(), historical)
+            ["git", "show", REFERENCE_COMMIT + ":data_collector.py"],
+            cwd=ROOT, text=True)
+        current = (ROOT / "data_collector.py").read_text()
+        def without_ip_mapping(source):
+            tree = ast.parse(source)
+            tree.body = [node for node in tree.body if not (
+                isinstance(node, ast.Assign) and any(
+                    isinstance(target, ast.Name) and target.id == "DRONE_NUMBER_TO_IP_SUFFIX"
+                    for target in node.targets)
+            )]
+            return ast.dump(tree)
+        self.assertEqual(without_ip_mapping(current), without_ip_mapping(historical))
 
 
 if __name__ == "__main__":

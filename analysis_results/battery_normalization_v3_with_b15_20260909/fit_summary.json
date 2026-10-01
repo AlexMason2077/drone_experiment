@@ -1,0 +1,26 @@
+{
+  "battery_id": "B15",
+  "drone_id": "drone_5",
+  "run_id": "20260513_150444",
+  "boundaries_soc": [
+    100.0,
+    80.0,
+    54.0,
+    20.0
+  ],
+  "rates_pp_min": [
+    29.86659587177275,
+    7.188012606668265,
+    12.423343706419336
+  ],
+  "in_sample_rmse_pp": 1.1498512027251429,
+  "Bideal_medium_scale": 1.108069353803584,
+  "Bideal_reference_unchanged": true,
+  "other_battery_curves_unchanged": true,
+  "input_files_sha256": {
+    "analysis_results/battery_normalization_extended_v3_20260909/model.json": "440c952aa6aeeb39c7852387b46e1d10f3d0378f01269eac003654950ce18572",
+    "database/baselines/drone_5_B15/drone_5_B15_hover_20260513_150444_timeseries.csv": "6e92a975769cfd1e0287fee6558c14368d2eda67a0291f8fc8a13099fa35e0ca",
+    "database/baselines/drone_5_B15/drone_5_B15_hover_20260513_150444_metadata.json": "5e2c4d63673d60413bc1234757660cd5121baebb7a30a20c72251ba8bbb18444"
+  },
+  "method": "Same individual three-stage endpoint fitting rules as B12/B13/B14"
+}

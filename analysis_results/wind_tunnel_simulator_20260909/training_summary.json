@@ -1,0 +1,25 @@
+{
+  "selected_model": "condition_tree",
+  "development_cv_mean_stage_mape_pct": 19.919059565458383,
+  "holdout_metrics": {
+    "model": "condition_tree",
+    "selected": true,
+    "step_mae_s": 1.7068939476910399,
+    "stage_time_mape_pct": 21.070678975648555,
+    "stage_time_median_ape_pct": 9.530659131331648,
+    "stage_time_bias_pct": 0.32694438498039197,
+    "stage_segments": 84,
+    "flights": 10,
+    "conditions": 6
+  },
+  "holdout_interval90_coverage": 0.9001584786053882,
+  "interval_log_residual_quantiles": [
+    -0.6417832605229914,
+    0.6268356914274912
+  ],
+  "fit_steps": 8306,
+  "fit_flights": 50,
+  "fit_conditions": 27,
+  "production_refit": "All eligible observations AFTER locked holdout evaluation; production model itself has no independent test left.",
+  "simulation_semantics": "Conditional empirical surrogate, not aerodynamic physics or independent real experiments."
+}

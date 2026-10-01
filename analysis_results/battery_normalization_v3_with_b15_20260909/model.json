@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "kind": "individual_battery_normalization_candidate",
+  "version": "individual_three_stage_v3_extended100_with_B15_20260909",
+  "status": "candidate_with_explicit_extrapolation_not_active_not_independently_validated",
+  "units": "SOC percentage points per minute",
+  "calibrated_soc_range": [
+    20,
+    95
+  ],
+  "excluded_run_ids": [
+    "20260906_165812"
+  ],
+  "fitting": {
+    "individual": "B10/B11: equal-run mean-curve approximation; B12/B13/B14: unchanged raw-sample endpoint fits; see individual_by_battery",
+    "reference": "time-integral RMSE of endpoint-anchored lines against same-SOC arithmetic mean-rate curve",
+    "min_segment_soc_width_pp": 10,
+    "min_segment_duration_s": 20,
+    "boundary_grid_pp": 1,
+    "battery_weights": {
+      "B10": 0.2,
+      "B11": 0.2,
+      "B12": 0.2,
+      "B13": 0.2,
+      "B14": 0.2
+    },
+    "individual_by_battery": {
+      "B10": "equal-run mean crossing-time curve; exact time-integral approximation RMSE",
+      "B11": "equal-run mean crossing-time curve; exact time-integral approximation RMSE",
+      "B12": "unchanged v1 raw-sample RMSE",
+      "B13": "unchanged v1 raw-sample RMSE",
+      "B14": "unchanged v1 raw-sample RMSE",
+      "B15": "Single-run raw-sample SOC RMSE; endpoint-anchored integer-SOC knots, 95..20"
+    }
+  },
+  "reference": {
+    "boundaries_soc": [
+      100.0,
+      82.0,
+      52.0,
+      20.0
+    ],
+    "rates_pp_min": [
+      17.628903560041273,
+      7.9648164842029185,
+      12.7841804159269
+    ],
+    "source_95_to_20_fit_diagnostics": {
+      "anchor_times_s": [
+        0.0,
+        44.245519713885926,
+        270.2394272408257,
+        420.4250423943798
+      ],
+      "mean_rate_knot_soc": [
+        95.0,
+        85.0,
+        82.0,
+        81.0,
+        79.0,
+        56.0,
+        51.0,
+        48.0,
+        20.0
+      ],
+      "mean_rate_pp_min": [
+        19.342498366550863,
+        13.60982243323188,
+        12.7240711230411,
+        7.926191448703335,
+        7.606168594726062,
+        9.713819208390856,
+        11.97469027091142,
+        13.025563670120837
+      ],
+      "mean_rate_knot_times_s": [
+        0.0,
+        31.01977772621063,
+        44.245519713885926,
+        48.96099162690835,
+        64.10067135539019,
+        245.5323583885779,
+        276.41619445388767,
+        291.44789848361535,
+        420.4250423943798
+      ],
+      "approximation_rmse_pp": 0.36532670714369325,
+      "approximation_max_error_pp": 0.8859221668452761
+    },
+    "anchor_times_s": [
+      0.0,
+      61.26302729614975,
+      287.2569348230895,
+      437.4425499766436
+    ],
+    "time_origin_soc": 100,
+    "modeled_100_to_95_duration_s": 17.017507582263818,
+    "calibrated_soc_range": [
+      20,
+      95
+    ],
+    "supported_soc_range": [
+      20,
+      100
+    ],
+    "extrapolation_method": "existing_first_stage_linear_continuation",
+    "calibrated_95_time_on_extended_axis_s": 17.017507582263818
+  },
+  "batteries": {
+    "B10": {
+      "drone_id": "drone_2",
+      "boundaries_soc": [
+        100.0,
+        85.0,
+        56.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        12.312238364934748,
+        7.055159998053749,
+        11.180182092039816
+      ],
+      "sources": [
+        {
+          "run_id": "20260513_180556",
+          "source": "database/baselines/drone_2_B10/drone_2_B10_hover_20260513_180556_timeseries.csv",
+          "sha256": "dde3e7acda1ab7b36782217b17984e01a76af9ac8512860646797b5fa2989d23"
+        },
+        {
+          "run_id": "20260906_173013",
+          "source": "database/baselines/drone_2_B10/drone_2_B10_hover_lv1_20260906_173013_20260906_173013_all_coordination.csv",
+          "sha256": "da6993e538d3970ee930b10053fd605082d5b8899e1dd46c3a565a0e30d2b2db"
+        }
+      ],
+      "run_weights": [
+        0.5,
+        0.5
+      ],
+      "source_95_to_20_fit_diagnostics": {
+        "anchor_times_s": [
+          0.0,
+          48.73199999999999,
+          295.36,
+          488.55899999999997
+        ],
+        "constructed_mean_curve_rmse_pp": 1.1534262304676997
+      },
+      "anchor_times_s": [
+        0.0,
+        73.09799999999998,
+        319.726,
+        512.925
+      ],
+      "time_origin_soc": 100,
+      "modeled_100_to_95_duration_s": 24.365999999999996,
+      "calibrated_soc_range": [
+        20,
+        95
+      ],
+      "supported_soc_range": [
+        20,
+        100
+      ],
+      "extrapolation_method": "existing_first_stage_linear_continuation",
+      "calibrated_95_time_on_extended_axis_s": 24.365999999999996
+    },
+    "B11": {
+      "drone_id": "drone_1",
+      "boundaries_soc": [
+        100.0,
+        82.0,
+        51.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        12.325487686363743,
+        7.8967311354098335,
+        12.790405820322306
+      ],
+      "sources": [
+        {
+          "run_id": "20260513_143201",
+          "source": "database/baselines/drone_1_B11/drone_1_B11_hover_20260513_143201_timeseries.csv",
+          "sha256": "97daf4768849f3453b2bb75ff570b2e6d701e9afe7483c61a2876f17758e306f"
+        },
+        {
+          "run_id": "20260906_164725",
+          "source": "database/baselines/drone_1_B11/drone_1_B11_hover_lv1_20260906_164725_20260906_164725_all_coordination.csv",
+          "sha256": "64f7fc219e0ed81e8a8fa3e2ec04db8ad7e0d1eb3c3970b3e4d7becc631d73e6"
+        }
+      ],
+      "run_weights": [
+        0.5,
+        0.5
+      ],
+      "source_95_to_20_fit_diagnostics": {
+        "anchor_times_s": [
+          0.0,
+          63.283500000000004,
+          298.824,
+          444.2455
+        ],
+        "constructed_mean_curve_rmse_pp": 1.0142768448729433
+      },
+      "anchor_times_s": [
+        0.0,
+        87.62330769230769,
+        323.1638076923077,
+        468.58530769230765
+      ],
+      "time_origin_soc": 100,
+      "modeled_100_to_95_duration_s": 24.339807692307694,
+      "calibrated_soc_range": [
+        20,
+        95
+      ],
+      "supported_soc_range": [
+        20,
+        100
+      ],
+      "extrapolation_method": "existing_first_stage_linear_continuation",
+      "calibrated_95_time_on_extended_axis_s": 24.339807692307694
+    },
+    "B12": {
+      "drone_id": "drone_5",
+      "boundaries_soc": [
+        100.0,
+        79.0,
+        48.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        11.242665917155605,
+        9.64255164726924,
+        14.89691864331634
+      ],
+      "run_id": "20260906_182131",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260906_182131_20260906_182131_all_coordination.csv",
+      "sha256": "f037c27f085a75ea3b0c9d8a991922a3bb47b316a9d40abb83904b5620352a9a",
+      "observed_sample_count": 390,
+      "source_95_to_20_fit_diagnostics": {
+        "anchor_elapsed_times_s": [
+          47.646,
+          133.035,
+          325.93,
+          438.705
+        ],
+        "in_sample_rmse_pp": 1.1272697733867243,
+        "max_in_sample_error_pp": 2.9302252046516486
+      },
+      "anchor_times_s": [
+        0.0,
+        112.0730625,
+        304.9680625,
+        417.74306249999995
+      ],
+      "time_origin_soc": 100,
+      "modeled_100_to_95_duration_s": 26.6840625,
+      "calibrated_soc_range": [
+        20,
+        95
+      ],
+      "supported_soc_range": [
+        20,
+        100
+      ],
+      "extrapolation_method": "existing_first_stage_linear_continuation",
+      "calibrated_95_time_on_extended_axis_s": 26.6840625
+    },
+    "B13": {
+      "drone_id": "drone_3",
+      "boundaries_soc": [
+        100.0,
+        81.0,
+        51.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        30.96203464799115,
+        6.9726362763023335,
+        13.383316903992686
+      ],
+      "run_id": "20260906_170951",
+      "source": "database/baselines/drone_3_B13/drone_3_B13_hover_lv1_20260906_170951_20260906_170951_all_coordination.csv",
+      "sha256": "bc7ef3eef2c2bce1ecf141f6ae5d0468e5a9fdbf0448649f4d6b1bc08c087ead",
+      "observed_sample_count": 423,
+      "source_95_to_20_fit_diagnostics": {
+        "anchor_elapsed_times_s": [
+          13.046,
+          40.176,
+          298.328,
+          437.307
+        ],
+        "in_sample_rmse_pp": 1.5634034178580984,
+        "max_in_sample_error_pp": 2.8092829030958484
+      },
+      "anchor_times_s": [
+        0.0,
+        36.81928571428572,
+        294.9712857142857,
+        433.95028571428577
+      ],
+      "time_origin_soc": 100,
+      "modeled_100_to_95_duration_s": 9.689285714285715,
+      "calibrated_soc_range": [
+        20,
+        95
+      ],
+      "supported_soc_range": [
+        20,
+        100
+      ],
+      "extrapolation_method": "existing_first_stage_linear_continuation",
+      "calibrated_95_time_on_extended_axis_s": 9.689285714285715
+    },
+    "B14": {
+      "drone_id": "drone_4",
+      "boundaries_soc": [
+        100.0,
+        85.0,
+        56.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        29.870065216309055,
+        6.463763916595157,
+        12.876994890933046
+      ],
+      "run_id": "20260906_171938",
+      "source": "database/baselines/drone_4_B14/drone_4_B14_hover_lv1_20260906_171938_20260906_171938_all_coordination.csv",
+      "sha256": "6ec0bf99e3f1a469884c61b85913685259ae688aa22f778a59f05233fb745c75",
+      "observed_sample_count": 456,
+      "source_95_to_20_fit_diagnostics": {
+        "anchor_elapsed_times_s": [
+          23.883,
+          43.97,
+          313.163,
+          480.904
+        ],
+        "in_sample_rmse_pp": 1.970444601243552,
+        "max_in_sample_error_pp": 3.443607374634553
+      },
+      "anchor_times_s": [
+        0.0,
+        30.1305,
+        299.32349999999997,
+        467.06449999999995
+      ],
+      "time_origin_soc": 100,
+      "modeled_100_to_95_duration_s": 10.0435,
+      "calibrated_soc_range": [
+        20,
+        95
+      ],
+      "supported_soc_range": [
+        20,
+        100
+      ],
+      "extrapolation_method": "existing_first_stage_linear_continuation",
+      "calibrated_95_time_on_extended_axis_s": 10.0435
+    },
+    "B15": {
+      "drone_id": "drone_5",
+      "boundaries_soc": [
+        100.0,
+        80.0,
+        54.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        29.86659587177275,
+        7.188012606668265,
+        12.423343706419336
+      ],
+      "run_id": "20260513_150444",
+      "source": "database/baselines/drone_5_B15/drone_5_B15_hover_20260513_150444_timeseries.csv",
+      "sha256": "6e92a975769cfd1e0287fee6558c14368d2eda67a0291f8fc8a13099fa35e0ca",
+      "source_95_to_20_fit_diagnostics": {
+        "in_sample_rmse_pp": 1.1498512027251429,
+        "max_error_pp": 2.665087359247778,
+        "observed_samples": 410,
+        "boundaries_soc": [
+          95,
+          80.0,
+          54.0,
+          20
+        ],
+        "anchor_times_s": [
+          0.0,
+          30.134,
+          247.162,
+          411.36899999999997
+        ]
+      },
+      "anchor_times_s": [
+        0.0,
+        40.178666666666665,
+        257.20666666666665,
+        421.41366666666664
+      ],
+      "time_origin_soc": 100,
+      "calibrated_soc_range": [
+        20,
+        95
+      ],
+      "supported_soc_range": [
+        20,
+        100
+      ],
+      "modeled_100_to_95_duration_s": 10.044666666666666,
+      "extrapolation_method": "Continue fitted first slope to 100 without refitting; no added telemetry",
+      "included_in_Bideal": false
+    }
+  },
+  "previous_model_sha256": "440c952aa6aeeb39c7852387b46e1d10f3d0378f01269eac003654950ce18572",
+  "revision": {
+    "primary": true,
+    "method": "Equal-run mean first-crossing elapsed time at each SOC, aligned at 95; then unconstrained-integer-knot three-line approximation",
+    "historical_conditions": "user confirmed 2026-09-09: no wind, same set hover height",
+    "logged_height_caveat": "B11 median h was 80 cm vs 70 cm; does not override user confirmation about settings",
+    "not_held_out_validation": true,
+    "upper_80_constraint_applied": false,
+    "untouched_batteries": [
+      "B12",
+      "B13",
+      "B14"
+    ]
+  },
+  "supported_soc_range": [
+    20,
+    100
+  ],
+  "extension": {
+    "method": "Continue each existing first-stage straight line without refitting",
+    "user_requested": true,
+    "extrapolated_soc_interval": {
+      "lower_exclusive": 95,
+      "upper_inclusive": 100
+    },
+    "calibrated_soc_range_unchanged": [
+      20,
+      95
+    ],
+    "synthetic_not_observed": true,
+    "source_model_version": "individual_three_stage_pooled_candidate_v2_20260909",
+    "source_model_sha256": "92c2b585077e37dbd8653a60b30528a78f45e8ea3cf51c9258145ded1d1f7346",
+    "time_origin": "Each extended curve starts at modeled 100% at t=0",
+    "reference_policy": "Extend existing Bideal first slope independently; do not rebuild or refit Bideal",
+    "existing_fit_diagnostics_scope": "Original 95..20 calibration only, not validation of 100..95"
+  },
+  "b15_addition": {
+    "run_id": "20260513_150444",
+    "source_selection": "User explicitly selected 2026-05-13 only",
+    "excluded_other_run_ids": [
+      "20260609_180213"
+    ],
+    "role": "Normalization target only; not a Bideal contributor",
+    "reference_unchanged": true,
+    "reference_contributors": [
+      "B10",
+      "B11",
+      "B12",
+      "B13",
+      "B14"
+    ],
+    "parent_model_version": "individual_three_stage_pooled_candidate_v3_extended100_20260909",
+    "parent_model_sha256": "440c952aa6aeeb39c7852387b46e1d10f3d0378f01269eac003654950ce18572"
+  }
+}

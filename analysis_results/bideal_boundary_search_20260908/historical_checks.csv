@@ -1,0 +1,16 @@
+battery_id,run_id,model,upper,lower,rmse_pp,source
+B11,20260513_143201,original,75,40,2.9511200695122426,database/baselines/drone_1_B11/drone_1_B11_hover_20260513_143201_timeseries.csv
+B11,20260513_143201,best,80,56,1.6083468804648107,database/baselines/drone_1_B11/drone_1_B11_hover_20260513_143201_timeseries.csv
+B11,20260513_143201,rounded,80,55,1.6340023101591545,database/baselines/drone_1_B11/drone_1_B11_hover_20260513_143201_timeseries.csv
+B10,20260513_180556,original,75,40,3.338010046221037,database/baselines/drone_2_B10/drone_2_B10_hover_20260513_180556_timeseries.csv
+B10,20260513_180556,best,80,56,2.337529726760529,database/baselines/drone_2_B10/drone_2_B10_hover_20260513_180556_timeseries.csv
+B10,20260513_180556,rounded,80,55,2.501490159611418,database/baselines/drone_2_B10/drone_2_B10_hover_20260513_180556_timeseries.csv
+B13,20260513_163826,original,75,40,2.686415745289731,database/baselines/drone_3_B13/drone_3_B13_hover_20260513_163826_timeseries.csv
+B13,20260513_163826,best,80,56,2.233236278054957,database/baselines/drone_3_B13/drone_3_B13_hover_20260513_163826_timeseries.csv
+B13,20260513_163826,rounded,80,55,2.1845107433418205,database/baselines/drone_3_B13/drone_3_B13_hover_20260513_163826_timeseries.csv
+B14,20260513_144257,original,75,40,3.301890995671291,database/baselines/drone_4_B14/drone_4_B14_hover_20260513_144257_timeseries.csv
+B14,20260513_144257,best,80,56,1.3972682906664433,database/baselines/drone_4_B14/drone_4_B14_hover_20260513_144257_timeseries.csv
+B14,20260513_144257,rounded,80,55,1.457698365228264,database/baselines/drone_4_B14/drone_4_B14_hover_20260513_144257_timeseries.csv
+B12,20260609_174758,original,75,40,3.3433030217035657,database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260609_174758_20260609_174758_all_coordination.csv
+B12,20260609_174758,best,80,56,1.9201391947661832,database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260609_174758_20260609_174758_all_coordination.csv
+B12,20260609_174758,rounded,80,55,2.0379847601727232,database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260609_174758_20260609_174758_all_coordination.csv

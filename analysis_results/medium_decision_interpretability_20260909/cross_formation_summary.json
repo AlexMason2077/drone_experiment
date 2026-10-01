@@ -1,0 +1,7 @@
+{
+  "decisions": 30,
+  "best_other_formation_comparisons": 120,
+  "matched_spacing_comparisons": 99,
+  "selected_has_lower_aggregate_discharge": 112,
+  "selected_wins_despite_higher_aggregate_discharge": 8
+}

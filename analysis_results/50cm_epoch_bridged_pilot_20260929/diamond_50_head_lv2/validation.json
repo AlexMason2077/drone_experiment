@@ -1,0 +1,14 @@
+{
+  "single_condition_only": true,
+  "wind_medium_raw_replay_max_error": 1.7763568394002505e-15,
+  "bridge_maps_historical_baseline_to_fixed_target": true,
+  "old_relative_factor_preserved": true,
+  "medium_average_max_error": 0.0,
+  "existing_forward_raw_slopes_reused_without_refitting": true,
+  "previous_v3_normalized_slopes_not_scaled_twice": true,
+  "high_low_wind_coefficients_unchanged": true,
+  "reference_and_all_inputs_unchanged": true,
+  "modeled_high_rows": 2,
+  "training_dataset_modified": false,
+  "raw_diagnostic_figure_added_to_dataset": false
+}

@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "raw_threshold_checks": 15,
+  "continuous_boundaries": 2,
+  "monotonicity_grid_points": 501,
+  "below20_guard": true,
+  "normalization_additivity": true
+}

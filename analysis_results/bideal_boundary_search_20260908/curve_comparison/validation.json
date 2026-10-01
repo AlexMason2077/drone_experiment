@@ -1,0 +1,47 @@
+[
+  {
+    "battery_id": "B10",
+    "raw_samples": 494,
+    "plotted_rows": 159,
+    "real_polyline_preserved": true,
+    "anchors_checked": 8,
+    "old_rmse": 1.5157258045708135,
+    "new_rmse": 1.2678976971902565
+  },
+  {
+    "battery_id": "B11",
+    "raw_samples": 478,
+    "plotted_rows": 158,
+    "real_polyline_preserved": true,
+    "anchors_checked": 8,
+    "old_rmse": 1.5138375753532762,
+    "new_rmse": 1.469413822548195
+  },
+  {
+    "battery_id": "B12",
+    "raw_samples": 390,
+    "plotted_rows": 159,
+    "real_polyline_preserved": true,
+    "anchors_checked": 8,
+    "old_rmse": 1.6005033176592618,
+    "new_rmse": 1.4560440352734676
+  },
+  {
+    "battery_id": "B13",
+    "raw_samples": 423,
+    "plotted_rows": 158,
+    "real_polyline_preserved": true,
+    "anchors_checked": 8,
+    "old_rmse": 3.774724121715773,
+    "new_rmse": 1.6590129744068443
+  },
+  {
+    "battery_id": "B14",
+    "raw_samples": 456,
+    "plotted_rows": 159,
+    "real_polyline_preserved": true,
+    "anchors_checked": 8,
+    "old_rmse": 3.1548154081678104,
+    "new_rmse": 2.2924363754618726
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "assessment": "Share with caveats",
+  "primary_segments_traced": 435,
+  "input_hashes_verified": 165,
+  "sql_ranks_independently_checked": true,
+  "normalization_applied": false,
+  "tie_policy": "Exact equal endpoint durations use tied ranks; same-fastest includes shared top ranks. Durations rounded at 1e-9 seconds only to remove subtraction noise.",
+  "unit_tests": "Five synthetic-fixture tests pass; fixtures are not experiment data",
+  "matched_first_second": [
+    {
+      "stage": "high",
+      "flights": 7,
+      "first": 0,
+      "second": 2
+    },
+    {
+      "stage": "low",
+      "flights": 18,
+      "first": 6,
+      "second": 13
+    }
+  ],
+  "matched_old_cohort": [
+    {
+      "stage": "high",
+      "flights": 2,
+      "whole": 0,
+      "partial": 0
+    },
+    {
+      "stage": "low",
+      "flights": 11,
+      "whole": 10,
+      "partial": 3
+    }
+  ],
+  "caveats": [
+    "Selection and window length materially affect exact ranks",
+    "Comparisons are local observed SOC slopes, not whole-stage averages or isolated aerodynamic effects"
+  ]
+}

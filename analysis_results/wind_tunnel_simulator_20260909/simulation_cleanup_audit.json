@@ -1,0 +1,1224 @@
+{
+  "policy": "remove_when_any_usable_real_curve_exists; also exclude four legacy safety cells",
+  "observed_conditions": [
+    "column_75_head_lv1",
+    "column_75_head_lv2",
+    "diamond_75_head_lv1",
+    "diamond_75_head_lv2",
+    "diamond_75_side_lv1",
+    "diamond_75_side_lv2",
+    "diamond_75_tail_lv1",
+    "diamond_75_tail_lv2",
+    "echelon_75_head_lv1",
+    "echelon_75_head_lv2",
+    "echelon_75_tail_lv1",
+    "echelon_75_tail_lv2",
+    "front_50_head_lv1",
+    "front_50_head_lv2",
+    "front_50_tail_lv1",
+    "front_50_tail_lv2",
+    "front_75_head_lv1",
+    "front_75_head_lv2",
+    "front_75_side_lv1",
+    "front_75_side_lv2",
+    "front_75_tail_lv1",
+    "front_75_tail_lv2",
+    "vee_75_head_lv1",
+    "vee_75_head_lv2"
+  ],
+  "safety_exclusions": [
+    "column_50_head_lv2",
+    "column_50_side_lv2",
+    "diamond_50_side_lv2",
+    "diamond_50_tail_lv2"
+  ],
+  "remaining_conditions": [
+    "column_50_head_lv1",
+    "column_50_side_lv1",
+    "column_50_tail_lv1",
+    "column_50_tail_lv2",
+    "column_75_side_lv1",
+    "column_75_side_lv2",
+    "column_75_tail_lv1",
+    "column_75_tail_lv2",
+    "diamond_50_head_lv1",
+    "diamond_50_head_lv2",
+    "diamond_50_side_lv1",
+    "diamond_50_tail_lv1",
+    "echelon_50_head_lv1",
+    "echelon_50_head_lv2",
+    "echelon_50_side_lv1",
+    "echelon_50_side_lv2",
+    "echelon_50_tail_lv1",
+    "echelon_50_tail_lv2",
+    "echelon_75_side_lv1",
+    "echelon_75_side_lv2",
+    "front_50_side_lv1",
+    "front_50_side_lv2",
+    "vee_50_head_lv1",
+    "vee_50_head_lv2",
+    "vee_50_side_lv1",
+    "vee_50_side_lv2",
+    "vee_50_tail_lv1",
+    "vee_50_tail_lv2",
+    "vee_75_side_lv1",
+    "vee_75_side_lv2",
+    "vee_75_tail_lv1",
+    "vee_75_tail_lv2"
+  ],
+  "remaining_runs_per_export": 96,
+  "trash_path": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141",
+  "exports": [
+    {
+      "export": "simulation_data/wind_tunnel_empirical_v1_20260909",
+      "remove_run_files": 66,
+      "keep_runs": 96,
+      "observed_run_files": 54,
+      "unsafe_run_files": 12
+    },
+    {
+      "export": "simulation_data/wind_tunnel_all_allowed_v2_20260909",
+      "remove_run_files": 72,
+      "keep_runs": 96,
+      "observed_run_files": 72,
+      "unsafe_run_files": 0
+    },
+    {
+      "export": "analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded",
+      "remove_run_files": 66,
+      "keep_runs": 96,
+      "observed_run_files": 54,
+      "unsafe_run_files": 12
+    }
+  ],
+  "moved_files": [
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_head_lv2_r01_s20260910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_head_lv2_r01_s20260910_all_coordination.csv.gz",
+      "sha256": "19a588b9ac633482674deb95339b1754970bc52fd17d94fe5ce1ac8f0e920b78"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_head_lv2_r02_s20260911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_head_lv2_r02_s20260911_all_coordination.csv.gz",
+      "sha256": "db5e7c0cd5a88b2f8b0be51fa294f30953fc7b057160c8dc101bbfa2e49282a7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_head_lv2_r03_s20260912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_head_lv2_r03_s20260912_all_coordination.csv.gz",
+      "sha256": "372c665aa4a92f586482fb54e98df760caeb1c5640247a8d7103056b3b50c3d5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv1_r01_s20261010_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv1_r01_s20261010_all_coordination.csv.gz",
+      "sha256": "fdb60c9d765eed3e472ef421aad0d7d33203a42471e879bdd4015c75e283d4bd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv1_r02_s20261011_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv1_r02_s20261011_all_coordination.csv.gz",
+      "sha256": "83a9709e4a90945174ba6d3d54c1a2642e62ccc6be0c0809690f404ec88a9f9e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv1_r03_s20261012_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv1_r03_s20261012_all_coordination.csv.gz",
+      "sha256": "9a30389eea3ed8ec52034ef37ab04a7654427010a4cc82196ca930899e3d7ab6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv2_r01_s20261110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv2_r01_s20261110_all_coordination.csv.gz",
+      "sha256": "5630d874f467ab6780fc97619003b108a3e57cd2cfc85f9d18fae1f4bdceb6e5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv2_r02_s20261111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv2_r02_s20261111_all_coordination.csv.gz",
+      "sha256": "fde7930ad2862ae625556a4b6df8b695d50aa7f2a1a348022eb07e5487fca028"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv2_r03_s20261112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_50_tail_lv2_r03_s20261112_all_coordination.csv.gz",
+      "sha256": "6e99d714b709e87d9ff07f3e71ed039bbea4c02bfdc0e43c84ac23b523aa9d3a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_head_lv1_r01_s20261410_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_head_lv1_r01_s20261410_all_coordination.csv.gz",
+      "sha256": "5fb028d62b908f9d4121c86de3e7e3bbcceceed946ce953c754e0928dc76405b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_head_lv1_r02_s20261411_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_head_lv1_r02_s20261411_all_coordination.csv.gz",
+      "sha256": "2cb88b2a9c0ceda614adad8b55627e1cdb2beea7fb7995e4457b1f0e4e08e20f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_head_lv1_r03_s20261412_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_head_lv1_r03_s20261412_all_coordination.csv.gz",
+      "sha256": "44f7eefb88fdf672232a3b7038fcb58f846d6fe676148d9cb016bdf107596f81"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_side_lv2_r01_s20261510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_side_lv2_r01_s20261510_all_coordination.csv.gz",
+      "sha256": "689f5f394bad2eac58a81f8d5e668b6aa518edbc324e045688e787e20d566892"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_side_lv2_r02_s20261511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_side_lv2_r02_s20261511_all_coordination.csv.gz",
+      "sha256": "c2be8e177bf367975943284d809c6ae16431b89e00400d038c26348779b458d6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_side_lv2_r03_s20261512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_front_75_side_lv2_r03_s20261512_all_coordination.csv.gz",
+      "sha256": "6d8ba8f1d2380c6ea62fd57ff09fd7bd2ca6d963a54602204e6337c8dbb508a4"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_head_lv2_r01_s20261710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_head_lv2_r01_s20261710_all_coordination.csv.gz",
+      "sha256": "afd67264861371c21fca28e6bb708e45ec4aca413956e96b37a20f9d2ee1cf71"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_head_lv2_r02_s20261711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_head_lv2_r02_s20261711_all_coordination.csv.gz",
+      "sha256": "eb893ca31aec4df090562f3bb912a7d2f65e10b96c50f1c735232b329dd0a8cd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_head_lv2_r03_s20261712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_head_lv2_r03_s20261712_all_coordination.csv.gz",
+      "sha256": "fd1178df54c5bb0e956d192f6d42428d573adee16dd3f69fd9cfb42e217cf333"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_side_lv2_r01_s20262110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_side_lv2_r01_s20262110_all_coordination.csv.gz",
+      "sha256": "abef883a1a89ea6766b6cc0c4bb80060a480efc23a3a501bd90e277b7907c9ab"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_side_lv2_r02_s20262111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_side_lv2_r02_s20262111_all_coordination.csv.gz",
+      "sha256": "8d6f19623e8e4c541e367c29c6071df1ed6e8dcc10af20fc82e5a398ff97e8bd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_side_lv2_r03_s20262112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_50_side_lv2_r03_s20262112_all_coordination.csv.gz",
+      "sha256": "0eb1bb5f53c112fe1698d7408aec1ae956aeba22b914a7ccefd59ba6b8cd4622"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv1_r01_s20262210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv1_r01_s20262210_all_coordination.csv.gz",
+      "sha256": "94694e67de8763fc0c32852d2a1c25e6807f9df73d5fbec626eb7ad5373c29b0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv1_r02_s20262211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv1_r02_s20262211_all_coordination.csv.gz",
+      "sha256": "2420a594777440f23735879a5b52d0c72642ae13fcbc3ac13960b870642c785f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv1_r03_s20262212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv1_r03_s20262212_all_coordination.csv.gz",
+      "sha256": "498e0b641aadf10d7b2bd05498e2398db80804cf606432365226378bbb3ef4d0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv2_r01_s20262310_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv2_r01_s20262310_all_coordination.csv.gz",
+      "sha256": "b49d3b04dad0e3d49cd2ac1abb8af3cdb4ccb600ae068f40ac992372bdb70edd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv2_r02_s20262311_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv2_r02_s20262311_all_coordination.csv.gz",
+      "sha256": "15b1dbb6124da9ba4a2ec46170d9182e0412f224970ce415e441f4a5a1349b0b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv2_r03_s20262312_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_column_75_head_lv2_r03_s20262312_all_coordination.csv.gz",
+      "sha256": "90235cdcf2952f9b8d3597bdfdab3a44ee75144ee123df9643cfd6b55ecce5af"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_vee_75_head_lv2_r01_s20263410_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_vee_75_head_lv2_r01_s20263410_all_coordination.csv.gz",
+      "sha256": "3cfa7ec2948ced9e89d6e2acdd93ba8ca37d1fe6540d4b2496c6c8bac69c6019"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_vee_75_head_lv2_r02_s20263411_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_vee_75_head_lv2_r02_s20263411_all_coordination.csv.gz",
+      "sha256": "7315317c623245471ea97affeddc25d1f17e38d6870edceef5728714c82572a7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_vee_75_head_lv2_r03_s20263412_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_vee_75_head_lv2_r03_s20263412_all_coordination.csv.gz",
+      "sha256": "f180ebe79ef02283451bbcafbb69d8b391a7daa50d0a658c3a1f9606a88e7139"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv1_r01_s20264510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv1_r01_s20264510_all_coordination.csv.gz",
+      "sha256": "fa62a89d1e3097a0ee2264bf0d7be948a7245d48269ddc42e3d64f2bbfb0273b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv1_r02_s20264511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv1_r02_s20264511_all_coordination.csv.gz",
+      "sha256": "76230737a7df6e2bcbc05ea79563ea11db9866f834a757a9d2d1b08b5109cec0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv1_r03_s20264512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv1_r03_s20264512_all_coordination.csv.gz",
+      "sha256": "44c3e7eb8e89255149867bfe41e45b1d35fbfeef8be9c9c47e4dec0a0040f2e6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv2_r01_s20264610_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv2_r01_s20264610_all_coordination.csv.gz",
+      "sha256": "ec7f4113e9cee1827f1c305de4c4a84573c8c996adf5ae555ef241a28122fb7f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv2_r02_s20264611_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv2_r02_s20264611_all_coordination.csv.gz",
+      "sha256": "d3d67b9698e79591c24a067b8c9be9339d66a779a0d1e1de6e918e80421f7bc0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv2_r03_s20264612_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_head_lv2_r03_s20264612_all_coordination.csv.gz",
+      "sha256": "5ad6aff72d5f0a2af726285a06c3145b2ccb2995cb46267d5c15b427ba02de0b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_tail_lv2_r01_s20264710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_tail_lv2_r01_s20264710_all_coordination.csv.gz",
+      "sha256": "4375bbe7c8b2dcf992e7495013d9153d224fdd2b83a92729e55f85a07518defd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_tail_lv2_r02_s20264711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_tail_lv2_r02_s20264711_all_coordination.csv.gz",
+      "sha256": "ae51eeca8fd7b550edeb6a1e32a55c76c241ed2fc7103d327aa76b6c101fb943"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_tail_lv2_r03_s20264712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_echelon_75_tail_lv2_r03_s20264712_all_coordination.csv.gz",
+      "sha256": "ce36acef547cbcc949698672619ab4f0d69792528b4182ef6e9b8a7bef508588"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_tail_lv2_r01_s20265310_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_tail_lv2_r01_s20265310_all_coordination.csv.gz",
+      "sha256": "79db38ee33f710f31fef2919202ec1a8a9d28fec4bbf7985ed3814b29103049f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_tail_lv2_r02_s20265311_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_tail_lv2_r02_s20265311_all_coordination.csv.gz",
+      "sha256": "0dda6211db3c7c1fa75703727cba581649a92593ee49b5d21b5459220a51209d"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_tail_lv2_r03_s20265312_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_tail_lv2_r03_s20265312_all_coordination.csv.gz",
+      "sha256": "180fc22b99e040c2863d42e4aebf6e7c299d4626b87d1cda7ec8a4a611002248"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_side_lv2_r01_s20265510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_side_lv2_r01_s20265510_all_coordination.csv.gz",
+      "sha256": "cd359237ddd34a0b95ac59e6dc7ca31df73d3a726730f3e51f450e744f15bcc6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_side_lv2_r02_s20265511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_side_lv2_r02_s20265511_all_coordination.csv.gz",
+      "sha256": "ef4e5ebf8b5a03a4ca70f7173465b78af40f2dd3f51b0d667b303e5bce397531"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_side_lv2_r03_s20265512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_50_side_lv2_r03_s20265512_all_coordination.csv.gz",
+      "sha256": "60cc542531b68969ad41632674e077d0518e1d68d4fa1aa2fdd06766d8b38765"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv1_r01_s20265610_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv1_r01_s20265610_all_coordination.csv.gz",
+      "sha256": "227c95ed1e2aabfdf7fd14c94ffb806b460127c83c6aeaf91e1feb3de02df086"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv1_r02_s20265611_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv1_r02_s20265611_all_coordination.csv.gz",
+      "sha256": "49db00887177164cd393ef3d6d81d29ca439d1d97637f7e86200c885400432b5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv1_r03_s20265612_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv1_r03_s20265612_all_coordination.csv.gz",
+      "sha256": "dc54ac24645670077a72db34434859f00956b9a1b938362f14511974fde988e7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv2_r01_s20265710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv2_r01_s20265710_all_coordination.csv.gz",
+      "sha256": "e8302029b283876f06d4f6a90f00203ac417491c4048f6304d83fde8e0894472"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv2_r02_s20265711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv2_r02_s20265711_all_coordination.csv.gz",
+      "sha256": "dff20813753eb24892412c0f795b5d240389cdbeefc160bfe9aee1b31f528e33"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv2_r03_s20265712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_head_lv2_r03_s20265712_all_coordination.csv.gz",
+      "sha256": "2554ad047fb2e3fc1cb61999861cbe7c607358ec27be9a807dd026448e30196e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv1_r01_s20265810_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv1_r01_s20265810_all_coordination.csv.gz",
+      "sha256": "7a52e405b3a1ee9f82307599c6fe240f54d25fe7ef67e5d6d5c3d2195b0f8b33"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv1_r02_s20265811_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv1_r02_s20265811_all_coordination.csv.gz",
+      "sha256": "8494f583be92eb05beaae79ed448c1fd4aaed4215ab813a1168418bc48f5166c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv1_r03_s20265812_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv1_r03_s20265812_all_coordination.csv.gz",
+      "sha256": "c956947b189cfca9e93182e63b7f123d4d94f68d4daf47c7606425e8509e65c5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv2_r01_s20265910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv2_r01_s20265910_all_coordination.csv.gz",
+      "sha256": "62d59a69730cb84c5f71f83ddcd22c370df77d2f9d094e0c22df0cd16a2616ce"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv2_r02_s20265911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv2_r02_s20265911_all_coordination.csv.gz",
+      "sha256": "e2a9e5ab0d2f870ab9b8041c8f335af7288272d3df4cf4f968cbe1ca4ac21c76"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv2_r03_s20265912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_tail_lv2_r03_s20265912_all_coordination.csv.gz",
+      "sha256": "6c3fecf19eb5ec7e2f00085ebcdd23e3d0667dde1c4daa969816c12a75df68a0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv1_r01_s20266010_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv1_r01_s20266010_all_coordination.csv.gz",
+      "sha256": "864c1ae19edccd584102230d35dc924984e433983ffc02ba4efa621577112533"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv1_r02_s20266011_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv1_r02_s20266011_all_coordination.csv.gz",
+      "sha256": "2f2b1f88c0dbb64c6d8f180d828555c8358d118b8e98b90faddd7e12c0cf75d3"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv1_r03_s20266012_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv1_r03_s20266012_all_coordination.csv.gz",
+      "sha256": "04518af77b7d084eaf6e603c257a9e0a7939ad4ac9bbf0c26845ad13ac2ea26d"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv2_r01_s20266110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv2_r01_s20266110_all_coordination.csv.gz",
+      "sha256": "7ece90933e720059c4d84edab3d56f4b4d28b3e0d3ffe5c082ef048b0bdfc506"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv2_r02_s20266111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv2_r02_s20266111_all_coordination.csv.gz",
+      "sha256": "f16b5b3c7e8309834b48469fc5c60d97bbb80b14914960822125499e95593b1f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv2_r03_s20266112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/runs/SIM_diamond_75_side_lv2_r03_s20266112_all_coordination.csv.gz",
+      "sha256": "d82196f478d066a634fb47be5586bbe838c9c32678af4e7d0e942c194432000b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/examples/SIM_front_75_tail_lv1_r01_s20266210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/examples/SIM_front_75_tail_lv1_r01_s20266210_all_coordination.csv.gz",
+      "sha256": "17820f74dea178447c1be56d6dcd8aa98a46bce9c80f4ea9c9b2f1e348989fd8"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/examples/SIM_front_75_tail_lv1_r02_s20266211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/examples/SIM_front_75_tail_lv1_r02_s20266211_all_coordination.csv.gz",
+      "sha256": "c2c427ecc661bba2432c87b295cc013a73f792a680b9dfaadc3af5db8778b61e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/examples/SIM_front_75_tail_lv1_r03_s20266212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/examples/SIM_front_75_tail_lv1_r03_s20266212_all_coordination.csv.gz",
+      "sha256": "35930de90f677a7ec8d78a65dd8864b0f7b76af87b1e49687851c5832376a5fc"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/coverage.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/coverage.csv",
+      "sha256": "4a075826f07cbe837ef86bb5d7159e9168813d44f4a02ede33b67a7124f1a3bc"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/integer_soc_events.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/integer_soc_events.csv.gz",
+      "sha256": "8ccbb1a614ea7040ac4ebff09979f0eaad4a58e9a34df2634baec8865ff640c8"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/manifest.json",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/manifest.json",
+      "sha256": "5ef7bbc0ac73d41861bb09e9d0ec6b86c0eb2fd174a820d80d0cf90cda1389ff"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/run_manifest.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/run_manifest.csv",
+      "sha256": "67732a0eb3487516a6baba9b3fd06ac2bd6847b157a2bcc9b5ca3ef44e134bca"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/simulated_stage_rates_long.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/simulated_stage_rates_long.csv",
+      "sha256": "03b496df40080cfa9bd1b6dcf453ce5e9349177b248dedb67cbbee7426bafa27"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/simulated_stage_rates_wide.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/simulated_stage_rates_wide.csv",
+      "sha256": "1ab561556ac0ae093082d520b00134ff31d583a54d7d25450ddb90dcb2a2c9b9"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_empirical_v1_20260909/stage_position_coverage.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_empirical_v1_20260909/stage_position_coverage.csv",
+      "sha256": "0956671c33651617a51a88e69f63d5ab9327a829efbbfc7e099f2ed5ab414940"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv1_r01_s20262210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv1_r01_s20262210_all_coordination.csv.gz",
+      "sha256": "94694e67de8763fc0c32852d2a1c25e6807f9df73d5fbec626eb7ad5373c29b0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv1_r02_s20262211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv1_r02_s20262211_all_coordination.csv.gz",
+      "sha256": "2420a594777440f23735879a5b52d0c72642ae13fcbc3ac13960b870642c785f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv1_r03_s20262212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv1_r03_s20262212_all_coordination.csv.gz",
+      "sha256": "498e0b641aadf10d7b2bd05498e2398db80804cf606432365226378bbb3ef4d0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv2_r01_s20262310_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv2_r01_s20262310_all_coordination.csv.gz",
+      "sha256": "b49d3b04dad0e3d49cd2ac1abb8af3cdb4ccb600ae068f40ac992372bdb70edd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv2_r02_s20262311_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv2_r02_s20262311_all_coordination.csv.gz",
+      "sha256": "15b1dbb6124da9ba4a2ec46170d9182e0412f224970ce415e441f4a5a1349b0b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv2_r03_s20262312_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_column_75_head_lv2_r03_s20262312_all_coordination.csv.gz",
+      "sha256": "90235cdcf2952f9b8d3597bdfdab3a44ee75144ee123df9643cfd6b55ecce5af"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv1_r01_s20265610_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv1_r01_s20265610_all_coordination.csv.gz",
+      "sha256": "227c95ed1e2aabfdf7fd14c94ffb806b460127c83c6aeaf91e1feb3de02df086"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv1_r02_s20265611_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv1_r02_s20265611_all_coordination.csv.gz",
+      "sha256": "49db00887177164cd393ef3d6d81d29ca439d1d97637f7e86200c885400432b5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv1_r03_s20265612_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv1_r03_s20265612_all_coordination.csv.gz",
+      "sha256": "dc54ac24645670077a72db34434859f00956b9a1b938362f14511974fde988e7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv2_r01_s20265710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv2_r01_s20265710_all_coordination.csv.gz",
+      "sha256": "e8302029b283876f06d4f6a90f00203ac417491c4048f6304d83fde8e0894472"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv2_r02_s20265711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv2_r02_s20265711_all_coordination.csv.gz",
+      "sha256": "dff20813753eb24892412c0f795b5d240389cdbeefc160bfe9aee1b31f528e33"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv2_r03_s20265712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_head_lv2_r03_s20265712_all_coordination.csv.gz",
+      "sha256": "2554ad047fb2e3fc1cb61999861cbe7c607358ec27be9a807dd026448e30196e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv1_r01_s20266010_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv1_r01_s20266010_all_coordination.csv.gz",
+      "sha256": "864c1ae19edccd584102230d35dc924984e433983ffc02ba4efa621577112533"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv1_r02_s20266011_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv1_r02_s20266011_all_coordination.csv.gz",
+      "sha256": "2f2b1f88c0dbb64c6d8f180d828555c8358d118b8e98b90faddd7e12c0cf75d3"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv1_r03_s20266012_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv1_r03_s20266012_all_coordination.csv.gz",
+      "sha256": "04518af77b7d084eaf6e603c257a9e0a7939ad4ac9bbf0c26845ad13ac2ea26d"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv2_r01_s20266110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv2_r01_s20266110_all_coordination.csv.gz",
+      "sha256": "7ece90933e720059c4d84edab3d56f4b4d28b3e0d3ffe5c082ef048b0bdfc506"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv2_r02_s20266111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv2_r02_s20266111_all_coordination.csv.gz",
+      "sha256": "f16b5b3c7e8309834b48469fc5c60d97bbb80b14914960822125499e95593b1f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv2_r03_s20266112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_side_lv2_r03_s20266112_all_coordination.csv.gz",
+      "sha256": "d82196f478d066a634fb47be5586bbe838c9c32678af4e7d0e942c194432000b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv1_r01_s20265810_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv1_r01_s20265810_all_coordination.csv.gz",
+      "sha256": "7a52e405b3a1ee9f82307599c6fe240f54d25fe7ef67e5d6d5c3d2195b0f8b33"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv1_r02_s20265811_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv1_r02_s20265811_all_coordination.csv.gz",
+      "sha256": "8494f583be92eb05beaae79ed448c1fd4aaed4215ab813a1168418bc48f5166c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv1_r03_s20265812_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv1_r03_s20265812_all_coordination.csv.gz",
+      "sha256": "c956947b189cfca9e93182e63b7f123d4d94f68d4daf47c7606425e8509e65c5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv2_r01_s20265910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv2_r01_s20265910_all_coordination.csv.gz",
+      "sha256": "62d59a69730cb84c5f71f83ddcd22c370df77d2f9d094e0c22df0cd16a2616ce"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv2_r02_s20265911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv2_r02_s20265911_all_coordination.csv.gz",
+      "sha256": "e2a9e5ab0d2f870ab9b8041c8f335af7288272d3df4cf4f968cbe1ca4ac21c76"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv2_r03_s20265912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_diamond_75_tail_lv2_r03_s20265912_all_coordination.csv.gz",
+      "sha256": "6c3fecf19eb5ec7e2f00085ebcdd23e3d0667dde1c4daa969816c12a75df68a0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv1_r01_s20264510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv1_r01_s20264510_all_coordination.csv.gz",
+      "sha256": "fa62a89d1e3097a0ee2264bf0d7be948a7245d48269ddc42e3d64f2bbfb0273b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv1_r02_s20264511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv1_r02_s20264511_all_coordination.csv.gz",
+      "sha256": "76230737a7df6e2bcbc05ea79563ea11db9866f834a757a9d2d1b08b5109cec0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv1_r03_s20264512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv1_r03_s20264512_all_coordination.csv.gz",
+      "sha256": "44c3e7eb8e89255149867bfe41e45b1d35fbfeef8be9c9c47e4dec0a0040f2e6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv2_r01_s20264610_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv2_r01_s20264610_all_coordination.csv.gz",
+      "sha256": "ec7f4113e9cee1827f1c305de4c4a84573c8c996adf5ae555ef241a28122fb7f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv2_r02_s20264611_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv2_r02_s20264611_all_coordination.csv.gz",
+      "sha256": "d3d67b9698e79591c24a067b8c9be9339d66a779a0d1e1de6e918e80421f7bc0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv2_r03_s20264612_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_head_lv2_r03_s20264612_all_coordination.csv.gz",
+      "sha256": "5ad6aff72d5f0a2af726285a06c3145b2ccb2995cb46267d5c15b427ba02de0b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv1_r01_s20273910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv1_r01_s20273910_all_coordination.csv.gz",
+      "sha256": "42e2ef1a7973accb51a1bc61320f3ca6458694829b742c5c90e472f168b11344"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv1_r02_s20273911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv1_r02_s20273911_all_coordination.csv.gz",
+      "sha256": "f5d51caf19090225ef0b104cf2ce0b6bf9cb122666df52bc83a93b63911c4a04"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv1_r03_s20273912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv1_r03_s20273912_all_coordination.csv.gz",
+      "sha256": "12757451939988a8dd73bf9147d5f488a1445107f0c07a5b0280089a6b9541cb"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv2_r01_s20264710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv2_r01_s20264710_all_coordination.csv.gz",
+      "sha256": "4375bbe7c8b2dcf992e7495013d9153d224fdd2b83a92729e55f85a07518defd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv2_r02_s20264711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv2_r02_s20264711_all_coordination.csv.gz",
+      "sha256": "ae51eeca8fd7b550edeb6a1e32a55c76c241ed2fc7103d327aa76b6c101fb943"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv2_r03_s20264712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_echelon_75_tail_lv2_r03_s20264712_all_coordination.csv.gz",
+      "sha256": "ce36acef547cbcc949698672619ab4f0d69792528b4182ef6e9b8a7bef508588"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv1_r01_s20274110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv1_r01_s20274110_all_coordination.csv.gz",
+      "sha256": "f719dd52bdf9bec142b87a20e533e729b87d601117821a1c5299b11e5de8aff7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv1_r02_s20274111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv1_r02_s20274111_all_coordination.csv.gz",
+      "sha256": "0b33c98abcee51ed4a74bc02176d4c317f488107a2530ca27fb72386c6e9a09e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv1_r03_s20274112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv1_r03_s20274112_all_coordination.csv.gz",
+      "sha256": "0e55bd2511e854bf26e54c8640d2b5d4d9325e72a96ad2c5ae5664d6e813d3ee"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv2_r01_s20260910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv2_r01_s20260910_all_coordination.csv.gz",
+      "sha256": "19a588b9ac633482674deb95339b1754970bc52fd17d94fe5ce1ac8f0e920b78"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv2_r02_s20260911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv2_r02_s20260911_all_coordination.csv.gz",
+      "sha256": "db5e7c0cd5a88b2f8b0be51fa294f30953fc7b057160c8dc101bbfa2e49282a7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv2_r03_s20260912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_head_lv2_r03_s20260912_all_coordination.csv.gz",
+      "sha256": "372c665aa4a92f586482fb54e98df760caeb1c5640247a8d7103056b3b50c3d5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv1_r01_s20261010_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv1_r01_s20261010_all_coordination.csv.gz",
+      "sha256": "fdb60c9d765eed3e472ef421aad0d7d33203a42471e879bdd4015c75e283d4bd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv1_r02_s20261011_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv1_r02_s20261011_all_coordination.csv.gz",
+      "sha256": "83a9709e4a90945174ba6d3d54c1a2642e62ccc6be0c0809690f404ec88a9f9e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv1_r03_s20261012_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv1_r03_s20261012_all_coordination.csv.gz",
+      "sha256": "9a30389eea3ed8ec52034ef37ab04a7654427010a4cc82196ca930899e3d7ab6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv2_r01_s20261110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv2_r01_s20261110_all_coordination.csv.gz",
+      "sha256": "5630d874f467ab6780fc97619003b108a3e57cd2cfc85f9d18fae1f4bdceb6e5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv2_r02_s20261111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv2_r02_s20261111_all_coordination.csv.gz",
+      "sha256": "fde7930ad2862ae625556a4b6df8b695d50aa7f2a1a348022eb07e5487fca028"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv2_r03_s20261112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_50_tail_lv2_r03_s20261112_all_coordination.csv.gz",
+      "sha256": "6e99d714b709e87d9ff07f3e71ed039bbea4c02bfdc0e43c84ac23b523aa9d3a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv1_r01_s20261410_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv1_r01_s20261410_all_coordination.csv.gz",
+      "sha256": "5fb028d62b908f9d4121c86de3e7e3bbcceceed946ce953c754e0928dc76405b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv1_r02_s20261411_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv1_r02_s20261411_all_coordination.csv.gz",
+      "sha256": "2cb88b2a9c0ceda614adad8b55627e1cdb2beea7fb7995e4457b1f0e4e08e20f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv1_r03_s20261412_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv1_r03_s20261412_all_coordination.csv.gz",
+      "sha256": "44f7eefb88fdf672232a3b7038fcb58f846d6fe676148d9cb016bdf107596f81"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv2_r01_s20274810_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv2_r01_s20274810_all_coordination.csv.gz",
+      "sha256": "2e131421a1a043f2f52af2ab83e12e2bce473a75a570677af36146fd4b349237"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv2_r02_s20274811_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv2_r02_s20274811_all_coordination.csv.gz",
+      "sha256": "1e8d1b02c374ceb5173c35cce684dc27e5bbd55f785d45eb3268337fafa77c2a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv2_r03_s20274812_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_head_lv2_r03_s20274812_all_coordination.csv.gz",
+      "sha256": "bc26f47ea82c5eacaba31bdc47778aa860b64462be3f95d87a588cd308335dcd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv1_r01_s20274910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv1_r01_s20274910_all_coordination.csv.gz",
+      "sha256": "5ba89dbc8e130990f252da4ef48a5bd2ededf87373a15ec59e5dcf361324476d"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv1_r02_s20274911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv1_r02_s20274911_all_coordination.csv.gz",
+      "sha256": "59b908a8753bcfd18103c08314bc4132d66ba8a7f96c75c41c4f2d81143c6406"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv1_r03_s20274912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv1_r03_s20274912_all_coordination.csv.gz",
+      "sha256": "487445efc9d89fd68073191d100bb1344f32950fef9722ce6845edd1d9b322b8"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv2_r01_s20261510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv2_r01_s20261510_all_coordination.csv.gz",
+      "sha256": "689f5f394bad2eac58a81f8d5e668b6aa518edbc324e045688e787e20d566892"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv2_r02_s20261511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv2_r02_s20261511_all_coordination.csv.gz",
+      "sha256": "c2be8e177bf367975943284d809c6ae16431b89e00400d038c26348779b458d6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv2_r03_s20261512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_side_lv2_r03_s20261512_all_coordination.csv.gz",
+      "sha256": "6d8ba8f1d2380c6ea62fd57ff09fd7bd2ca6d963a54602204e6337c8dbb508a4"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv1_r01_s20266210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv1_r01_s20266210_all_coordination.csv.gz",
+      "sha256": "17820f74dea178447c1be56d6dcd8aa98a46bce9c80f4ea9c9b2f1e348989fd8"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv1_r02_s20266211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv1_r02_s20266211_all_coordination.csv.gz",
+      "sha256": "c2c427ecc661bba2432c87b295cc013a73f792a680b9dfaadc3af5db8778b61e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv1_r03_s20266212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv1_r03_s20266212_all_coordination.csv.gz",
+      "sha256": "35930de90f677a7ec8d78a65dd8864b0f7b76af87b1e49687851c5832376a5fc"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv2_r01_s20275210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv2_r01_s20275210_all_coordination.csv.gz",
+      "sha256": "c215b559da8d71af18f8720b5d2497ce41724d39800cd02379497f27930ee4c0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv2_r02_s20275211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv2_r02_s20275211_all_coordination.csv.gz",
+      "sha256": "6e0f45469cb3512984f40455c3060844d762a0dbdeba0027dff4de567c72b29e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv2_r03_s20275212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_front_75_tail_lv2_r03_s20275212_all_coordination.csv.gz",
+      "sha256": "2a59164aa8a7f5b20b83192f9b730c83d1c46af04c46290087c351ab9ce36fe7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv1_r01_s20275910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv1_r01_s20275910_all_coordination.csv.gz",
+      "sha256": "31b32cec9ff66d7b0fa1328ab8f024fc94cb37da0c6a23b6c971624f51ed188f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv1_r02_s20275911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv1_r02_s20275911_all_coordination.csv.gz",
+      "sha256": "c486c210475a8572560d5bf76572a20b7baaedc40d6bfd7299ac943181d6ede1"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv1_r03_s20275912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv1_r03_s20275912_all_coordination.csv.gz",
+      "sha256": "38bc7a00f0bfdeb8f4d56abe1d5044d7a5f1028bcc4aee341cdbc378ef30dc29"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv2_r01_s20263410_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv2_r01_s20263410_all_coordination.csv.gz",
+      "sha256": "3cfa7ec2948ced9e89d6e2acdd93ba8ca37d1fe6540d4b2496c6c8bac69c6019"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv2_r02_s20263411_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv2_r02_s20263411_all_coordination.csv.gz",
+      "sha256": "7315317c623245471ea97affeddc25d1f17e38d6870edceef5728714c82572a7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv2_r03_s20263412_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/runs/SIM_vee_75_head_lv2_r03_s20263412_all_coordination.csv.gz",
+      "sha256": "f180ebe79ef02283451bbcafbb69d8b391a7daa50d0a658c3a1f9606a88e7139"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/coverage.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/coverage.csv",
+      "sha256": "665cef62ab9ffdf1dd549747c38652aa7c0410265fb49607275286efd204a6da"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/integer_soc_events.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/integer_soc_events.csv.gz",
+      "sha256": "77d65fa9993e0613144869d2c676520b86d8f5f2c4b7df89c0a8e8c9d0ff1ade"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/manifest.json",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/manifest.json",
+      "sha256": "941b47e888401e9c1590e3ccfeea4231aa52424ef046e6cdf38f5bcd90877593"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/run_manifest.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/run_manifest.csv",
+      "sha256": "70eaf14b3ceb8506d8fca4bda3a05dc40fb82cc3669ae2abc80dec75d416b948"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/simulated_stage_rates_long.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/simulated_stage_rates_long.csv",
+      "sha256": "8456152687d53bb0922ff8ce58bf58e60fa615e9751391fea012317a739e31a3"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/simulated_stage_rates_wide.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/simulated_stage_rates_wide.csv",
+      "sha256": "ef5d8841190722fb04c90249bbe1b1c21e0031c03ff7ea92ce6b47a902481369"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/simulation_data/wind_tunnel_all_allowed_v2_20260909/stage_position_coverage.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/wind_tunnel_all_allowed_v2_20260909/stage_position_coverage.csv",
+      "sha256": "6db5756d392042da87ce3b869c3c0d6b13bfcb85c60df45be9e87e9acffe2604"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_head_lv2_r01_s20260910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_head_lv2_r01_s20260910_all_coordination.csv.gz",
+      "sha256": "ba37664c728c1f96385bae32bbb04ab4f6644b14de26ae9fd5867cede99a7158"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_head_lv2_r02_s20260911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_head_lv2_r02_s20260911_all_coordination.csv.gz",
+      "sha256": "b2aabacf4e08aad1c6cff4d43efe9d1ff6c23db636d004af86429ebcc9d7a8fa"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_head_lv2_r03_s20260912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_head_lv2_r03_s20260912_all_coordination.csv.gz",
+      "sha256": "84b048d85ec5b5c8d2747e995441285a7ef61fec7e0ebeae982fc63c899e9590"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_tail_lv1_r01_s20261010_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_tail_lv1_r01_s20261010_all_coordination.csv.gz",
+      "sha256": "9792e2f4672e177b28b2008e70b287e6ccb20ba395b2beb19267b472319f2cae"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_tail_lv1_r02_s20261011_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_tail_lv1_r02_s20261011_all_coordination.csv.gz",
+      "sha256": "658029659eb1dc7d7ab93ab49d3115f81e5dce2f95a65c36cfe656b5a8a35ead"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_tail_lv1_r03_s20261012_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_tail_lv1_r03_s20261012_all_coordination.csv.gz",
+      "sha256": "098f94b4e4fe3d0003acd1173f1a26bd273a0b1b419ceae54afc189ef94703dd"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_tail_lv2_r01_s20261110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_tail_lv2_r01_s20261110_all_coordination.csv.gz",
+      "sha256": "57318736b9e205fb2e5d9bf39123d1db867c99b0fb3c4075364f82bdc2210e98"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_tail_lv2_r02_s20261111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_tail_lv2_r02_s20261111_all_coordination.csv.gz",
+      "sha256": "934509eb07ccd36254c612117cf74161fe5eb13603c18e2a864b1699bd4835ae"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_50_tail_lv2_r03_s20261112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_50_tail_lv2_r03_s20261112_all_coordination.csv.gz",
+      "sha256": "3b0bdfa1aa38189330cc5853251db69ec680295ba82a0fae3207dc607719cd9a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_75_head_lv1_r01_s20261410_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_75_head_lv1_r01_s20261410_all_coordination.csv.gz",
+      "sha256": "67521940fe54c72652f5cde32aace84cbd543758afbb1c7b7862740aaf581b9e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_75_head_lv1_r02_s20261411_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_75_head_lv1_r02_s20261411_all_coordination.csv.gz",
+      "sha256": "8e0f7c8d1a9bbc689116ae417c4a5ebc0d8673ba6a6ed8f260a2163da9a2095a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_75_head_lv1_r03_s20261412_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_75_head_lv1_r03_s20261412_all_coordination.csv.gz",
+      "sha256": "406f77d31ba3edccd4fe0d0be6c073cc108f0d7e8220bddbf0f7e436c51117d0"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_75_side_lv2_r01_s20261510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_75_side_lv2_r01_s20261510_all_coordination.csv.gz",
+      "sha256": "5d381ebc0623124c462f4e17ce4c8e18b40ba7bb724d525cedfb64b1bd317dbf"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_75_side_lv2_r02_s20261511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_75_side_lv2_r02_s20261511_all_coordination.csv.gz",
+      "sha256": "6254758cb9f091459374e8e7026c6c14e144954d2ab4b35b9870d84d00b38e4c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_front_75_side_lv2_r03_s20261512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_front_75_side_lv2_r03_s20261512_all_coordination.csv.gz",
+      "sha256": "2586d58c5db81fa364adaac1f676e94aeda2e27020d7a312b78dc885257f7f74"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_50_head_lv2_r01_s20261710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_50_head_lv2_r01_s20261710_all_coordination.csv.gz",
+      "sha256": "465883b9f5f514a8ddbbb5cdb1ff8784ba834a8224c89e8ff69fe4a04329098b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_50_head_lv2_r02_s20261711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_50_head_lv2_r02_s20261711_all_coordination.csv.gz",
+      "sha256": "41dc589003ec8b73ea6c38af5136e32242fa06f41ea3782e7fe2cb2cb0aa1fc4"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_50_head_lv2_r03_s20261712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_50_head_lv2_r03_s20261712_all_coordination.csv.gz",
+      "sha256": "1772b7031e56599512382f623f112ac82178d3201260def85d55dea2fae3a9c5"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_50_side_lv2_r01_s20262110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_50_side_lv2_r01_s20262110_all_coordination.csv.gz",
+      "sha256": "88080a1ac347179ebefc7eb600835d80d702c0f383a9775e63139db6c166ccf4"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_50_side_lv2_r02_s20262111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_50_side_lv2_r02_s20262111_all_coordination.csv.gz",
+      "sha256": "3585d614d951da2fe6cee12e8cc408f571e30e6a5421983b7d5f804ae3cccd29"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_50_side_lv2_r03_s20262112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_50_side_lv2_r03_s20262112_all_coordination.csv.gz",
+      "sha256": "a0a7f6fc8f251cfd073be22210213c80eb8b6bced995206c70d98c3972469093"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_75_head_lv1_r01_s20262210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_75_head_lv1_r01_s20262210_all_coordination.csv.gz",
+      "sha256": "d4142467919592fa5d95e7bf75e7773f9ece53331e5692cd5e0a375dd629e77c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_75_head_lv1_r02_s20262211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_75_head_lv1_r02_s20262211_all_coordination.csv.gz",
+      "sha256": "33140bb6e65b24d856efc125bcad8ee75f6e1d992717b663d7313c9a84a1f829"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_75_head_lv1_r03_s20262212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_75_head_lv1_r03_s20262212_all_coordination.csv.gz",
+      "sha256": "df54ae4c733b0741d1a55e4ab8df02c884c1ad0f37bb82dda5393d2fe79d21aa"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_75_head_lv2_r01_s20262310_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_75_head_lv2_r01_s20262310_all_coordination.csv.gz",
+      "sha256": "7a58c7588fac23465d395ff9eaf6c7f19ef075a8fa85e7559bbd646fcbc2305c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_75_head_lv2_r02_s20262311_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_75_head_lv2_r02_s20262311_all_coordination.csv.gz",
+      "sha256": "88381c74590058907005a513f8a97c4dbbcac4dde07d6c99bfb22b209eba8f6f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_column_75_head_lv2_r03_s20262312_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_column_75_head_lv2_r03_s20262312_all_coordination.csv.gz",
+      "sha256": "f4da76288c020566584d4501dca6474c04827c18471144f1f93c13d825a74978"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_vee_75_head_lv2_r01_s20263410_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_vee_75_head_lv2_r01_s20263410_all_coordination.csv.gz",
+      "sha256": "0932eee9eb3bade3f5541171d56a45f3729a7b7b1e4d17f36ad5ae462791a937"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_vee_75_head_lv2_r02_s20263411_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_vee_75_head_lv2_r02_s20263411_all_coordination.csv.gz",
+      "sha256": "75f780cbfb0ac021c56cb32ea788da7f9819903e585b654e0c7d2f76991bace4"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_vee_75_head_lv2_r03_s20263412_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_vee_75_head_lv2_r03_s20263412_all_coordination.csv.gz",
+      "sha256": "a09e0b88b6b7b06ec71f85b910f7b7a97ce9b58ac94580832536cd40edcebb1a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_head_lv1_r01_s20264510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_head_lv1_r01_s20264510_all_coordination.csv.gz",
+      "sha256": "560328ee1e4ac3322ae0c2ce328dea85e9e24a9fa1d7976b1e6a7419b255a15a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_head_lv1_r02_s20264511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_head_lv1_r02_s20264511_all_coordination.csv.gz",
+      "sha256": "0f67078e65697153f586b62550d397d79166876b333504e0c8fa7ecf21485f32"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_head_lv1_r03_s20264512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_head_lv1_r03_s20264512_all_coordination.csv.gz",
+      "sha256": "dce08b408ae92b5eef119016d9ce985c11c8fa1d39bc95e2490982e8bc3ac076"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_head_lv2_r01_s20264610_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_head_lv2_r01_s20264610_all_coordination.csv.gz",
+      "sha256": "739fc81dc982fa5a4cd61b8031189b3789452632bebecf2f6127c7fb66cc0f30"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_head_lv2_r02_s20264611_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_head_lv2_r02_s20264611_all_coordination.csv.gz",
+      "sha256": "3cde51e8ca3529560d4ec76d8d049561f2e2ac68f2b440f8f76f134a303e5f40"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_head_lv2_r03_s20264612_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_head_lv2_r03_s20264612_all_coordination.csv.gz",
+      "sha256": "5ef9e538d07f5c78c530f9ea000d4576c45c18d5b5dafb9b7779a5712d774cd7"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_tail_lv2_r01_s20264710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_tail_lv2_r01_s20264710_all_coordination.csv.gz",
+      "sha256": "9724972bca64b48ee7dc44bedffb134a495d124f4fe3b02593d05430f7b0e34f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_tail_lv2_r02_s20264711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_tail_lv2_r02_s20264711_all_coordination.csv.gz",
+      "sha256": "fd63c507385f40a8a8790f8fdf25188b171ff6139ae5234db68627f738fc7f94"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_echelon_75_tail_lv2_r03_s20264712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_echelon_75_tail_lv2_r03_s20264712_all_coordination.csv.gz",
+      "sha256": "103e799ffe5463ec78f5d8ed8dea39d5986248d7c88aa7ac93c870d1647ccc81"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_50_tail_lv2_r01_s20265310_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_50_tail_lv2_r01_s20265310_all_coordination.csv.gz",
+      "sha256": "86be5e9e5a8aa3f3123d74385ca0c1ad8d33f0a4abd0554a1d88df51af11a3b6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_50_tail_lv2_r02_s20265311_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_50_tail_lv2_r02_s20265311_all_coordination.csv.gz",
+      "sha256": "07cd01c41d1062b2a6cb005f1228f34f284e73e8c21110aba93b835be5c4d61d"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_50_tail_lv2_r03_s20265312_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_50_tail_lv2_r03_s20265312_all_coordination.csv.gz",
+      "sha256": "30089c64105d345a88cdb319bc29e991ce4dc9dcf5f17e15a702736781fab09b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_50_side_lv2_r01_s20265510_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_50_side_lv2_r01_s20265510_all_coordination.csv.gz",
+      "sha256": "cd8755339870d221655ed1d38504c971fc338156fa59b477fa8083776a01c86c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_50_side_lv2_r02_s20265511_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_50_side_lv2_r02_s20265511_all_coordination.csv.gz",
+      "sha256": "9139e642168270be417404c95033da92fd70e9150a9e632a6dff857496a95f9b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_50_side_lv2_r03_s20265512_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_50_side_lv2_r03_s20265512_all_coordination.csv.gz",
+      "sha256": "8d87e8747f9e123e6bb7ba290be25b340f3a663d55fdf043517eaf9a65b4cb15"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_head_lv1_r01_s20265610_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_head_lv1_r01_s20265610_all_coordination.csv.gz",
+      "sha256": "aa8a2be15e70d3087e05fd9f931f9ca7641a30b9c10e4331a0002807bdab9a1e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_head_lv1_r02_s20265611_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_head_lv1_r02_s20265611_all_coordination.csv.gz",
+      "sha256": "72ac1f5ee38867f086bb0509ed6f63f25bc5d2dd98d131e517192148c8a7713e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_head_lv1_r03_s20265612_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_head_lv1_r03_s20265612_all_coordination.csv.gz",
+      "sha256": "779731cc8deb316721d373c67dbba18021b5950886132c16a8bc4079476ab50f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_head_lv2_r01_s20265710_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_head_lv2_r01_s20265710_all_coordination.csv.gz",
+      "sha256": "316455d80c05479cb5afbf471b6fa112b892a2c80925208637db695a333e5b4a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_head_lv2_r02_s20265711_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_head_lv2_r02_s20265711_all_coordination.csv.gz",
+      "sha256": "e092f0054f698632cca1912491fb9cec8683de980f016d2349450ad8e2f8a9a9"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_head_lv2_r03_s20265712_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_head_lv2_r03_s20265712_all_coordination.csv.gz",
+      "sha256": "644a2f72aa2e87c1cca9018172402cd12d2a939ea2198ce9aec9f74647963b06"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_tail_lv1_r01_s20265810_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_tail_lv1_r01_s20265810_all_coordination.csv.gz",
+      "sha256": "044f33cf3520d7654506321729fca947742a15428b00f9e7ff365f4c640007d6"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_tail_lv1_r02_s20265811_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_tail_lv1_r02_s20265811_all_coordination.csv.gz",
+      "sha256": "fa511edd40239444d58f730cf985c3183977cd52bd8c9db629626a055abbdaa2"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_tail_lv1_r03_s20265812_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_tail_lv1_r03_s20265812_all_coordination.csv.gz",
+      "sha256": "20f097da41534d44f5f6636a4aa53590b5956ed5ae579c5e7cd617992ecb5b6e"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_tail_lv2_r01_s20265910_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_tail_lv2_r01_s20265910_all_coordination.csv.gz",
+      "sha256": "40af20b5d8a1df97af6904397b87be479c8672ca5bbf36ad4c132f61412ae903"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_tail_lv2_r02_s20265911_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_tail_lv2_r02_s20265911_all_coordination.csv.gz",
+      "sha256": "e6240ddbf1d5b7806535b3435e43d0ff3c6706fcc10a751a72cc854fd878acce"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_tail_lv2_r03_s20265912_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_tail_lv2_r03_s20265912_all_coordination.csv.gz",
+      "sha256": "85596a639049c0a08224ab176a83b974bada5420689421d6075a4200ca267fc2"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_side_lv1_r01_s20266010_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_side_lv1_r01_s20266010_all_coordination.csv.gz",
+      "sha256": "a13c73e0793a97139360e795ad135a853a0ff52851c3211401329b29b44bb638"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_side_lv1_r02_s20266011_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_side_lv1_r02_s20266011_all_coordination.csv.gz",
+      "sha256": "d9f6fc8ec4c6adc9c302d72a58de771ec808bf590a6d1bc150801509d85a3724"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_side_lv1_r03_s20266012_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_side_lv1_r03_s20266012_all_coordination.csv.gz",
+      "sha256": "36553e5c83990ebe7cf8b3120baf5cefbe3dbbe9e148ee00fdf6d885c26f2c1c"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_side_lv2_r01_s20266110_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_side_lv2_r01_s20266110_all_coordination.csv.gz",
+      "sha256": "32db1ca2e2e8186e4a9af2e4328365c0661503d4db927155618748a6a31826cb"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_side_lv2_r02_s20266111_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_side_lv2_r02_s20266111_all_coordination.csv.gz",
+      "sha256": "7088cf48b149c8e334e5d5b20be2381d8f9965741c17ba8f1cb4f4100812336b"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/runs/SIM_diamond_75_side_lv2_r03_s20266112_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/runs/SIM_diamond_75_side_lv2_r03_s20266112_all_coordination.csv.gz",
+      "sha256": "70a7c590921a0d78c25e3002708788f185360e9e9430837ab5ae8817d5b5d933"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/examples/SIM_front_75_tail_lv1_r01_s20266210_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/examples/SIM_front_75_tail_lv1_r01_s20266210_all_coordination.csv.gz",
+      "sha256": "82a439a2649a8fc58e2a2ce810ff536fba0fddf7bacf44b62cbdbed9522c9776"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/examples/SIM_front_75_tail_lv1_r02_s20266211_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/examples/SIM_front_75_tail_lv1_r02_s20266211_all_coordination.csv.gz",
+      "sha256": "69714702c6884549ca57184d0b5c62e0253bed16503aaf4e29436f7c38ba4fc1"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/examples/SIM_front_75_tail_lv1_r03_s20266212_all_coordination.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/examples/SIM_front_75_tail_lv1_r03_s20266212_all_coordination.csv.gz",
+      "sha256": "c37e7a31c1a0660577535d53b3b588eb608a7fa82c90ed6fb0c01be02ea06a3a"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/coverage.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/coverage.csv",
+      "sha256": "4a075826f07cbe837ef86bb5d7159e9168813d44f4a02ede33b67a7124f1a3bc"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/integer_soc_events.csv.gz",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/integer_soc_events.csv.gz",
+      "sha256": "531056d18e173c5bcce50dcdbb84ae7dfdcd0cd74d136f6971c1dff110db3002"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/manifest.json",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/manifest.json",
+      "sha256": "c7bbc5f8177e74e7788f08844938aa5b0ebad91f55f5fa81a6b28a80af67d987"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/run_manifest.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/run_manifest.csv",
+      "sha256": "20479e11a8d574dfdf97c7c474236547cacc15014affdc59df5acd827e23fd91"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/simulated_stage_rates_long.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/simulated_stage_rates_long.csv",
+      "sha256": "cb468f3c3a4567889a03a649c66a70c4fd5da2ea7e31f410ec917340c3f36b59"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/simulated_stage_rates_wide.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/simulated_stage_rates_wide.csv",
+      "sha256": "2abf4f4b31e151fde887715e6432d26952823d986f2ba09d0742b8217814da4f"
+    },
+    {
+      "original": "/Users/alexmason/Downloads/drone_experiment/analysis_results/wind_tunnel_simulator_20260909/prototype_unbounded/stage_position_coverage.csv",
+      "recoverable": "/Users/alexmason/.Trash/drone_simulation_cleanup_20260909_122806_677141/prototype_unbounded/stage_position_coverage.csv",
+      "sha256": "0956671c33651617a51a88e69f63d5ab9327a829efbbfc7e099f2ed5ab414940"
+    }
+  ],
+  "source_hashes_unchanged": 165,
+  "verification_passed": true,
+  "total_removed_run_file_copies": 204
+}

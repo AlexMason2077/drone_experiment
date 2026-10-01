@@ -1,0 +1,63 @@
+{
+  "status": "historical_averaged_pilot_paused_superseded_by_separate_step1_step2",
+  "condition_id": "diamond_50_head_lv2",
+  "reference_model_version": "individual_three_stage_v3_extended100_with_B15_20260909",
+  "reference_model_sha256": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "source_hashes": {
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "analysis_results/50cm_wind_only_pilot_20260929/diamond_50_head_lv2/curve_stage_rates.csv": "0a4ddc78410d588c74ff53f9ef453661c0873980d0fbbe085fd16dec54b0925f",
+    "analysis_results/50cm_wind_only_pilot_20260929/diamond_50_head_lv2/observed_stage_rates.csv": "10ea06a85fed6135ad1cf38042b72cc6bbbc4012bd2332fd3e998594d277c5b8",
+    "analysis_results/50cm_wind_only_pilot_20260929/diamond_50_head_lv2/manifest.json": "0830748edbdc03cbba187a82e1e833bac6ea57fdd76841bfd64289fd2f94c24e",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/run_drone_rates.csv": "99d27578e809994ae26000760f803b2f0fce67d98c4a27851096ef494749d827",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/manifest.json": "45a1f817265556e9fad6afb4c8fb45460629fd88fc7acd178929e841a1348cdd",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/selected_forward_intervals.csv": "c7dff4e5f77d4197bfc753627336678b80946bf663e5fbf4f27990e4e8675172",
+    "TRAINING_EXCLUSIONS.md": "81ba056a6492061350d4f83276611467048f7c1aeb99f7d7d0d5f0515e8aa997",
+    "database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv": "8797f9ba585076ea919945e1b4908d3a7d32edc8243852504048bcf97af5829b",
+    "database/baselines/drone_1_B11/drone_1_B11_hover_20260513_143201_timeseries.csv": "97daf4768849f3453b2bb75ff570b2e6d701e9afe7483c61a2876f17758e306f",
+    "db_copy_for_cleaning/diamond_50_head_lv2_new_001/diamond_50_head_lv2_new_001_20260520_154459_all_coordination.csv": "d89fc6141a6a5c00a12b397a2d2fa40e08f56bc8e76b7055c921ef7a1de2eaa9",
+    "db_copy_for_cleaning/diamond_50_head_lv2_new_002/diamond_50_head_lv2_new_002_20260520_165537_all_coordination.csv": "92d7bc7ab3729e044d0cfdf4b1ad7d0bbce53f56243387748b0622e0ae0e57d6",
+    "database/baselines/drone_2_B10/drone_2_B10_hover_20260513_180556_timeseries.csv": "dde3e7acda1ab7b36782217b17984e01a76af9ac8512860646797b5fa2989d23",
+    "database/baselines/drone_3_B13/drone_3_B13_hover_20260513_163826_timeseries.csv": "b947d75247bf79a8a4ca9f1baa65a6af417b29a65b3360a20bd8bc6f2e136e91",
+    "database/baselines/drone_4_B14/drone_4_B14_hover_20260513_144257_timeseries.csv": "eff06a56bf041f603e6c913a29ac19f276d47a0be9f258d00005732b954aeae9",
+    "database/baselines/drone_5_B15/drone_5_B15_hover_20260513_150444_timeseries.csv": "6e92a975769cfd1e0287fee6558c14368d2eda67a0291f8fc8a13099fa35e0ca"
+  },
+  "historical_baseline_runs": {
+    "B11": "20260513_143201",
+    "B10": "20260513_180556",
+    "B13": "20260513_163826",
+    "B14": "20260513_144257",
+    "B15": "20260513_150444"
+  },
+  "bridge_formula": "r_old_adjusted = r_old_observed * r_new_baseline / r_old_baseline",
+  "normalization_formula": "r_old_Bideal = r_old_adjusted / r_new_baseline * r_reference = r_old_observed / r_old_baseline * r_reference",
+  "averaging_formula": "0.5 * mean(old_transferred_rates) + 0.5 * mean(wind_rates), within the same position and stage",
+  "supported_average_stages": [
+    "Medium"
+  ],
+  "old_raw_forward_fit_changed": false,
+  "high_low_policy": "Retain existing wind-only rates, including two previously modeled High completions; no invented old High/Low data",
+  "assumptions": [
+    "The same position's relative configuration load can transfer between calibration dates and, for P5, between B15 and B12.",
+    "Historical same-drone May 13 hover records are suitable contemporary calibration references for the May 20 forward example.",
+    "Corresponding own-battery Medium bands represent comparable normalized stages across dates."
+  ],
+  "limitations": [
+    "Cross-protocol relative-load transfer is assumed, not independently demonstrated by this average.",
+    "There is only one selected historical full baseline per battery and one wind repeat in this pilot.",
+    "Short or few-drop forward records retain their existing quality flags.",
+    "The current reference model is unchanged and remains a calibration candidate without independent validation."
+  ],
+  "safety_conditions_excluded": [
+    "column_50_head_lv2",
+    "column_50_side_lv2",
+    "column_50_tail_lv2",
+    "diamond_50_side_lv2",
+    "diamond_50_tail_lv2"
+  ],
+  "bulk_processing_performed": false,
+  "active_dataset_updated": false,
+  "trained": false,
+  "flight_control_changed": false,
+  "current_use": "Historical pilot only. Latest user request requires independent forward and wind results before any future averaging.",
+  "superseded_by": "analysis_results/separate_baseline_processing_20260929"
+}

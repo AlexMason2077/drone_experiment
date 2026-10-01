@@ -1,0 +1,71 @@
+{
+  "pre_landing_low": {
+    "n": 37,
+    "median_signed_pct": -12.183333187569357,
+    "median_absolute_pct": 12.183333187569357,
+    "mean_absolute_pct": 12.108377475968432,
+    "min_pct": -22.24229768393059,
+    "max_pct": 9.366042527238472,
+    "within10": 16,
+    "within20": 31
+  },
+  "pre_landing_low_flights": 12,
+  "pre_landing_low_batteries": {
+    "B10": 10,
+    "B11": 9,
+    "B12": 8,
+    "B14": 7,
+    "B13": 3
+  },
+  "to30_low_withwind": {
+    "n": 10,
+    "median_signed_pct": -1.23597153303,
+    "median_absolute_pct": 2.558131861365,
+    "mean_absolute_pct": 4.4815244472338,
+    "min_pct": -15.3343588018,
+    "max_pct": 5.3956537647,
+    "within10": 9,
+    "within20": 10
+  },
+  "high_OLS_withwind": {
+    "n": 43,
+    "median_signed_pct": -21.0688634144,
+    "median_absolute_pct": 23.6889008565,
+    "mean_absolute_pct": 27.91615082108171,
+    "min_pct": -82.0984269771,
+    "max_pct": 54.5307901808,
+    "within10": 10,
+    "within20": 16
+  },
+  "high_pose_quality_withwind": {
+    "n": 37,
+    "median_signed_pct": -6.13212986042,
+    "median_absolute_pct": 22.1833632084,
+    "mean_absolute_pct": 25.847025538607298,
+    "min_pct": -75.7778309218,
+    "max_pct": 57.1467244218,
+    "within10": 10,
+    "within20": 17
+  },
+  "low_OLS_withwind": {
+    "n": 43,
+    "median_signed_pct": -2.53550543185,
+    "median_absolute_pct": 6.66469631843,
+    "mean_absolute_pct": 6.359189112793117,
+    "min_pct": -13.7912334156,
+    "max_pct": 12.9048582966,
+    "within10": 31,
+    "within20": 43
+  },
+  "low_pose_quality_withwind": {
+    "n": 37,
+    "median_signed_pct": -2.89815365079,
+    "median_absolute_pct": 7.45886067202,
+    "mean_absolute_pct": 6.272336194035057,
+    "min_pct": -15.6023634925,
+    "max_pct": 9.36604252701,
+    "within10": 32,
+    "within20": 37
+  },
+  "validation": "All 141 stage formulas, paired ratios, and audited source SHA256 hashes verified"
+}

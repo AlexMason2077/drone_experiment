@@ -1,0 +1,37 @@
+{
+  "seed": 20260909,
+  "holdout_conditions": [
+    "diamond_75_head_lv1",
+    "echelon_75_tail_lv1",
+    "echelon_75_tail_lv2",
+    "front_75_head_lv1",
+    "front_75_side_lv2",
+    "vee_75_head_lv2"
+  ],
+  "development_conditions": [
+    "column_75_head_lv1",
+    "column_75_head_lv2",
+    "diamond_75_head_lv2",
+    "diamond_75_side_lv0",
+    "diamond_75_side_lv1",
+    "diamond_75_side_lv2",
+    "diamond_75_tail_lv1",
+    "diamond_75_tail_lv2",
+    "echelon_75_head_lv1",
+    "echelon_75_head_lv2",
+    "front_50_head_lv1",
+    "front_50_head_lv2",
+    "front_50_tail_lv1",
+    "front_50_tail_lv2",
+    "front_75_head_lv0",
+    "front_75_head_lv2",
+    "front_75_side_lv0",
+    "front_75_side_lv1",
+    "front_75_tail_lv1",
+    "front_75_tail_lv2",
+    "vee_75_head_lv1"
+  ],
+  "group_key": "condition_id; every run and all drones stay in one partition",
+  "selection_metric": "mean held-out-condition-fold stage-time MAPE; equal curve-stage weight",
+  "warning": "Held-out fields active_count and initial_soc are observed covariates; this is conditional dwell-time validation, not a fully closed-loop physical-flight validation."
+}

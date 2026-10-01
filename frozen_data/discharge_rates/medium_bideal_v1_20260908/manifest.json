@@ -1,0 +1,98 @@
+{
+  "version": "medium_bideal_v1_20260908",
+  "created_at_utc": "2026-09-07T14:47:41.480470+00:00",
+  "status": "frozen_snapshot_not_empirical_validation",
+  "schema_version": 1,
+  "rate_value_origin": "existing_approved_rate_reference_no_refit",
+  "quality_policy": "safety_only_keep_qc_warnings",
+  "source_runs": 134,
+  "source_drone_rows": 670,
+  "available_condition_cells": 55,
+  "position_rate_rows": 275,
+  "source_files_sha256": {
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/ml_policy/real_medium_oracle_answers_safety_only_20260907/rate_reference.json": "23792fdf6eabad9bfeb78291e518391d663c58a53cf6b3af02cd3ae9348d9566",
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/ml_policy/real_medium_oracle_answers_safety_only_20260907/manifest.json": "4d62d9da32f288e2fa87c3cc48fab4f7444bb0ffdf28cd566cd913dfd54dd4dc",
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/forward_discharge_rate_modeling/battery_ideal_normalization.csv": "320e24265ba4820466e99eb7721634e5b51c8f465457922b0ab6ed6cddf93974",
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/forward_discharge_rate_modeling/selected_runs_by_database_cell.csv": "6d5f14675810a12b264d1dace361da07849b71140f20e286137a41f263adfb8a",
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/forward_discharge_rate_modeling/forward_discharge_rate_run_drone.csv": "0ce465bf26316560f066daac5cbdaf3abccea7ab327b09c9f4c6866d615fca3c"
+  },
+  "freeze_script_sha256": "bd978d1ab335f2c5d97646b774c6855fd45fa2e1f09194f478e194bc9e4e7fb8",
+  "unsafe_condition_cells": [
+    [
+      "head",
+      2,
+      "column",
+      50
+    ],
+    [
+      "side",
+      2,
+      "column",
+      50
+    ],
+    [
+      "side",
+      2,
+      "diamond",
+      50
+    ],
+    [
+      "tail",
+      2,
+      "diamond",
+      50
+    ]
+  ],
+  "missing_condition_cells": [
+    [
+      "side",
+      1,
+      "column",
+      50
+    ]
+  ],
+  "rate_unit": "Bideal percentage points per minute",
+  "model_soc_interval_pct": [
+    40,
+    75
+  ],
+  "battery_scale_definition": "Bideal_drop/physical_drop; physical_rate=assigned_Bideal_rate/own_battery_scale",
+  "protocol": "processed_forward_flight",
+  "source_commanded_segment_cm": 250,
+  "consumer_paths_changed": false,
+  "readonly_os_lock": false,
+  "files": {
+    "README.md": {
+      "sha256": "c6b98efbeef6b5fc3490ad95412341938a5770a89f11a2e645fd8a42abeb701f",
+      "bytes": 3688
+    },
+    "battery_calibration.csv": {
+      "sha256": "320e24265ba4820466e99eb7721634e5b51c8f465457922b0ab6ed6cddf93974",
+      "bytes": 1985
+    },
+    "coverage.csv": {
+      "sha256": "dd238b4a0b9370cc7ff4d9d64aa334258e81368c8742b72975ed125bceca5586",
+      "bytes": 3432
+    },
+    "discharge_rates.csv": {
+      "sha256": "e472e19d341cc113b2695e2014cdc86380f7254868383626a3d525a7290f2f89",
+      "bytes": 88519
+    },
+    "rate_reference.json": {
+      "sha256": "23792fdf6eabad9bfeb78291e518391d663c58a53cf6b3af02cd3ae9348d9566",
+      "bytes": 41255
+    },
+    "source_run_drone_rates.csv": {
+      "sha256": "03f3b9e41ddc71175e8f4670356a53a2cc39ceba06b0e4eabab0bb862e8e6613",
+      "bytes": 196582
+    },
+    "source_runs.csv": {
+      "sha256": "21e0d3bf189a2692dc99a8504a8cf4329d852c01d352d10a1141c6edb3e65ecb",
+      "bytes": 76168
+    },
+    "upstream_answer_manifest.json": {
+      "sha256": "4d62d9da32f288e2fa87c3cc48fab4f7444bb0ffdf28cd566cd913dfd54dd4dc",
+      "bytes": 5065
+    }
+  }
+}

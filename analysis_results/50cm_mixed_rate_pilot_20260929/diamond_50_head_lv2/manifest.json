@@ -1,0 +1,53 @@
+{
+  "status": "superseded_by_wind_only_pilot_user_cancelled_250cm_combination",
+  "condition_id": "diamond_50_head_lv2",
+  "wind_source_experiment": "wind_tunnel_diamond_50_head_lv2_002",
+  "source_hashes": {
+    "database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv": "8797f9ba585076ea919945e1b4908d3a7d32edc8243852504048bcf97af5829b",
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/run_drone_rates.csv": "99d27578e809994ae26000760f803b2f0fce67d98c4a27851096ef494749d827",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/discharge_rates_wide.csv": "b914d59b16606f2a7fae30916321b43aea51392be65708f41e44123f75b5ff69",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/manifest.json": "45a1f817265556e9fad6afb4c8fb45460629fd88fc7acd178929e841a1348cdd",
+    "analysis_results/wind_tunnel_three_stage_rate_first_corrected_20260929/wind_tunnel_diamond_50_head_lv2_002/stage_rates.csv": "08ff6b16de73e77ee46427516ac76612cd3084ddf5a7390758823f19442e4581",
+    "battery_normalization.py": "53143559c73306a7ac78b03e1123783cc7d7af1accbf57c16d58077e4400f6de",
+    "TRAINING_EXCLUSIONS.md": "81ba056a6492061350d4f83276611467048f7c1aeb99f7d7d0d5f0515e8aa997",
+    "output_py/fit_50cm_mixed_rate_pilot.py": "ea59e07cdf2a1e1c15ab820b899aea6a213b3e8cf48dae5bc491baf4effe7a6a",
+    "output_py/process_50cm_stage_curves.py": "e3b6fa2a0868db107c2e300b228db863a02e33d06fd0c79639fafa2505c6fda0"
+  },
+  "normalization_model_version": "individual_three_stage_v3_extended100_with_B15_20260909",
+  "normalization_model_sha256": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "reference": {
+    "boundaries_soc": [
+      100.0,
+      82.0,
+      52.0,
+      20.0
+    ],
+    "rates_pp_min": [
+      17.628903560041273,
+      7.9648164842029185,
+      12.7841804159269
+    ]
+  },
+  "averaging_policy": "per-protocol repetition means, then equal 50/50 of the two observed stage means",
+  "source_stage_support": "Previously computed 250-cm coefficients cover Medium only. High and Low retain measured wind-tunnel rates where available.",
+  "missing_stage_assumption": "P3/P4 High: same relative drain factor as that position's averaged Medium, multiplied by the reference High rate. These are modeled coefficients, not measurements.",
+  "zero_missing_time": "Initial wind hover plateau removed; own-drone windows retained. Already processed forward rates are reused unchanged.",
+  "safety_conditions_excluded": [
+    "column_50_head_lv2",
+    "column_50_side_lv2",
+    "column_50_tail_lv2",
+    "diamond_50_side_lv2",
+    "diamond_50_tail_lv2"
+  ],
+  "measured_stage_rows": 21,
+  "completed_curve_stage_rows": 15,
+  "old_forward_refitted": false,
+  "bulk_processing_paused": true,
+  "active_dataset_updated": false,
+  "trained": false,
+  "mixed_protocol_interpretation": "Descriptive user-requested average of static wind-tunnel hovering and 250-cm forward-flight rates; not an independently validated forward-flight model.",
+  "latest_user_source_policy": "wind_only_do_not_include_250cm_results",
+  "user_scope": "one condition only, awaiting pilot review",
+  "superseded_by": "analysis_results/50cm_wind_only_pilot_20260929/diamond_50_head_lv2"
+}

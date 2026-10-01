@@ -1,0 +1,116 @@
+{
+  "calibration": [
+    {
+      "battery_id": "B10",
+      "drone": "drone_2",
+      "run_id": "20260906_173013",
+      "source": "database/baselines/drone_2_B10/drone_2_B10_hover_lv1_20260906_173013_20260906_173013_all_coordination.csv",
+      "sha256": "da6993e538d3970ee930b10053fd605082d5b8899e1dd46c3a565a0e30d2b2db"
+    },
+    {
+      "battery_id": "B11",
+      "drone": "drone_1",
+      "run_id": "20260906_164725",
+      "source": "database/baselines/drone_1_B11/drone_1_B11_hover_lv1_20260906_164725_20260906_164725_all_coordination.csv",
+      "sha256": "64f7fc219e0ed81e8a8fa3e2ec04db8ad7e0d1eb3c3970b3e4d7becc631d73e6"
+    },
+    {
+      "battery_id": "B12",
+      "drone": "drone_5",
+      "run_id": "20260906_182131",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260906_182131_20260906_182131_all_coordination.csv",
+      "sha256": "f037c27f085a75ea3b0c9d8a991922a3bb47b316a9d40abb83904b5620352a9a"
+    },
+    {
+      "battery_id": "B13",
+      "drone": "drone_3",
+      "run_id": "20260906_170951",
+      "source": "database/baselines/drone_3_B13/drone_3_B13_hover_lv1_20260906_170951_20260906_170951_all_coordination.csv",
+      "sha256": "bc7ef3eef2c2bce1ecf141f6ae5d0468e5a9fdbf0448649f4d6b1bc08c087ead"
+    },
+    {
+      "battery_id": "B14",
+      "drone": "drone_4",
+      "run_id": "20260906_171938",
+      "source": "database/baselines/drone_4_B14/drone_4_B14_hover_lv1_20260906_171938_20260906_171938_all_coordination.csv",
+      "sha256": "6ec0bf99e3f1a469884c61b85913685259ae688aa22f778a59f05233fb745c75"
+    }
+  ],
+  "historical": [
+    {
+      "battery_id": "B11",
+      "drone_id": "drone_1",
+      "run_id": "20260513_143201",
+      "source": "database/baselines/drone_1_B11/drone_1_B11_hover_20260513_143201_timeseries.csv",
+      "sha256": "97daf4768849f3453b2bb75ff570b2e6d701e9afe7483c61a2876f17758e306f",
+      "status": "included_complete_95_20"
+    },
+    {
+      "battery_id": "B10",
+      "drone_id": "drone_2",
+      "run_id": "20260513_180556",
+      "source": "database/baselines/drone_2_B10/drone_2_B10_hover_20260513_180556_timeseries.csv",
+      "sha256": "dde3e7acda1ab7b36782217b17984e01a76af9ac8512860646797b5fa2989d23",
+      "status": "included_complete_95_20"
+    },
+    {
+      "battery_id": "B13",
+      "drone_id": "drone_3",
+      "run_id": "20260513_151417",
+      "source": "database/baselines/drone_3_B13/drone_3_B13_hover_20260513_151417_timeseries.csv",
+      "sha256": "5b9d04e1cb627bf85a3c0cc86089f85fdc70f50b8e7c779d17c6adf55cf4bb44",
+      "status": "insufficient_contiguous_95_20"
+    },
+    {
+      "battery_id": "B13",
+      "drone_id": "drone_3",
+      "run_id": "20260513_163826",
+      "source": "database/baselines/drone_3_B13/drone_3_B13_hover_20260513_163826_timeseries.csv",
+      "sha256": "b947d75247bf79a8a4ca9f1baa65a6af417b29a65b3360a20bd8bc6f2e136e91",
+      "status": "included_complete_95_20"
+    },
+    {
+      "battery_id": "B14",
+      "drone_id": "drone_4",
+      "run_id": "20260513_144257",
+      "source": "database/baselines/drone_4_B14/drone_4_B14_hover_20260513_144257_timeseries.csv",
+      "sha256": "eff06a56bf041f603e6c913a29ac19f276d47a0be9f258d00005732b954aeae9",
+      "status": "included_complete_95_20"
+    },
+    {
+      "battery_id": "B12",
+      "drone_id": "drone_5",
+      "run_id": "20260609_174758",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260609_174758_20260609_174758_all_coordination.csv",
+      "sha256": "606fedb74ac69325f5a691719ea6f95cd3b2393a06fe61baec1c9f7f93a903dc",
+      "status": "included_complete_95_20"
+    },
+    {
+      "battery_id": "B12",
+      "drone_id": "drone_5",
+      "run_id": "20260618_185144",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260618_185144_20260618_185144_all_coordination.csv",
+      "sha256": "e3b9dabe1e5b459fffcf68633e1bd041fff612030c23761b0b6e90b22902b9af",
+      "status": "insufficient_contiguous_95_20"
+    },
+    {
+      "battery_id": "B12",
+      "drone_id": "drone_5",
+      "run_id": "20260618_185156",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260618_185156_20260618_185156_all_coordination.csv",
+      "sha256": "0b393324075695bab047f9f2bb7c0c82d74fe28e11feab840b63292ae3fbee96",
+      "status": "insufficient_contiguous_95_20"
+    },
+    {
+      "battery_id": "B12",
+      "drone_id": "drone_5",
+      "run_id": "20260618_185741",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260618_185741_20260618_185741_all_coordination.csv",
+      "sha256": "a1c593789749339166594852ae8bbd8d7c37e8ace311e4bd6a7ed23d9ac6f4e9",
+      "status": "insufficient_contiguous_95_20"
+    }
+  ],
+  "excluded_run_ids": [
+    "20260906_165812"
+  ]
+}

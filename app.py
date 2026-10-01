@@ -18,6 +18,7 @@ from flask import Flask, abort, jsonify, redirect, render_template_string, reque
 
 from simulation_viewer import create_simulation_blueprint
 from wind_tunnel_battery_correction import correct_battery_row
+from wind_tunnel_layouts import layout_description
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -34,11 +35,11 @@ INDEX_BASELINES_PER_PAGE = 25
 INDEX_FILES_PER_CATEGORY = 60
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
-    "1": "100",
-    "2": "101",
+    "1": "104",
+    "2": "103",
     "3": "102",
-    "4": "103",
-    "5": "104",
+    "4": "105",
+    "5": "101",
 }
 IP_SUFFIX_TO_DRONE_NUMBER = {
     suffix: number for number, suffix in DRONE_NUMBER_TO_IP_SUFFIX.items()
@@ -1921,6 +1922,12 @@ def index():
         data_dir=DATA_DIR,
         mission_pad_columns=MISSION_PAD_COLUMNS,
         mission_pad_layouts=MISSION_PAD_LAYOUTS,
+        wind_tunnel_layout_catalog={
+            f"{formation}|{wind}|{spacing}": layout_description(formation, wind, spacing)
+            for formation in FORMATION_OPTIONS
+            for wind in ("head wind", "tail wind", "side wind")
+            for spacing in INTER_DRONE_DISTANCE_OPTIONS_CM
+        },
         max_mission_cols=max(len(columns) for columns in MISSION_PAD_LAYOUTS.values()),
         max_mission_rows=max(len(column) for columns in MISSION_PAD_LAYOUTS.values() for column in columns),
         experiment_scripts=EXPERIMENT_SCRIPTS,
@@ -3949,7 +3956,7 @@ INDEX_TEMPLATE = """
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
               <label>Formation
-                <select name="formation" required>
+                <select id="windTunnelFormationInput" name="formation" required>
                   <option value="front">front</option>
                   <option value="column">column</option>
                   <option value="vee">vee</option>
@@ -3973,16 +3980,19 @@ INDEX_TEMPLATE = """
               </label>
             </div>
             <label>Inter-drone Distance
-              <select name="inter_drone_distance_cm" required>
+              <select id="windTunnelSpacingInput" name="inter_drone_distance_cm" required>
                 <option value="50">50 cm</option>
                 <option value="75">75 cm</option>
               </select>
             </label>
             <div class="mission-board">
               <h3 style="margin-top:0;">Fixed Mission Pad Assignment</h3>
-              <p class="small"><strong>Legacy Wind Tunnel control (3ff2f14c).</strong> After group takeoff, the original controller sends small velocity corrections every 0.1 seconds toward each assigned pad centre at 80 cm height. It can use neighbouring mapped pads for position feedback.</p>
-              <p class="small">Diamond + head wind at 50 cm: Pad 7 is the centre at (50, 50) cm; Pads 5, 6, 8, 1 are at (50, 0), (0, 50), (100, 50), (50, 100) cm respectively. Each outer pad is 50 cm from the centre, with a target height of 80 cm.</p>
-              <div class="small" style="margin-bottom:10px;">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. The selected 50 cm or 75 cm spacing uses the legacy controller's layout. For vee + head wind at both spacings: Pad 7 is the +Y apex, printed pad arrows point +X, all noses face +Y, and the fan at +Y blows +Y→-Y. The selected Vee spacing is the distance between adjacent pad centres. All five take off together; each lands independently at 20%.</div>
+              <p class="small">Fixed mapping: Drone 1–5 → Mission Pads 5, 6, 7, 8, 1. Target height: 80 cm. The original continuous velocity-correction controller is retained. Level 1 and Level 2 use the same floor layout.</p>
+              <div id="windTunnelLayoutSummary" class="small" role="status" style="white-space:pre-line;margin-bottom:8px;"></div>
+              <svg id="windTunnelLayoutPreview" viewBox="0 0 600 380" role="img" aria-label="Wind Tunnel floor layout" style="display:block;width:100%;max-width:660px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;"></svg>
+              <div style="overflow-x:auto;margin:8px 0 14px;">
+                <table style="width:100%;"><thead><tr><th>Drone</th><th>Pad</th><th>Target X (cm)</th><th>Target Y (cm)</th><th>Height (cm)</th></tr></thead><tbody id="windTunnelLayoutCoordinates"></tbody></table>
+              </div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;">
                 {% for drone_number, ip_suffix in drone_options %}
                   <div class="pad-cell active">
@@ -4368,6 +4378,92 @@ INDEX_TEMPLATE = """
     const recommendedBatteryOrder = ["B11", "B10", "B13", "B14", "B12"];
     const windTunnelWindDirectionInput = document.getElementById("windTunnelWindDirectionInput");
     const windTunnelBatteryInputs = Array.from(document.querySelectorAll("[data-wind-tunnel-drone]"));
+    const windTunnelFormationInput = document.getElementById("windTunnelFormationInput");
+    const windTunnelSpacingInput = document.getElementById("windTunnelSpacingInput");
+    const windTunnelLayoutCatalog = {{ wind_tunnel_layout_catalog|tojson }};
+
+    function renderWindTunnelLayout() {
+      const key = `${windTunnelFormationInput.value}|${windTunnelWindDirectionInput.value}|${windTunnelSpacingInput.value}`;
+      const layout = windTunnelLayoutCatalog[key];
+      const summary = document.getElementById("windTunnelLayoutSummary");
+      const table = document.getElementById("windTunnelLayoutCoordinates");
+      const svg = document.getElementById("windTunnelLayoutPreview");
+      table.replaceChildren();
+      svg.replaceChildren();
+      if (!layout) {
+        summary.textContent = "No layout available for this selection.";
+        return;
+      }
+      summary.textContent = `Aircraft noses: ${layout.nose}. Printed pad arrows (pad +X): ${layout.pad_arrow_global || "+X"}. Airflow: ${layout.flow.text}. `
+        + `Configured spacing: ${windTunnelSpacingInput.value} cm. Preview: ${layout.spacing_definition}. ${layout.layout_note || ""}`;
+      svg.setAttribute("aria-label", `${windTunnelFormationInput.value}, ${windTunnelWindDirectionInput.value}, ${windTunnelSpacingInput.value} cm. ${summary.textContent}`);
+      const add = (tag, attributes, text, parent = svg) => {
+        const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, value));
+        if (text !== undefined) element.textContent = text;
+        parent.appendChild(element);
+        return element;
+      };
+      const defs = add("defs", {});
+      for (const [id, color] of [["wtNoseArrow", "#1d4ed8"], ["wtFlowArrow", "#b45309"], ["wtAxisArrow", "#64748b"]]) {
+        const marker = add("marker", {id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 5, markerHeight: 5, orient: "auto-start-reverse"}, undefined, defs);
+        add("path", {d: "M 0 0 L 10 5 L 0 10 z", fill: color}, undefined, marker);
+      }
+      const screenAxes = layout.screen_axes || [[1, 0], [0, -1]];
+      const screenVector = ([x, y]) => [
+        x * screenAxes[0][0] + y * screenAxes[1][0],
+        x * screenAxes[0][1] + y * screenAxes[1][1]
+      ];
+      const rawPositions = layout.positions.map(screenVector);
+      const minX = Math.min(...rawPositions.map(p => p[0]));
+      const maxX = Math.max(...rawPositions.map(p => p[0]));
+      const minY = Math.min(...rawPositions.map(p => p[1]));
+      const maxY = Math.max(...rawPositions.map(p => p[1]));
+      const width = Math.max(maxX - minX, 1);
+      const height = Math.max(maxY - minY, 1);
+      const scale = Math.min(360 / width, 240 / height);
+      const offsetX = 60 + (360 - width * scale) / 2;
+      const offsetY = 60 + (240 - height * scale) / 2;
+      const project = point => {
+        const [x, y] = screenVector(point);
+        return [offsetX + (x - minX) * scale, offsetY + (y - minY) * scale];
+      };
+      const hull = windTunnelFormationInput.value === "diamond" ? [0, 1, 4, 3, 0] : [0, 1, 2, 3, 4];
+      add("polyline", {points: hull.map(i => project(layout.positions[i]).join(",")).join(" "), fill: "none", stroke: "#94a3b8", "stroke-dasharray": "5 5"});
+      layout.positions.forEach((point, i) => {
+        const [x, y] = project(point);
+        add("circle", {cx: x, cy: y, r: 14, fill: "#dbeafe", stroke: "#1d4ed8"});
+        add("text", {x, y: y + 4, "text-anchor": "middle", "font-size": 12, fill: "#0f172a"}, layout.pad_ids[i]);
+        add("text", {x, y: y + 30, "text-anchor": "middle", "font-size": 12, fill: "#0f172a"}, `Drone ${i + 1}`);
+        const [dx, dy] = screenVector(layout.nose === "+X" ? [1, 0] : [0, 1]);
+        add("line", {x1: x + dx * 16, y1: y + dy * 16, x2: x + dx * 35, y2: y + dy * 35, stroke: "#1d4ed8", "stroke-width": 2, "marker-end": "url(#wtNoseArrow)"});
+        const row = document.createElement("tr");
+        [i + 1, layout.pad_ids[i], point[0].toFixed(2), point[1].toFixed(2), "80"].forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        table.appendChild(row);
+      });
+      const axisOrigin = key === "echalon|side wind|50"
+        ? project([0, 0])
+        : [screenAxes[1][0] < 0 ? 95 : 35, 345];
+      for (const [index, label] of [[0, "+X"], [1, "+Y"]]) {
+        const [dx, dy] = screenAxes[index];
+        const end = [axisOrigin[0] + dx * 60, axisOrigin[1] + dy * 60];
+        add("line", {x1: axisOrigin[0], y1: axisOrigin[1], x2: end[0], y2: end[1], stroke: "#64748b", "marker-end": "url(#wtAxisArrow)"});
+        add("text", {x: end[0] + dx * 10, y: end[1] + dy * 10 + 4, "font-size": 12, fill: "#475569"}, label);
+      }
+      const [fx, fy] = layout.flow.vector;
+      const [flowDx, flowDy] = screenVector([fx, fy]);
+      add("line", {x1: 510 - flowDx * 24, y1: 95 - flowDy * 24, x2: 510 + flowDx * 24, y2: 95 + flowDy * 24, stroke: "#b45309", "stroke-width": 4, "marker-end": "url(#wtFlowArrow)"});
+      add("text", {x: 510, y: 145, "text-anchor": "middle", "font-size": 12, fill: "#92400e"}, "Airflow");
+      add("text", {x: 510, y: 170, "text-anchor": "middle", "font-size": 12, fill: "#1d4ed8"}, "Blue arrows: noses");
+    }
+    [windTunnelFormationInput, windTunnelWindDirectionInput, windTunnelSpacingInput].forEach(input => {
+      input.addEventListener("change", renderWindTunnelLayout);
+    });
+    renderWindTunnelLayout();
 
     function updateWindTunnelBatteryDefaults() {
       if (!windTunnelWindDirectionInput) return;

@@ -1,0 +1,15 @@
+{
+  "model_version": "demo-policy-v1",
+  "data_source": "Scripted demonstration; not model validation or measured flight data",
+  "candidate_limits_by_K": {"1": 1, "2": 3, "3": 3, "4": 3, "5": 1},
+  "decision_period_s": 25,
+  "charge_target_pct": 99,
+  "demo_charge_curve_minutes": 30,
+  "interval_count": 8,
+  "indoor_interval_distance_m": 2.5,
+  "route_mapping": null,
+  "coordinate_frame": "local_indoor",
+  "condition_change_trigger": true,
+  "battery_alert_rules": [],
+  "stale_after_s": 5
+}

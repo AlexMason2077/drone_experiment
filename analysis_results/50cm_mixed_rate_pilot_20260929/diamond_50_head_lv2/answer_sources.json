@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "single-condition-averaged-stages",
+      "title": "Diamond 50cm：已有250cm耗电率与风洞阶段率平均",
+      "assumptions": [
+        "P3/P4未观察到High，图中High沿用对应位置平均后Medium的相对耗电因子；这些是模型系数，不是实测样本。"
+      ],
+      "queries": [
+        {
+          "id": "source-means",
+          "source": {
+            "label": "Diamond 50cm 顶风 Level2 · 风洞 _002 / 既有250cm v3",
+            "filters": [
+              "配置：Diamond / 50cm / Headwind / Level2",
+              "位置：P1–P5分别处理",
+              "风洞：去除初始不掉电平台，各机到自身20%",
+              "前进：复用已有v3中电量耗电率，保持系数不变"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "rate-mean",
+                "definition": "每个位置先取风洞与前进各自的重复实验均值，再将同阶段两类均值各取50%；只有一类有实测的阶段保留单来源率。"
+              }
+            ],
+            "caveats": [
+              "已有250cm耗电率只覆盖Medium，中段有两类实测平均，高低段不能声称都有双来源平均。",
+              "风洞悬停与前进是不同实验协议，本图是用户要求的描述性组合，未作新的实机验证。",
+              "横轴为统一参考电池100%至20%的计算时间，不等于不同起始SOC的原始实验时长。",
+              "P2/P5的High只有两档SOC，阶段斜率支撑较弱。"
+            ]
+          },
+          "rows": [
+            {
+              "position": 1,
+              "stage": "High",
+              "wind_mean_pp_min": 16.81620757121132,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 16.81620757121132,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 1,
+              "stage": "Low",
+              "wind_mean_pp_min": 12.894638458421053,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 12.894638458421053,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 1,
+              "stage": "Medium",
+              "wind_mean_pp_min": 8.703709021846475,
+              "forward_mean_pp_min": 5.934876575795,
+              "normalized_rate_pp_min": 7.3192927988207375,
+              "wind_run_count": 1,
+              "forward_run_count": 2
+            },
+            {
+              "position": 2,
+              "stage": "High",
+              "wind_mean_pp_min": 19.19676279847983,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 19.19676279847983,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 2,
+              "stage": "Low",
+              "wind_mean_pp_min": 13.717422416586015,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 13.717422416586015,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 2,
+              "stage": "Medium",
+              "wind_mean_pp_min": 10.117481339873347,
+              "forward_mean_pp_min": 10.1931663371,
+              "normalized_rate_pp_min": 10.155323838486673,
+              "wind_run_count": 1,
+              "forward_run_count": 1
+            },
+            {
+              "position": 3,
+              "stage": "Low",
+              "wind_mean_pp_min": 12.757013672148666,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 12.757013672148666,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 3,
+              "stage": "Medium",
+              "wind_mean_pp_min": 10.530039889768423,
+              "forward_mean_pp_min": 8.759623919805,
+              "normalized_rate_pp_min": 9.644831904786711,
+              "wind_run_count": 1,
+              "forward_run_count": 2
+            },
+            {
+              "position": 4,
+              "stage": "Low",
+              "wind_mean_pp_min": 12.803395720792116,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 12.803395720792116,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 4,
+              "stage": "Medium",
+              "wind_mean_pp_min": 11.553848185033385,
+              "forward_mean_pp_min": 6.16629927222,
+              "normalized_rate_pp_min": 8.860073728626691,
+              "wind_run_count": 1,
+              "forward_run_count": 1
+            },
+            {
+              "position": 5,
+              "stage": "High",
+              "wind_mean_pp_min": 28.519985948185955,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 28.519985948185955,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 5,
+              "stage": "Low",
+              "wind_mean_pp_min": 13.692902723955443,
+              "forward_mean_pp_min": null,
+              "normalized_rate_pp_min": 13.692902723955443,
+              "wind_run_count": 1,
+              "forward_run_count": 0
+            },
+            {
+              "position": 5,
+              "stage": "Medium",
+              "wind_mean_pp_min": 9.171302107493666,
+              "forward_mean_pp_min": 5.764459897515,
+              "normalized_rate_pp_min": 7.467881002504333,
+              "wind_run_count": 1,
+              "forward_run_count": 2
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "stage",
+              "label": "电池阶段"
+            },
+            {
+              "field": "wind_mean_pp_min",
+              "label": "风洞率（pp/min）"
+            },
+            {
+              "field": "forward_mean_pp_min",
+              "label": "已有250cm率（pp/min）"
+            },
+            {
+              "field": "normalized_rate_pp_min",
+              "label": "最终观测阶段率（pp/min）"
+            },
+            {
+              "field": "wind_run_count",
+              "label": "风洞组数"
+            },
+            {
+              "field": "forward_run_count",
+              "label": "前进组数"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

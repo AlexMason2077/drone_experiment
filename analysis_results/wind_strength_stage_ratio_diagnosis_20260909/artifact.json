@@ -1,0 +1,1501 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "Wind strength and discharge-stage ratios",
+    "generatedAt": "2026-09-08T16:07:46.228067+00:00",
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# Wind strength and discharge-stage ratios"
+      },
+      {
+        "id": "answer",
+        "type": "markdown",
+        "body": "## 结论：有差异，但目前不能判定是风力效应还是实验波动\n\n**没有观察到“风越大，三段比例就统一变大或变小”的规律。** 控制风向、队形、间距、电池和无人机之后，High/Medium 的变化仍然有正有负，而且可达到几十个百分点的相对变化。Low/Medium 通常变化较小，但个别配置也有明显差异。\n\n**不能据此称为纯随机，也不能证明与风力无关。** 符合完整阶段口径的同条件重复记录不足，尚不能把风力变化与当天飞行状态、位置保持、风扇启动时点等因素分开。"
+      },
+      {
+        "id": "definition",
+        "type": "markdown",
+        "body": "## 本次比较的是“比例随风力怎么变”\n\n沿用最新口径：起飞后第一次显示掉电才开始计时，去掉前面的初始平台；之后正常整数阶梯平台全部保留。High、Medium、Low 按每块电池自己的分界点计算。\n\n`风力变化效应(%) = [(阶段耗电率 / Medium耗电率)Lv2 ÷ (阶段耗电率 / Medium耗电率)Lv1 − 1] × 100`\n\n+20% 的含义是：该阶段相对 Medium 的耗电率比例在 Lv2 比 Lv1 高 20%，不是电量多消耗了 20 个百分点，也不是该阶段绝对耗电率一定高了 20%。同一块电池跨风力配对时，冻结的基线比例在这个比值中会抵消。因此，这个比较不依赖 Bideal 的绝对斜率是否准确。",
+        "sourceId": "primary"
+      },
+      {
+        "id": "scope",
+        "type": "markdown",
+        "body": "## 先严格配对，避免配置混杂\n\n完整曲线样本中，Lv1 有 30 条单机曲线、11 次飞行，Lv2 有 13 条单机曲线、5 次飞行；不能直接把这两组的总体平均值当成风力效应。严格匹配后只有 **7 组单机配对、5 组配置条件**，涉及 10 次飞行，全部为 75 cm 间距。它们不能代表所有电池、队形或 50 cm 实验。这些记录覆盖 2026 年 8 月 29 日至 9 月 8 日；风力按实验记录的 Lv1/Lv2 标签区分，文件没有逐机实测风速字段。",
+        "sourceId": "primary"
+      },
+      {
+        "id": "matched_finding",
+        "type": "markdown",
+        "body": "## High 的差异较大，方向却不统一\n\n7 组严格配对中，High/Medium 在 Lv2 有 3 组上升、4 组下降，典型变化幅度为 **27.2%**（绝对变化中位数），范围 **−37.9% 至 +38.8%**。Low/Medium 的典型变化幅度为 **3.7%**，范围 **−4.7% 至 +6.0%**。\n\n下图的零线表示 Lv1、Lv2 的比例相同，正负方向表示比例增加或降低。两种颜色是 High/Medium 与 Low/Medium；每行比较同一块电池和同一位置。这里是 5 组配置下的观察结果，不是 7 个独立随机实验。",
+        "sourceId": "primary"
+      },
+      {
+        "id": "paired_chart",
+        "type": "chart",
+        "chartId": "paired_changes"
+      },
+      {
+        "id": "example",
+        "type": "markdown",
+        "body": "## 同一块 B11，也没有统一的风力方向\n\n例如 Front + Tail 下，High/Medium 从 Lv1 到 Lv2 增加 **38.8%**；Diamond + Tail 下却减少 **37.9%**。Diamond + Side 下同一块 B11 减少 **27.2%**。这说明不能仅用一个统一的“风力倍率”解释当前结果。这几组 High 都在五机首次进入 hover 后才开始掉电，因此初始回正不是这些相反方向结果的充分解释；但仍可能存在其他飞行状态差异。",
+        "sourceId": "primary"
+      },
+      {
+        "id": "matched_table",
+        "type": "table",
+        "tableId": "pairs"
+      },
+      {
+        "id": "extended_scope",
+        "type": "markdown",
+        "body": "## 增加完整阶段对后，Low 也存在局部较大变化\n\n再检查全部 163 个协调记录文件，不要求一条记录同时覆盖三个阶段：只要完整覆盖 High+Medium，或 Medium+Low，就可分别比较。有风记录得到 46 条 High/Medium 阶段对（16 次飞行）和 82 条 Low/Medium 阶段对（19 次飞行）。匹配 Lv1/Lv2 后分别为 **10 组 High 配对、26 组 Low 配对**。\n\nHigh 的典型变化幅度 **28.4%**，范围 −37.9% 至 +97.6%；Low 的典型变化幅度 **4.4%**，18/26 在 ±10% 内，但范围扩大到 **−22.7% 至 +25.5%**。所以，前面严格完整曲线中 Low 的 ±6% 范围不能推广到所有可用阶段记录。",
+        "sourceId": "extended"
+      },
+      {
+        "id": "condition_effect",
+        "type": "markdown",
+        "body": "## 有按配置分组的同向变化，但尚未经过重复验证\n\n扩展的 Low 对比中，Diamond + Side 的 4 架可比无人机全部增加，Diamond + Tail 的 3 架也全部增加；Front + Tail 的 4 架则全部降低。这提示值得检查“队形与风力共同作用”，但每个条件、每块电池目前仍只有一次合格阶段记录。同一次飞行的几架无人机不是独立重复，这种分组也可能来自那次飞行共同的环境或操作变化。下表是每种配置内的描述性中位数，不是已验证的因果效应。",
+        "sourceId": "extended"
+      },
+      {
+        "id": "low_conditions",
+        "type": "table",
+        "tableId": "low_condition_table"
+      },
+      {
+        "id": "robustness",
+        "type": "markdown",
+        "body": "## 排除一部分干扰后，仍不能得出因果结论\n\n**起飞回正：**严格 High 配对中，只有 4 组两次飞行的首次掉电均晚于五机首次 hover。保留它们后仍同时存在 −37.9% 和 +38.8% 的变化，方向并未统一。\n\n**低电量先后降落：**严格配对中没有一组能在两次飞行里都保持五架飞到该机 Low 结束。改为同电池、相同 SOC 区间，且在首次队友降落前结束，只有 3 组至少保留 10 个百分点的下降量；变化为 +0.6%、−6.5%、−6.9%。这个更可比的检查样本很少，只说明这些窗口差异不大，不能外推到整个 Low。\n\n**无风对照：**只有 1 次合格无风完整飞行，且与有风实验日期不同，不足以判断从无风到有风的稳定效应。",
+        "sourceId": "extended"
+      },
+      {
+        "id": "randomness",
+        "type": "markdown",
+        "body": "## 为什么现在不能判断“纯随机”\n\n估计同条件波动，需要在风力、风向、队形、间距、电池、无人机和 SOC 比较窗口都相同的条件下，有多次独立飞行。本次完整曲线以及扩展阶段对筛选后，**这样的重复单元均为 0**。这不表示原始文件中没有多次起飞，而是它们没有重复覆盖此次要求的完整阶段。\n\n因此当前无法估计“同样条件重做一次，比例通常波动多少”，就无法判断 Lv1/Lv2 的差异是否明显超过该波动。本次只作描述性比较，没有用缺乏独立重复的数据报告显著性，也没有把“未发现统一趋势”当成“证明无关”。",
+        "sourceId": "extended"
+      },
+      {
+        "id": "recommendation",
+        "type": "markdown",
+        "body": "## 对当前研究的建议\n\n- 暂时保留 wind level，不要因缺少统一趋势就删掉这个条件。\n- 不使用一个随风力统一放大或缩小的三段比例；已有差异应保留为配置相关的实测结果和不确定性。\n- 若时间有限，优先补 Front 与 Diamond 的 Tail、75 cm 对比：这两种配置的 High 变化方向相反，最有助于检验是否为稳定的配置差异。每个风力尽量至少 3 次独立有效飞行，并交替安排 Lv1/Lv2。\n- 记录风扇何时开启并稳定、换电池及飞行顺序；比较时尽量采用五机仍在空中的共同 SOC 窗口。三次只是最低限度的重复检查，不保证能检出较小效应。"
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## 需要进一步确认的实验条件\n\n风扇是在起飞前已开启，还是起飞后才开启？Lv1、Lv2 的风扇位置和距离是否完全相同？这些因素若不同，就不能把两条曲线的差别单独归因于风力等级。"
+      }
+    ],
+    "charts": [
+      {
+        "id": "paired_changes",
+        "title": "Lv2 相对 Lv1 的阶段比例变化",
+        "subtitle": "同风向、队形、间距、电池与无人机；7 组单机配对，5 组配置；单位为相对变化 (%)",
+        "showDescription": true,
+        "type": "horizontalBar",
+        "intent": "comparison",
+        "dataset": "paired_chart",
+        "sourceId": "primary",
+        "layout": "full",
+        "valueFormat": "number",
+        "unit": "%",
+        "settings": {
+          "groupMode": "grouped",
+          "orientation": "horizontal",
+          "sort": "none",
+          "showValues": true
+        },
+        "encodings": {
+          "x": {
+            "field": "comparison",
+            "type": "nominal",
+            "label": "配置与电池"
+          },
+          "y": {
+            "field": "change_pct",
+            "type": "quantitative",
+            "label": "比例相对变化 (%)"
+          },
+          "color": {
+            "field": "stage",
+            "type": "nominal",
+            "label": "阶段比例"
+          },
+          "tooltip": [
+            {
+              "field": "ratio_lv1",
+              "type": "quantitative",
+              "label": "Lv1 基线归一化比例"
+            },
+            {
+              "field": "ratio_lv2",
+              "type": "quantitative",
+              "label": "Lv2 基线归一化比例"
+            }
+          ]
+        },
+        "referenceLines": [
+          {
+            "axis": "y",
+            "value": 0,
+            "color": "neutral",
+            "label": "无变化",
+            "lineStyle": "solid"
+          }
+        ],
+        "palette": {
+          "kind": "categorical"
+        },
+        "legend": {
+          "position": "bottom",
+          "sort": "spec"
+        },
+        "labels": {
+          "values": "all"
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "pairs",
+        "title": "Lv2 相对 Lv1 的阶段比例变化",
+        "dataset": "pairs",
+        "sourceId": "primary",
+        "defaultSort": {
+          "field": "comparison",
+          "direction": "asc"
+        },
+        "columns": [
+          {
+            "field": "comparison",
+            "label": "配置 / 电池（均为75 cm）",
+            "type": "text"
+          },
+          {
+            "field": "high_change_pct",
+            "label": "High/Medium 变化 (%)",
+            "format": "number"
+          },
+          {
+            "field": "low_change_pct",
+            "label": "Low/Medium 变化 (%)",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "low_condition_table",
+        "title": "Low/Medium 按配置的匹配结果",
+        "dataset": "low_conditions",
+        "sourceId": "extended",
+        "defaultSort": {
+          "field": "condition",
+          "direction": "asc"
+        },
+        "columns": [
+          {
+            "field": "condition",
+            "label": "条件",
+            "type": "text"
+          },
+          {
+            "field": "pairs",
+            "label": "单机配对数",
+            "format": "number"
+          },
+          {
+            "field": "median_change_pct",
+            "label": "变化中位数 (%)",
+            "format": "number"
+          },
+          {
+            "field": "min_change_pct",
+            "label": "最小变化 (%)",
+            "format": "number"
+          },
+          {
+            "field": "max_change_pct",
+            "label": "最大变化 (%)",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "primary",
+        "label": "Matched complete wind-tunnel curves",
+        "path": "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/matched_comparison.sql",
+        "query": {
+          "engine": "SQLite (in-memory)",
+          "language": "sql",
+          "sql": "SELECT a.wind_direction,a.formation,a.spacing_cm,a.battery_id,a.drone_id,\n a.source AS source_lv1,b.source AS source_lv2,\n a.experiment_id AS experiment_lv1,b.experiment_id AS experiment_lv2,\n a.run_id AS run_lv1,b.run_id AS run_lv2,\n a.high_k/a.medium_k AS high_ratio_lv1,b.high_k/b.medium_k AS high_ratio_lv2,\n a.low_k/a.medium_k AS low_ratio_lv1,b.low_k/b.medium_k AS low_ratio_lv2,\n 100.0*((b.high_k/b.medium_k)/(a.high_k/a.medium_k)-1.0) AS high_change_pct,\n 100.0*((b.low_k/b.medium_k)/(a.low_k/a.medium_k)-1.0) AS low_change_pct,\n 100.0*(b.high_raw_rate_pp_min/a.high_raw_rate_pp_min-1.0) AS high_rate_change_pct,\n 100.0*(b.medium_raw_rate_pp_min/a.medium_raw_rate_pp_min-1.0) AS medium_rate_change_pct,\n 100.0*(b.low_raw_rate_pp_min/a.low_raw_rate_pp_min-1.0) AS low_rate_change_pct,\n a.high_starts_after_all_ready AND b.high_starts_after_all_ready AS both_high_after_ready,\n a.low_ends_before_first_landing AND b.low_ends_before_first_landing AS both_full_low_before_landing,\n a.low_after_first_landing_fraction AS low_after_landing_fraction_lv1,\n b.low_after_first_landing_fraction AS low_after_landing_fraction_lv2\nFROM full_curves a JOIN full_curves b\n ON a.wind_direction=b.wind_direction AND a.formation=b.formation\n AND a.spacing_cm=b.spacing_cm AND a.battery_id=b.battery_id AND a.drone_id=b.drone_id\nWHERE a.wind_level=1 AND b.wind_level=2\nORDER BY a.wind_direction,a.formation,a.spacing_cm,a.battery_id",
+          "executed_at": "2026-09-08T16:07:46.228067+00:00",
+          "description": "full_curves is loaded from the frozen first-drop recalculation paired_ratios.csv. Matches the same wind direction, formation, spacing, drone and battery across Lv1 and Lv2. SOC-stage ratios and between-level changes are computed by this executed query.",
+          "tables_used": [
+            "full_curves",
+            "analysis_results/wind_tunnel_stage_ratio_check_20260909/first_drop_recalculation/paired_ratios.csv"
+          ],
+          "filters": [
+            "Complete 99%–20% observed curves from the prior audited cohort",
+            "Only identical configuration and physical battery pairs",
+            "Lv1 versus Lv2; no synthetic samples"
+          ],
+          "metric_definitions": {
+            "ratio_change": "100 * ((rate_stage / rate_medium)_Lv2 / (rate_stage / rate_medium)_Lv1 - 1)",
+            "positive": "The stage/Medium ratio is larger at Lv2; not necessarily a larger raw discharge rate"
+          }
+        }
+      },
+      {
+        "id": "extended",
+        "label": "Complete stage-pair sensitivity audit",
+        "path": "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/summary.json",
+        "query": {
+          "engine": "SQLite (in-memory); Python telemetry extraction and descriptive summaries",
+          "language": "sql",
+          "sql": "SELECT a.wind_direction,a.formation,a.spacing_cm,a.battery_id,a.drone_id,a.stage,\n      a.source AS source_lv1,b.source AS source_lv2,a.ratio AS ratio_lv1,b.ratio AS ratio_lv2,\n      100.0*(b.ratio/a.ratio-1.0) AS change_pct\n      FROM expanded_stage_pairs a JOIN expanded_stage_pairs b\n      ON a.wind_direction=b.wind_direction AND a.formation=b.formation AND a.spacing_cm=b.spacing_cm\n      AND a.battery_id=b.battery_id AND a.drone_id=b.drone_id AND a.stage=b.stage\n      WHERE a.wind_level=1 AND b.wind_level=2\n      ORDER BY a.stage,a.wind_direction,a.formation,a.battery_id",
+          "executed_at": "2026-09-08T16:07:46.228067+00:00",
+          "description": "expanded_stage_pairs is loaded from expanded_stage_pairs.csv. The source-flight scan accepts complete High+Medium or Medium+Low even if the third stage is absent. Matching and ratio changes are independently recomputed here; summary.json preserves exclusions and source hashes.",
+          "tables_used": [
+            "expanded_stage_pairs",
+            "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/expanded_stage_pairs.csv",
+            "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/expanded_source_audit.csv",
+            "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/common_prelanding_low.csv",
+            "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/no_wind_comparisons.csv",
+            "database/experiment_registry.json"
+          ],
+          "filters": [
+            "Five drones reached hover; known battery/drone baseline pairs",
+            "No prepare/merged/outlier files",
+            "Complete pair of stages; telemetry and within-window fault QA"
+          ],
+          "metric_definitions": {
+            "change_pct": "100 * (stage_to_medium_ratio_Lv2 / stage_to_medium_ratio_Lv1 - 1)",
+            "replicate_cell": "Same wind direction, level, formation, spacing, physical drone, battery and stage-pair, in more than one source flight"
+          }
+        }
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "status": "ready",
+    "generatedAt": "2026-09-08T16:07:46.228067+00:00",
+    "datasets": {
+      "paired_chart": [
+        {
+          "comparison": "Head · Front · B11",
+          "stage": "High/Medium",
+          "change_pct": 18.912093728,
+          "ratio_lv1": 1.11052024032,
+          "ratio_lv2": 1.32054286904,
+          "battery": "B11",
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_head_lv1_003",
+          "experiment_lv2": "wind_tunnel_front_75_head_lv2_001",
+          "both_high_after_ready": false
+        },
+        {
+          "comparison": "Head · Front · B11",
+          "stage": "Low/Medium",
+          "change_pct": 2.41189345918,
+          "ratio_lv1": 0.982998828659,
+          "ratio_lv2": 1.00670771311,
+          "battery": "B11",
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_head_lv1_003",
+          "experiment_lv2": "wind_tunnel_front_75_head_lv2_001",
+          "both_high_after_ready": false
+        },
+        {
+          "comparison": "Side · Diamond · B10",
+          "stage": "High/Medium",
+          "change_pct": -29.5694325676,
+          "ratio_lv1": 1.44968448242,
+          "ratio_lv2": 1.02102100695,
+          "battery": "B10",
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_diamond_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_diamond_75_side_lv2_001",
+          "both_high_after_ready": false
+        },
+        {
+          "comparison": "Side · Diamond · B10",
+          "stage": "Low/Medium",
+          "change_pct": 3.73067752023,
+          "ratio_lv1": 0.918223454921,
+          "ratio_lv2": 0.95247941094,
+          "battery": "B10",
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_diamond_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_diamond_75_side_lv2_001",
+          "both_high_after_ready": false
+        },
+        {
+          "comparison": "Side · Diamond · B11",
+          "stage": "High/Medium",
+          "change_pct": -27.2086604254,
+          "ratio_lv1": 1.12963743459,
+          "ratio_lv2": 0.822278220972,
+          "battery": "B11",
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_diamond_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_diamond_75_side_lv2_001",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Side · Diamond · B11",
+          "stage": "Low/Medium",
+          "change_pct": 2.82285509343,
+          "ratio_lv1": 0.913118027281,
+          "ratio_lv2": 0.938894026023,
+          "battery": "B11",
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_diamond_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_diamond_75_side_lv2_001",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Side · Front · B11",
+          "stage": "High/Medium",
+          "change_pct": 8.74717946144,
+          "ratio_lv1": 1.35617410714,
+          "ratio_lv2": 1.4748010901,
+          "battery": "B11",
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_side_lv2_001",
+          "both_high_after_ready": false
+        },
+        {
+          "comparison": "Side · Front · B11",
+          "stage": "Low/Medium",
+          "change_pct": 6.04261356901,
+          "ratio_lv1": 0.99381338678,
+          "ratio_lv2": 1.05386568934,
+          "battery": "B11",
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_side_lv2_001",
+          "both_high_after_ready": false
+        },
+        {
+          "comparison": "Tail · Diamond · B11",
+          "stage": "High/Medium",
+          "change_pct": -37.9134326502,
+          "ratio_lv1": 1.07973571869,
+          "ratio_lv2": 0.670370844182,
+          "battery": "B11",
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_diamond_75_tail_lv1_003",
+          "experiment_lv2": "wind_tunnel_diamond_75_tail_lv2_001",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Tail · Diamond · B11",
+          "stage": "Low/Medium",
+          "change_pct": 2.6966101261,
+          "ratio_lv1": 0.876189907036,
+          "ratio_lv2": 0.899817332793,
+          "battery": "B11",
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_diamond_75_tail_lv1_003",
+          "experiment_lv2": "wind_tunnel_diamond_75_tail_lv2_001",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Tail · Front · B10",
+          "stage": "High/Medium",
+          "change_pct": -2.13894861819,
+          "ratio_lv1": 1.06743154967,
+          "ratio_lv2": 1.04459973729,
+          "battery": "B10",
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_tail_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_tail_lv2_002",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Tail · Front · B10",
+          "stage": "Low/Medium",
+          "change_pct": -4.09148863345,
+          "ratio_lv1": 1.03444293503,
+          "ratio_lv2": 0.992118819922,
+          "battery": "B10",
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_tail_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_tail_lv2_002",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Tail · Front · B11",
+          "stage": "High/Medium",
+          "change_pct": 38.806806213,
+          "ratio_lv1": 0.660903524476,
+          "ratio_lv2": 0.917379074474,
+          "battery": "B11",
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_tail_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_tail_lv2_002",
+          "both_high_after_ready": true
+        },
+        {
+          "comparison": "Tail · Front · B11",
+          "stage": "Low/Medium",
+          "change_pct": -4.71780041206,
+          "ratio_lv1": 0.962744446777,
+          "ratio_lv2": 0.917324085299,
+          "battery": "B11",
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "experiment_lv1": "wind_tunnel_front_75_tail_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_tail_lv2_002",
+          "both_high_after_ready": true
+        }
+      ],
+      "pairs": [
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_front_75_head_lv1_003",
+          "experiment_lv2": "wind_tunnel_front_75_head_lv2_001",
+          "run_lv1": "20260829_234550",
+          "run_lv2": "20260830_175248",
+          "high_ratio_lv1": 1.1105202403,
+          "high_ratio_lv2": 1.320542869,
+          "low_ratio_lv1": 0.9829988287,
+          "low_ratio_lv2": 1.0067077131,
+          "high_change_pct": 18.912093728,
+          "low_change_pct": 2.4118934592,
+          "high_rate_change_pct": 12.2165292264,
+          "medium_rate_change_pct": -5.6306842243,
+          "low_rate_change_pct": -3.35459687,
+          "both_high_after_ready": 0,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.6310467545,
+          "low_after_landing_fraction_lv2": 0.7249309483,
+          "comparison": "Head · Front · B11"
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_diamond_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_diamond_75_side_lv2_001",
+          "run_lv1": "20260905_183241",
+          "run_lv2": "20260905_194111",
+          "high_ratio_lv1": 1.4496844824,
+          "high_ratio_lv2": 1.021021007,
+          "low_ratio_lv1": 0.9182234549,
+          "low_ratio_lv2": 0.9524794109,
+          "high_change_pct": -29.5694325676,
+          "low_change_pct": 3.7306775202,
+          "high_rate_change_pct": -32.844675934,
+          "medium_rate_change_pct": -4.6503151766,
+          "low_rate_change_pct": -1.0931259193,
+          "both_high_after_ready": 0,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.3956630382,
+          "low_after_landing_fraction_lv2": 0.4057406155,
+          "comparison": "Side · Diamond · B10"
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_diamond_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_diamond_75_side_lv2_001",
+          "run_lv1": "20260905_183241",
+          "run_lv2": "20260905_194111",
+          "high_ratio_lv1": 1.1296374346,
+          "high_ratio_lv2": 0.822278221,
+          "low_ratio_lv1": 0.9131180273,
+          "low_ratio_lv2": 0.938894026,
+          "high_change_pct": -27.2086604254,
+          "low_change_pct": 2.8228550934,
+          "high_rate_change_pct": -25.1826541711,
+          "medium_rate_change_pct": 2.7833067319,
+          "low_rate_change_pct": 5.6847305416,
+          "both_high_after_ready": 1,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.6466225344,
+          "low_after_landing_fraction_lv2": 0.565603204,
+          "comparison": "Side · Diamond · B11"
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_front_75_side_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_side_lv2_001",
+          "run_lv1": "20260904_201507",
+          "run_lv2": "20260904_215451",
+          "high_ratio_lv1": 1.3561741071,
+          "high_ratio_lv2": 1.4748010901,
+          "low_ratio_lv1": 0.9938133868,
+          "low_ratio_lv2": 1.0538656893,
+          "high_change_pct": 8.7471794614,
+          "low_change_pct": 6.042613569,
+          "high_rate_change_pct": 10.5579263473,
+          "medium_rate_change_pct": 1.6650977931,
+          "low_rate_change_pct": 7.8083267875,
+          "both_high_after_ready": 0,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.4386542487,
+          "low_after_landing_fraction_lv2": 1.0,
+          "comparison": "Side · Front · B11"
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "source_lv1": "database/wind_tunnel_diamond_75_tail_lv1_003/wind_tunnel_diamond_75_tail_lv1_003_20260903_201918_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_tail_lv2_001/wind_tunnel_diamond_75_tail_lv2_001_20260906_200048_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_diamond_75_tail_lv1_003",
+          "experiment_lv2": "wind_tunnel_diamond_75_tail_lv2_001",
+          "run_lv1": "20260903_201918",
+          "run_lv2": "20260906_200048",
+          "high_ratio_lv1": 1.0797357187,
+          "high_ratio_lv2": 0.6703708442,
+          "low_ratio_lv1": 0.876189907,
+          "low_ratio_lv2": 0.8998173328,
+          "high_change_pct": -37.9134326502,
+          "low_change_pct": 2.6966101261,
+          "high_rate_change_pct": -39.9734625068,
+          "medium_rate_change_pct": -3.3179960562,
+          "low_rate_change_pct": -0.7108593486,
+          "both_high_after_ready": 1,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.8075188601,
+          "low_after_landing_fraction_lv2": 0.5775454527,
+          "comparison": "Tail · Diamond · B11"
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_front_75_tail_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_tail_lv2_002",
+          "run_lv1": "20260903_172757",
+          "run_lv2": "20260903_185706",
+          "high_ratio_lv1": 1.0674315497,
+          "high_ratio_lv2": 1.0445997373,
+          "low_ratio_lv1": 1.034442935,
+          "low_ratio_lv2": 0.9921188199,
+          "high_change_pct": -2.1389486182,
+          "low_change_pct": -4.0914886335,
+          "high_rate_change_pct": 5.0269789079,
+          "medium_rate_change_pct": 7.3225531751,
+          "low_rate_change_pct": 2.9314631113,
+          "both_high_after_ready": 1,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.382964239,
+          "low_after_landing_fraction_lv2": 0.6343379073,
+          "comparison": "Tail · Front · B10"
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "experiment_lv1": "wind_tunnel_front_75_tail_lv1_001",
+          "experiment_lv2": "wind_tunnel_front_75_tail_lv2_002",
+          "run_lv1": "20260903_172757",
+          "run_lv2": "20260903_185706",
+          "high_ratio_lv1": 0.6609035245,
+          "high_ratio_lv2": 0.9173790745,
+          "low_ratio_lv1": 0.9627444468,
+          "low_ratio_lv2": 0.9173240853,
+          "high_change_pct": 38.806806213,
+          "low_change_pct": -4.7178004121,
+          "high_rate_change_pct": 42.6999194706,
+          "medium_rate_change_pct": 2.8046991093,
+          "low_rate_change_pct": -2.0454214083,
+          "both_high_after_ready": 1,
+          "both_full_low_before_landing": 0,
+          "low_after_landing_fraction_lv1": 0.7188038247,
+          "low_after_landing_fraction_lv2": 0.8402682793,
+          "comparison": "Tail · Front · B11"
+        }
+      ],
+      "low_conditions": [
+        {
+          "stage": "low",
+          "condition": "Front / Head / 75 cm",
+          "pairs": 5,
+          "median_change_pct": 2.4118934591,
+          "min_change_pct": -2.7957889239,
+          "max_change_pct": 25.5372687902,
+          "positive": 4,
+          "negative": 1
+        },
+        {
+          "stage": "low",
+          "condition": "Vee / Head / 75 cm",
+          "pairs": 1,
+          "median_change_pct": -1.9857301009,
+          "min_change_pct": -1.9857301009,
+          "max_change_pct": -1.9857301009,
+          "positive": 0,
+          "negative": 1
+        },
+        {
+          "stage": "low",
+          "condition": "Diamond / Side / 75 cm",
+          "pairs": 4,
+          "median_change_pct": 11.4199525469,
+          "min_change_pct": 2.8228550934,
+          "max_change_pct": 20.713562307,
+          "positive": 4,
+          "negative": 0
+        },
+        {
+          "stage": "low",
+          "condition": "Front / Side / 75 cm",
+          "pairs": 5,
+          "median_change_pct": -5.2442257256,
+          "min_change_pct": -11.0409410689,
+          "max_change_pct": 6.042613569,
+          "positive": 2,
+          "negative": 3
+        },
+        {
+          "stage": "low",
+          "condition": "Diamond / Tail / 75 cm",
+          "pairs": 3,
+          "median_change_pct": 10.0567506241,
+          "min_change_pct": 2.6966101254,
+          "max_change_pct": 13.904946541,
+          "positive": 3,
+          "negative": 0
+        },
+        {
+          "stage": "low",
+          "condition": "Echelon / Tail / 75 cm",
+          "pairs": 4,
+          "median_change_pct": -2.7385949487,
+          "min_change_pct": -4.0669592587,
+          "max_change_pct": -0.5837737205,
+          "positive": 0,
+          "negative": 4
+        },
+        {
+          "stage": "low",
+          "condition": "Front / Tail / 75 cm",
+          "pairs": 4,
+          "median_change_pct": -9.1155129973,
+          "min_change_pct": -22.7450782836,
+          "max_change_pct": -4.0914886326,
+          "positive": 0,
+          "negative": 4
+        }
+      ],
+      "extended_pairs": [
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 0.9680634894,
+          "ratio_lv2": 1.9127069771,
+          "change_pct": 97.580737008
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 1.1105202403,
+          "ratio_lv2": 1.320542869,
+          "change_pct": 18.9120937282
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B12",
+          "drone_id": "drone_5",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 1.6037069842,
+          "ratio_lv2": 2.7435889499,
+          "change_pct": 71.0779448447
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B14",
+          "drone_id": "drone_4",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 0.8535613708,
+          "ratio_lv2": 0.927866336,
+          "change_pct": 8.7052867777
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "ratio_lv1": 1.4496844824,
+          "ratio_lv2": 1.0210210069,
+          "change_pct": -29.5694325681
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "ratio_lv1": 1.1296374346,
+          "ratio_lv2": 0.822278221,
+          "change_pct": -27.2086604257
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "ratio_lv1": 1.3561741071,
+          "ratio_lv2": 1.4748010901,
+          "change_pct": 8.7471794621
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_diamond_75_tail_lv1_003/wind_tunnel_diamond_75_tail_lv1_003_20260903_201918_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_tail_lv2_001/wind_tunnel_diamond_75_tail_lv2_001_20260906_200048_all_coordination.csv",
+          "ratio_lv1": 1.0797357187,
+          "ratio_lv2": 0.6703708442,
+          "change_pct": -37.9134326504
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "ratio_lv1": 1.0674315497,
+          "ratio_lv2": 1.0445997373,
+          "change_pct": -2.1389486171
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "high",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "ratio_lv1": 0.6609035245,
+          "ratio_lv2": 0.9173790745,
+          "change_pct": 38.8068062133
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 0.8439763651,
+          "ratio_lv2": 1.059504878,
+          "change_pct": 25.5372687902
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 0.9829988287,
+          "ratio_lv2": 1.0067077131,
+          "change_pct": 2.4118934591
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B12",
+          "drone_id": "drone_5",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 1.0870347448,
+          "ratio_lv2": 1.1856515573,
+          "change_pct": 9.0720938741
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B13",
+          "drone_id": "drone_3",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 0.990492656,
+          "ratio_lv2": 0.962800572,
+          "change_pct": -2.7957889239
+        },
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B14",
+          "drone_id": "drone_4",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_head_lv1_003/wind_tunnel_front_75_head_lv1_003_20260829_234550_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_head_lv2_001/wind_tunnel_front_75_head_lv2_001_20260830_175248_all_coordination.csv",
+          "ratio_lv1": 0.8706418263,
+          "ratio_lv2": 0.8762771557,
+          "change_pct": 0.647261502
+        },
+        {
+          "wind_direction": "head",
+          "formation": "vee",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_vee_75_head_lv1_002/wind_tunnel_vee_75_head_lv1_002_20260830_203852_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_vee_75_head_lv2_004/wind_tunnel_vee_75_head_lv2_004_20260830_223455_all_coordination.csv",
+          "ratio_lv1": 0.9863407816,
+          "ratio_lv2": 0.9667547158,
+          "change_pct": -1.9857301009
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "ratio_lv1": 0.9182234549,
+          "ratio_lv2": 0.9524794109,
+          "change_pct": 3.7306775198
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "ratio_lv1": 0.9131180273,
+          "ratio_lv2": 0.938894026,
+          "change_pct": 2.8228550934
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B13",
+          "drone_id": "drone_3",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "ratio_lv1": 0.8402389358,
+          "ratio_lv2": 1.0008021063,
+          "change_pct": 19.1092275741
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B14",
+          "drone_id": "drone_4",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_side_lv1_001/wind_tunnel_diamond_75_side_lv1_001_20260905_183241_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_side_lv2_001/wind_tunnel_diamond_75_side_lv2_001_20260905_194111_all_coordination.csv",
+          "ratio_lv1": 0.7489229639,
+          "ratio_lv2": 0.9040515886,
+          "change_pct": 20.713562307
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "ratio_lv1": 0.8646903273,
+          "ratio_lv2": 0.8908800645,
+          "change_pct": 3.0287996021
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "ratio_lv1": 0.9938133868,
+          "ratio_lv2": 1.0538656893,
+          "change_pct": 6.042613569
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B12",
+          "drone_id": "drone_5",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "ratio_lv1": 1.036670045,
+          "ratio_lv2": 0.9823047278,
+          "change_pct": -5.2442257256
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B13",
+          "drone_id": "drone_3",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "ratio_lv1": 1.0198849677,
+          "ratio_lv2": 0.9487458613,
+          "change_pct": -6.9752088324
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B14",
+          "drone_id": "drone_4",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_side_lv1_001/wind_tunnel_front_75_side_lv1_001_20260904_201507_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_side_lv2_001/wind_tunnel_front_75_side_lv2_001_20260904_215451_all_coordination.csv",
+          "ratio_lv1": 0.9204438299,
+          "ratio_lv2": 0.818818169,
+          "change_pct": -11.0409410689
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_tail_lv1_003/wind_tunnel_diamond_75_tail_lv1_003_20260903_201918_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_tail_lv2_001/wind_tunnel_diamond_75_tail_lv2_001_20260906_200048_all_coordination.csv",
+          "ratio_lv1": 0.8079573459,
+          "ratio_lv2": 0.8892116013,
+          "change_pct": 10.0567506241
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_tail_lv1_003/wind_tunnel_diamond_75_tail_lv1_003_20260903_201918_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_tail_lv2_001/wind_tunnel_diamond_75_tail_lv2_001_20260906_200048_all_coordination.csv",
+          "ratio_lv1": 0.876189907,
+          "ratio_lv2": 0.8998173328,
+          "change_pct": 2.6966101254
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B12",
+          "drone_id": "drone_5",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_diamond_75_tail_lv1_003/wind_tunnel_diamond_75_tail_lv1_003_20260903_201918_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_diamond_75_tail_lv2_001/wind_tunnel_diamond_75_tail_lv2_001_20260906_200048_all_coordination.csv",
+          "ratio_lv1": 0.8864692713,
+          "ratio_lv2": 1.0097323496,
+          "change_pct": 13.904946541
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "echelon",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_echelon_75_tail_lv1_002/wind_tunnel_echelon_75_tail_lv1_002_20260906_212911_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_echalon_75_tail_lv2_003/wind_tunnel_echalon_75_tail_lv2_003_20260906_225344_all_coordination.csv",
+          "ratio_lv1": 0.8296429692,
+          "ratio_lv2": 0.7965505399,
+          "change_pct": -3.9887554661
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "echelon",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_echelon_75_tail_lv1_002/wind_tunnel_echelon_75_tail_lv1_002_20260906_212911_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_echalon_75_tail_lv2_003/wind_tunnel_echalon_75_tail_lv2_003_20260906_225344_all_coordination.csv",
+          "ratio_lv1": 0.9038267105,
+          "ratio_lv2": 0.8903738425,
+          "change_pct": -1.4884344314
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "echelon",
+          "spacing_cm": 75,
+          "battery_id": "B13",
+          "drone_id": "drone_3",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_echelon_75_tail_lv1_002/wind_tunnel_echelon_75_tail_lv1_002_20260906_212911_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_echalon_75_tail_lv2_003/wind_tunnel_echalon_75_tail_lv2_003_20260906_225344_all_coordination.csv",
+          "ratio_lv1": 0.8131108526,
+          "ratio_lv2": 0.8083641251,
+          "change_pct": -0.5837737205
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "echelon",
+          "spacing_cm": 75,
+          "battery_id": "B14",
+          "drone_id": "drone_4",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_echelon_75_tail_lv1_002/wind_tunnel_echelon_75_tail_lv1_002_20260906_212911_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_echalon_75_tail_lv2_003/wind_tunnel_echalon_75_tail_lv2_003_20260906_225344_all_coordination.csv",
+          "ratio_lv1": 0.7682429634,
+          "ratio_lv2": 0.7369988351,
+          "change_pct": -4.0669592587
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "ratio_lv1": 1.034442935,
+          "ratio_lv2": 0.9921188199,
+          "change_pct": -4.0914886326
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "ratio_lv1": 0.9627444468,
+          "ratio_lv2": 0.9173240853,
+          "change_pct": -4.7178004115
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B12",
+          "drone_id": "drone_5",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "ratio_lv1": 1.0936604253,
+          "ratio_lv2": 0.9458716249,
+          "change_pct": -13.5132255832
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B13",
+          "drone_id": "drone_3",
+          "stage": "low",
+          "source_lv1": "database/wind_tunnel_front_75_tail_lv1_001/wind_tunnel_front_75_tail_lv1_001_20260903_172757_all_coordination.csv",
+          "source_lv2": "database/wind_tunnel_front_75_tail_lv2_002/wind_tunnel_front_75_tail_lv2_002_20260903_185706_all_coordination.csv",
+          "ratio_lv1": 1.0884796339,
+          "ratio_lv2": 0.840904089,
+          "change_pct": -22.7450782836
+        }
+      ],
+      "expanded_conditions": [
+        {
+          "stage": "high",
+          "condition": "Front / Head / 75 cm",
+          "pairs": 4,
+          "median_change_pct": 44.9950192864,
+          "min_change_pct": 8.7052867777,
+          "max_change_pct": 97.580737008,
+          "positive": 4,
+          "negative": 0
+        },
+        {
+          "stage": "high",
+          "condition": "Diamond / Side / 75 cm",
+          "pairs": 2,
+          "median_change_pct": -28.3890464969,
+          "min_change_pct": -29.5694325681,
+          "max_change_pct": -27.2086604257,
+          "positive": 0,
+          "negative": 2
+        },
+        {
+          "stage": "high",
+          "condition": "Front / Side / 75 cm",
+          "pairs": 1,
+          "median_change_pct": 8.7471794621,
+          "min_change_pct": 8.7471794621,
+          "max_change_pct": 8.7471794621,
+          "positive": 1,
+          "negative": 0
+        },
+        {
+          "stage": "high",
+          "condition": "Diamond / Tail / 75 cm",
+          "pairs": 1,
+          "median_change_pct": -37.9134326504,
+          "min_change_pct": -37.9134326504,
+          "max_change_pct": -37.9134326504,
+          "positive": 0,
+          "negative": 1
+        },
+        {
+          "stage": "high",
+          "condition": "Front / Tail / 75 cm",
+          "pairs": 2,
+          "median_change_pct": 18.3339287981,
+          "min_change_pct": -2.1389486171,
+          "max_change_pct": 38.8068062133,
+          "positive": 1,
+          "negative": 1
+        },
+        {
+          "stage": "low",
+          "condition": "Front / Head / 75 cm",
+          "pairs": 5,
+          "median_change_pct": 2.4118934591,
+          "min_change_pct": -2.7957889239,
+          "max_change_pct": 25.5372687902,
+          "positive": 4,
+          "negative": 1
+        },
+        {
+          "stage": "low",
+          "condition": "Vee / Head / 75 cm",
+          "pairs": 1,
+          "median_change_pct": -1.9857301009,
+          "min_change_pct": -1.9857301009,
+          "max_change_pct": -1.9857301009,
+          "positive": 0,
+          "negative": 1
+        },
+        {
+          "stage": "low",
+          "condition": "Diamond / Side / 75 cm",
+          "pairs": 4,
+          "median_change_pct": 11.4199525469,
+          "min_change_pct": 2.8228550934,
+          "max_change_pct": 20.713562307,
+          "positive": 4,
+          "negative": 0
+        },
+        {
+          "stage": "low",
+          "condition": "Front / Side / 75 cm",
+          "pairs": 5,
+          "median_change_pct": -5.2442257256,
+          "min_change_pct": -11.0409410689,
+          "max_change_pct": 6.042613569,
+          "positive": 2,
+          "negative": 3
+        },
+        {
+          "stage": "low",
+          "condition": "Diamond / Tail / 75 cm",
+          "pairs": 3,
+          "median_change_pct": 10.0567506241,
+          "min_change_pct": 2.6966101254,
+          "max_change_pct": 13.904946541,
+          "positive": 3,
+          "negative": 0
+        },
+        {
+          "stage": "low",
+          "condition": "Echelon / Tail / 75 cm",
+          "pairs": 4,
+          "median_change_pct": -2.7385949487,
+          "min_change_pct": -4.0669592587,
+          "max_change_pct": -0.5837737205,
+          "positive": 0,
+          "negative": 4
+        },
+        {
+          "stage": "low",
+          "condition": "Front / Tail / 75 cm",
+          "pairs": 4,
+          "median_change_pct": -9.1155129973,
+          "min_change_pct": -22.7450782836,
+          "max_change_pct": -4.0914886326,
+          "positive": 0,
+          "negative": 4
+        }
+      ],
+      "common_low": [
+        {
+          "wind_direction": "head",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "included": false,
+          "reason": "Common pre-landing Low spans less than 10 percentage points",
+          "lower_start_soc": null,
+          "end_soc": null,
+          "ratio_lv1": null,
+          "ratio_lv2": null,
+          "change_pct": null
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "included": true,
+          "reason": "Matched battery, matched SOC window; before first landing in both flights",
+          "lower_start_soc": 56.0,
+          "end_soc": 38.0,
+          "ratio_lv1": 0.8591811261,
+          "ratio_lv2": 0.8642204957,
+          "change_pct": 0.5865316931
+        },
+        {
+          "wind_direction": "side",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "included": true,
+          "reason": "Matched battery, matched SOC window; before first landing in both flights",
+          "lower_start_soc": 51.0,
+          "end_soc": 41.0,
+          "ratio_lv1": 0.8553847565,
+          "ratio_lv2": 0.7998979337,
+          "change_pct": -6.48676778
+        },
+        {
+          "wind_direction": "side",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "included": false,
+          "reason": "No Low before first landing",
+          "lower_start_soc": null,
+          "end_soc": null,
+          "ratio_lv1": null,
+          "ratio_lv2": null,
+          "change_pct": null
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "diamond",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "included": false,
+          "reason": "Common pre-landing Low spans less than 10 percentage points",
+          "lower_start_soc": null,
+          "end_soc": null,
+          "ratio_lv1": null,
+          "ratio_lv2": null,
+          "change_pct": null
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B10",
+          "drone_id": "drone_2",
+          "included": true,
+          "reason": "Matched battery, matched SOC window; before first landing in both flights",
+          "lower_start_soc": 56.0,
+          "end_soc": 46.0,
+          "ratio_lv1": 0.8516452504,
+          "ratio_lv2": 0.7926479546,
+          "change_pct": -6.9274496287
+        },
+        {
+          "wind_direction": "tail",
+          "formation": "front",
+          "spacing_cm": 75,
+          "battery_id": "B11",
+          "drone_id": "drone_1",
+          "included": false,
+          "reason": "Common pre-landing Low spans less than 10 percentage points",
+          "lower_start_soc": null,
+          "end_soc": null,
+          "ratio_lv1": null,
+          "ratio_lv2": null,
+          "change_pct": null
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "primary",
+      "label": "Matched complete wind-tunnel curves",
+      "path": "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/matched_comparison.sql",
+      "query": {
+        "engine": "SQLite (in-memory)",
+        "language": "sql",
+        "sql": "SELECT a.wind_direction,a.formation,a.spacing_cm,a.battery_id,a.drone_id,\n a.source AS source_lv1,b.source AS source_lv2,\n a.experiment_id AS experiment_lv1,b.experiment_id AS experiment_lv2,\n a.run_id AS run_lv1,b.run_id AS run_lv2,\n a.high_k/a.medium_k AS high_ratio_lv1,b.high_k/b.medium_k AS high_ratio_lv2,\n a.low_k/a.medium_k AS low_ratio_lv1,b.low_k/b.medium_k AS low_ratio_lv2,\n 100.0*((b.high_k/b.medium_k)/(a.high_k/a.medium_k)-1.0) AS high_change_pct,\n 100.0*((b.low_k/b.medium_k)/(a.low_k/a.medium_k)-1.0) AS low_change_pct,\n 100.0*(b.high_raw_rate_pp_min/a.high_raw_rate_pp_min-1.0) AS high_rate_change_pct,\n 100.0*(b.medium_raw_rate_pp_min/a.medium_raw_rate_pp_min-1.0) AS medium_rate_change_pct,\n 100.0*(b.low_raw_rate_pp_min/a.low_raw_rate_pp_min-1.0) AS low_rate_change_pct,\n a.high_starts_after_all_ready AND b.high_starts_after_all_ready AS both_high_after_ready,\n a.low_ends_before_first_landing AND b.low_ends_before_first_landing AS both_full_low_before_landing,\n a.low_after_first_landing_fraction AS low_after_landing_fraction_lv1,\n b.low_after_first_landing_fraction AS low_after_landing_fraction_lv2\nFROM full_curves a JOIN full_curves b\n ON a.wind_direction=b.wind_direction AND a.formation=b.formation\n AND a.spacing_cm=b.spacing_cm AND a.battery_id=b.battery_id AND a.drone_id=b.drone_id\nWHERE a.wind_level=1 AND b.wind_level=2\nORDER BY a.wind_direction,a.formation,a.spacing_cm,a.battery_id",
+        "executed_at": "2026-09-08T16:07:46.228067+00:00",
+        "description": "full_curves is loaded from the frozen first-drop recalculation paired_ratios.csv. Matches the same wind direction, formation, spacing, drone and battery across Lv1 and Lv2. SOC-stage ratios and between-level changes are computed by this executed query.",
+        "tables_used": [
+          "full_curves",
+          "analysis_results/wind_tunnel_stage_ratio_check_20260909/first_drop_recalculation/paired_ratios.csv"
+        ],
+        "filters": [
+          "Complete 99%–20% observed curves from the prior audited cohort",
+          "Only identical configuration and physical battery pairs",
+          "Lv1 versus Lv2; no synthetic samples"
+        ],
+        "metric_definitions": {
+          "ratio_change": "100 * ((rate_stage / rate_medium)_Lv2 / (rate_stage / rate_medium)_Lv1 - 1)",
+          "positive": "The stage/Medium ratio is larger at Lv2; not necessarily a larger raw discharge rate"
+        }
+      }
+    },
+    {
+      "id": "extended",
+      "label": "Complete stage-pair sensitivity audit",
+      "path": "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/summary.json",
+      "query": {
+        "engine": "SQLite (in-memory); Python telemetry extraction and descriptive summaries",
+        "language": "sql",
+        "sql": "SELECT a.wind_direction,a.formation,a.spacing_cm,a.battery_id,a.drone_id,a.stage,\n      a.source AS source_lv1,b.source AS source_lv2,a.ratio AS ratio_lv1,b.ratio AS ratio_lv2,\n      100.0*(b.ratio/a.ratio-1.0) AS change_pct\n      FROM expanded_stage_pairs a JOIN expanded_stage_pairs b\n      ON a.wind_direction=b.wind_direction AND a.formation=b.formation AND a.spacing_cm=b.spacing_cm\n      AND a.battery_id=b.battery_id AND a.drone_id=b.drone_id AND a.stage=b.stage\n      WHERE a.wind_level=1 AND b.wind_level=2\n      ORDER BY a.stage,a.wind_direction,a.formation,a.battery_id",
+        "executed_at": "2026-09-08T16:07:46.228067+00:00",
+        "description": "expanded_stage_pairs is loaded from expanded_stage_pairs.csv. The source-flight scan accepts complete High+Medium or Medium+Low even if the third stage is absent. Matching and ratio changes are independently recomputed here; summary.json preserves exclusions and source hashes.",
+        "tables_used": [
+          "expanded_stage_pairs",
+          "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/expanded_stage_pairs.csv",
+          "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/expanded_source_audit.csv",
+          "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/common_prelanding_low.csv",
+          "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/no_wind_comparisons.csv",
+          "database/experiment_registry.json"
+        ],
+        "filters": [
+          "Five drones reached hover; known battery/drone baseline pairs",
+          "No prepare/merged/outlier files",
+          "Complete pair of stages; telemetry and within-window fault QA"
+        ],
+        "metric_definitions": {
+          "change_pct": "100 * (stage_to_medium_ratio_Lv2 / stage_to_medium_ratio_Lv1 - 1)",
+          "replicate_cell": "Same wind direction, level, formation, spacing, physical drone, battery and stage-pair, in more than one source flight"
+        }
+      }
+    }
+  ]
+}

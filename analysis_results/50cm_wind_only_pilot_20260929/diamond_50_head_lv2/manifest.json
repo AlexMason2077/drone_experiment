@@ -1,0 +1,33 @@
+{
+  "status": "wind_only_single_condition_pilot_awaiting_review",
+  "condition_id": "diamond_50_head_lv2",
+  "source_experiment": "wind_tunnel_diamond_50_head_lv2_002",
+  "input_sha256": {
+    "database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv": "8797f9ba585076ea919945e1b4908d3a7d32edc8243852504048bcf97af5829b",
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "analysis_results/wind_tunnel_three_stage_rate_first_corrected_20260929/wind_tunnel_diamond_50_head_lv2_002/stage_rates.csv": "08ff6b16de73e77ee46427516ac76612cd3084ddf5a7390758823f19442e4581",
+    "battery_normalization.py": "53143559c73306a7ac78b03e1123783cc7d7af1accbf57c16d58077e4400f6de",
+    "TRAINING_EXCLUSIONS.md": "81ba056a6492061350d4f83276611467048f7c1aeb99f7d7d0d5f0515e8aa997",
+    "output_py/fit_50cm_wind_only_pilot.py": "3a921747290c6c95ac74ad068627b39c7d138fab8ae42e31ca29cb3647a513ca",
+    "output_py/process_50cm_stage_curves.py": "e3b6fa2a0868db107c2e300b228db863a02e33d06fd0c79639fafa2505c6fda0"
+  },
+  "normalization_model_version": "individual_three_stage_v3_extended100_with_B15_20260909",
+  "reference_boundaries": [
+    100.0,
+    82.0,
+    52.0,
+    20.0
+  ],
+  "included_protocols": [
+    "wind_tunnel"
+  ],
+  "forward_250cm_results_used": false,
+  "averaging_applied": false,
+  "bulk_processing_paused": true,
+  "modeled_rows": 2,
+  "modeled_high_policy": "P3/P4 use corresponding wind-only Medium relative drain factor",
+  "initial_plateau_policy": "Remove initial constant hovering SOC period; retain later integer-SOC plateaus",
+  "time_definition": "Reference 100→82→52→20 stage time computed from fixed normalized rates",
+  "raw_diagnostic_figure_in_dataset": false,
+  "active_training_dataset_modified": false
+}

@@ -1,0 +1,93 @@
+{
+  "status": "pooled_reference_oracle_answers_generated_no_model_trained",
+  "source_files_sha256": {
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/forward_discharge_rate_modeling/selected_runs_by_database_cell.csv": "6d5f14675810a12b264d1dace361da07849b71140f20e286137a41f263adfb8a",
+    "/Users/alexmason/Downloads/drone_experiment/analysis_outputs/forward_discharge_rate_modeling/forward_discharge_rate_run_drone.csv": "0ce465bf26316560f066daac5cbdaf3abccea7ab327b09c9f4c6866d615fca3c"
+  },
+  "code_sha256": {
+    "ml_policy/build_real_medium_oracle_answers.py": "20f26709656f4e25742cb69d4b9efd4ee581ed0e1338798deba4f70b2dfcc703",
+    "ml_policy/build_real_medium_training_labels.py": "173f3a5ffbeee208a9e38dd4d5cad5a01f3f27228c021e096eeca668dcd24c3a",
+    "ml_policy/charging_model.py": "7576770d762f21d9a06dcbbe2c6223485351b8829cd0550fe434a182a9292764",
+    "ml_policy/oracle_optimizer.py": "4c0d76472b9fa309cf2f68b3d89d75fd73abc3ca004f992a2ed8df62e99c8b32"
+  },
+  "source_run_count": 134,
+  "source_drone_rows": 670,
+  "quality_policy": "safety_only_keep_qc_warnings",
+  "rate_reference_runs": 134,
+  "clean_rate_reference_runs": 113,
+  "qc_flagged_reference_runs": 21,
+  "rate_reference_cells": 55,
+  "counts": {
+    "all_state_rows": 670,
+    "oracle_answer_available": 670,
+    "time_gap_available": 670,
+    "source_trial_time_available": 665,
+    "training_eligible": 670,
+    "covers_all_safe_structures": 565,
+    "reference_metadata_warning": 355,
+    "candidate_evaluations": 741600,
+    "valid_candidate_evaluations": 737520
+  },
+  "exclusion_counts_nonexclusive": {},
+  "feature_names": [
+    "wind_head",
+    "wind_side",
+    "wind_tail",
+    "wind_level",
+    "pad_availability_ratio",
+    "soc_d1_ratio",
+    "soc_d2_ratio",
+    "soc_d3_ratio",
+    "soc_d4_ratio",
+    "soc_d5_ratio",
+    "formation_column",
+    "formation_diamond",
+    "formation_echelon",
+    "formation_front",
+    "formation_vee",
+    "spacing_ratio",
+    "assigned_Bideal_rate_d1",
+    "assigned_Bideal_rate_d2",
+    "assigned_Bideal_rate_d3",
+    "assigned_Bideal_rate_d4",
+    "assigned_Bideal_rate_d5",
+    "battery_scale_d1",
+    "battery_scale_d2",
+    "battery_scale_d3",
+    "battery_scale_d4",
+    "battery_scale_d5"
+  ],
+  "recommended_regression_target": "target_log1p_time_gap",
+  "target_definition": "log1p(current_total_time_min - best_total_time_min), NOT scheduling lower-bound residual",
+  "best_label_definition": "all best_tied_configurations; one deterministic representative in best_configuration",
+  "time_units": "minutes",
+  "position_definition": "array index=drone1..5, value=assigned slot1..5, NOT mission pad ID",
+  "assumptions": {
+    "flight_seconds": 25.0,
+    "remaining_distance_cm": 250,
+    "speed_cm_per_s": 10,
+    "medium_soc_interval": [
+      40,
+      75
+    ],
+    "charging_target_soc": 99.0,
+    "zero_to_target_charge_minutes": 90.0,
+    "rate_estimator": "per-slot equal-weight mean over complete selected source runs admitted by quality_policy in same wind/level/formation/spacing",
+    "battery_transfer": "physical_rate = assigned_Bideal_rate / own_battery_scale",
+    "scheduling": "exact non-preemptive identical-pad makespan; all pads initially available; no charge switching/setup overhead",
+    "mission": "25/60 + charging makespan; no formation-change travel overhead"
+  },
+  "validation_scope": "Calculation labels for current pooled reference only; not held-out accuracy evidence.",
+  "split_warning": "Do not randomly split K variants or candidate audit rows. Group original trial/session. Reference currently includes all selected runs; refit reference/calibration on training-only data before independent real-data validation. Synthetic validation using this same reference only checks agreement with this oracle.",
+  "limitations": [
+    "134 selected processed medium forward runs are the input scope, not all raw flights or wind-tunnel/high/low experiments.",
+    "Missing/unsafe structures are excluded explicitly. Best/worst are only over supported feasible configurations.",
+    "QC flags are warnings only under safety_only_keep_qc_warnings; conservative mode excludes them from references and training. Numerical/domain checks remain in both modes.",
+    "Retaining a flagged measurement does not establish its accuracy. Zero fitted SOC slopes are retained as estimates in safety-only mode, not proof of zero physical consumption.",
+    "Current pooled time and source-trial time are different estimates; time_gap uses only pooled time to ensure fair comparisons.",
+    "Metadata mismatches are retained as warnings; labels are provisional pending source reconciliation.",
+    "Single-run rate cells are retained as in the approved example; uncertainty is not resolved by enumeration.",
+    "Position-transfer assumptions and shared exponential charging law are model assumptions, not measured swapped flights/charging times.",
+    "Existing calibration extends below medium; source forward clocks were individually cleaned, not certified common 25-second measured windows."
+  ]
+}

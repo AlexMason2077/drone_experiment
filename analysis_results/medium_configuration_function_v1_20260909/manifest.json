@@ -1,0 +1,110 @@
+{
+  "source_version": "medium_forward_bideal_v3_with_b15_20260909",
+  "source_summary": {
+    "original_runs": 134,
+    "original_drone_records": 670,
+    "included_drone_records": 630,
+    "included_distinct_runs": 134,
+    "status_counts": {
+      "included": 630,
+      "no_forward_time_in_own_medium": 40
+    },
+    "condition_rows": 55,
+    "complete_five_position_rows": 55,
+    "available_position_rates": 275,
+    "missing_position_rates": 0,
+    "short_medium_records": 99,
+    "flat_medium_records": 17,
+    "upward_step_records": 0,
+    "partial_medium_records": 151,
+    "median_medium_forward_duration_s": 24.439
+  },
+  "preprocessed_configuration_count": 55,
+  "candidate_evaluations": 275,
+  "input_states": 30,
+  "unsafe_excluded": [
+    [
+      "head",
+      2,
+      "column",
+      50
+    ],
+    [
+      "side",
+      2,
+      "column",
+      50
+    ],
+    [
+      "side",
+      2,
+      "diamond",
+      50
+    ],
+    [
+      "tail",
+      2,
+      "diamond",
+      50
+    ]
+  ],
+  "missing_safe_configurations": [
+    [
+      "side",
+      1,
+      "column",
+      50
+    ]
+  ],
+  "preprocessing": "Bideal rate * 25/60 -> normalized drop; 75 - drop -> arrival; source SOC/timestamps untouched",
+  "assumptions": {
+    "reference_soc_preprocessing": 75,
+    "Bideal_middle_band": [
+      52.0,
+      82.0
+    ],
+    "flight_distance_cm": 250,
+    "flight_duration_seconds": 25.0,
+    "batteries": "five equivalent Bideal batteries; not five physical batteries at merely equal displayed percentages",
+    "position_assignment": "identity retained; permutations are time-equivalent under equal SOC and identical charging assumptions",
+    "charging_model": "existing exponential model",
+    "charging_target_soc": 99.0,
+    "zero_to_target_minutes": 90.0,
+    "charging_pads": "1..5 identical pads, all available on arrival, one drone per pad at a time, non-preemptive charging",
+    "charging_completion": "minimum time until every drone has completed charging; do not sum individual waiting times again",
+    "ground_wait": "no battery drain while waiting on the ground",
+    "switching": "not included; configuration is chosen before this segment",
+    "objective": "single standardized flight segment + subsequent whole-swarm charging completion; not a global multi-segment optimum",
+    "evidence": "unchanged equal-run mean Medium discharge rates; source short, partial, flat, and low-count warnings retained; no new filters",
+    "source_coverage": "observed real forward-flight candidates only; no simulated or invented missing configurations",
+    "total_time": "computed from empirical discharge rates and an assumed charging model, not directly measured total mission time"
+  },
+  "source_sha256": {
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/manifest.json": "45a1f817265556e9fad6afb4c8fb45460629fd88fc7acd178929e841a1348cdd",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/discharge_rates_wide.csv": "b914d59b16606f2a7fae30916321b43aea51392be65708f41e44123f75b5ff69",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/sample_counts_wide.csv": "70e549e5470f2527071ff67a0bfead980013b1759092ab647e7c9cf9eee21a2c",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/run_drone_rates.csv": "99d27578e809994ae26000760f803b2f0fce67d98c4a27851096ef494749d827",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/coverage.csv": "bbec37fd8b1e08bfca39278446d0a0d0a43713316e06d755c373a72b8ded1ba2",
+    "frozen_data/discharge_rates/medium_bideal_v1_20260908/manifest.json": "6094b92fc916d63c2e06f55d44eb8997aad8da70ab41989fe70c34f92593f09a",
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "ml_policy/charging_model.py": "6e0e3bedd3931750a91982e0af324b81d9e7a78e04673ab5fea0b3e66a5956a8",
+    "ml_policy/oracle_optimizer.py": "4c0d76472b9fa309cf2f68b3d89d75fd73abc3ca004f992a2ed8df62e99c8b32",
+    "output_py/build_medium_configuration_function.py": "540df86bd2e2e91ed379a8c65df0d1a1a7ae476170ef4dddf176cab1aa1c2fac",
+    "ml_policy/medium_configuration_function.py": "76a7986a33d51dc7979567d2021002622a45179458c7709ee62ce20a8b269067"
+  },
+  "verification": {
+    "all_mean_rates_and_position_counts_reconciled": true,
+    "all_reference_arrivals_in_Bideal_middle_band": true,
+    "all_schedules_independently_exhaustively_verified": true,
+    "each_drone_assigned_once": true,
+    "all_charging_job_loads_conserved": true,
+    "charging_formula_independently_verified": true,
+    "input_sources_unchanged": true
+  },
+  "output_sha256": {
+    "preprocessed_75pct_250cm.csv": "196323c9261ad26a1885a471fd9777ecdfc3b8885d0cb39777108b35928ad4e5",
+    "decision_function.json": "702f783506f015d244b76d077113b45a2915facf153d8350698d9776b00512c0",
+    "candidate_rankings.csv": "b11cf02eab285005a26831ba37c751544674f886d5efc2050c1c602f767e1525",
+    "decision_table.csv": "b7eabae52ba8137e00beb10a80c2db7c4fb4ad853ca3b2763a4fb63e13a6e29d"
+  }
+}

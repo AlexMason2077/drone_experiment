@@ -1,0 +1,23 @@
+{
+  "source_model_unchanged": true,
+  "source_model_sha256": "92c2b585077e37dbd8653a60b30528a78f45e8ea3cf51c9258145ded1d1f7346",
+  "model_sha256": "440c952aa6aeeb39c7852387b46e1d10f3d0378f01269eac003654950ce18572",
+  "six_curves_extended": true,
+  "all_slopes_and_internal_knots_unchanged": true,
+  "max_original_domain_time_shift_error_s": 5.684341886080802e-14,
+  "calibrated_soc_range": [
+    20,
+    95
+  ],
+  "supported_soc_range": [
+    20,
+    100
+  ],
+  "synthetic_sample_rows": 486,
+  "new_top_interval_rows": 30,
+  "actual_observation_rows_added": 0,
+  "raw_data_modified": false,
+  "flight_or_active_rate_tables_modified": false,
+  "extrapolation_flags_verified": true,
+  "example_role": "synthetic software check, not a flight or validation sample"
+}

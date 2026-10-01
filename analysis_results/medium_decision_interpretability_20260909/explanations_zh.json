@@ -1,0 +1,602 @@
+{
+  "1|head|1": {
+    "input": {
+      "charging_pad_availability": 1,
+      "wind_direction": "head",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 322.07979722443883,
+    "explanation_zh": "选择 **front 75 cm**，计算总时间为 **322.08 分钟**，比第二名 echelon 75 cm 少 219.51 秒。在这一充电位数量下，关键是五架无人机充电时间的总和；最后完成的充电位承担 P1、P2、P3、P4、P5。\n\n从布局看，Front 横向展开，避免无人机沿来流方向连续串列；相较 Column，少了连续的前后机尾流相遇，同时横向距离仍会改变相邻旋翼的来流。遮挡减少的阻力与尾流造成的推力变化需要一起考虑。\n\n与 echelon 75 cm 相比，front 75 cm 的计算总时间减少 219.51 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 9.687 个百分点，对方为 14.601 个百分点，较低 33.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P3+P4+P5，充电 321.66 分钟；对方承担 P1+P2+P3+P4+P5，充电 325.32 分钟。两者间距相同。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "2|head|1": {
+    "input": {
+      "charging_pad_availability": 2,
+      "wind_direction": "head",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 190.76563958696497,
+    "explanation_zh": "选择 **front 75 cm**，计算总时间为 **190.77 分钟**，比第二名 front 50 cm 少 169.77 秒。在这一充电位数量下，关键是共享充电位上三个较短任务的总时间；最后完成的充电位承担 P1、P3、P4。\n\n从布局看，Front 横向展开，避免无人机沿来流方向连续串列；相较 Column，少了连续的前后机尾流相遇，同时横向距离仍会改变相邻旋翼的来流。遮挡减少的阻力与尾流造成的推力变化需要一起考虑。\n\n与 column 50 cm 相比，front 75 cm 的计算总时间减少 189.94 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 9.687 个百分点，对方为 15.014 个百分点，较低 35.5%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P3+P4，充电 190.35 分钟；对方承担 P1+P4+P5，充电 193.51 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "3|head|1": {
+    "input": {
+      "charging_pad_availability": 3,
+      "wind_direction": "head",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 128.80034502123908,
+    "explanation_zh": "选择 **front 75 cm**，计算总时间为 **128.80 分钟**，比第二名 column 50 cm 少 73.28 秒。在这一充电位数量下，关键是优化分组后，两组双机充电任务中较长的一组；最后完成的充电位承担 P3、P5。\n\n从布局看，Front 横向展开，避免无人机沿来流方向连续串列；相较 Column，少了连续的前后机尾流相遇，同时横向距离仍会改变相邻旋翼的来流。遮挡减少的阻力与尾流造成的推力变化需要一起考虑。\n\n与 column 50 cm 相比，front 75 cm 的计算总时间减少 73.28 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 9.687 个百分点，对方为 15.014 个百分点，较低 35.5%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P3+P5，充电 128.38 分钟；对方承担 P4+P5，充电 129.60 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "4|head|1": {
+    "input": {
+      "charging_pad_availability": 4,
+      "wind_direction": "head",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 127.07056994967918,
+    "explanation_zh": "选择 **front 75 cm**，计算总时间为 **127.07 分钟**，比第二名 front 50 cm 少 94.77 秒。在这一充电位数量下，关键是两个最短任务共享充电位的时间；最后完成的充电位承担 P1、P3。\n\n从布局看，Front 横向展开，避免无人机沿来流方向连续串列；相较 Column，少了连续的前后机尾流相遇，同时横向距离仍会改变相邻旋翼的来流。遮挡减少的阻力与尾流造成的推力变化需要一起考虑。\n\n与 column 50 cm 相比，front 75 cm 的计算总时间减少 101.33 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 9.687 个百分点，对方为 15.014 个百分点，较低 35.5%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P3，充电 126.65 分钟；对方承担 P1+P5，充电 128.34 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "5|head|1": {
+    "input": {
+      "charging_pad_availability": 5,
+      "wind_direction": "head",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 65.88335011999298,
+    "explanation_zh": "选择 **echelon 75 cm**，计算总时间为 **65.88 分钟**，比第二名 vee 75 cm 少 27.19 秒。在这一充电位数量下，关键是最长的单机充电时间；最后完成的充电位承担 P4。\n\nEchelon 在前后错开的同时增加横向偏移，可使后方旋翼避开部分直接下洗流，并改变其接触尾流核心或边缘的方式。这会改变维持推力所需的电机输出以及各位置之间的负担分布。\n\n与 vee 75 cm 相比，echelon 75 cm 的计算总时间减少 27.19 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 14.601 个百分点，对方为 17.351 个百分点，较低 15.9%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P4，充电 65.47 分钟；对方承担 P5，充电 65.92 分钟。两者间距相同。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "1|head|2": {
+    "input": {
+      "charging_pad_availability": 1,
+      "wind_direction": "head",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 324.1076562462778,
+    "explanation_zh": "选择 **echelon 75 cm**，计算总时间为 **324.11 分钟**，比第二名 echelon 50 cm 少 42.77 秒。在这一充电位数量下，关键是五架无人机充电时间的总和；最后完成的充电位承担 P1、P2、P3、P4、P5。\n\nEchelon 在前后错开的同时增加横向偏移，可使后方旋翼避开部分直接下洗流，并改变其接触尾流核心或边缘的方式。这会改变维持推力所需的电机输出以及各位置之间的负担分布。\n\n与 front 50 cm 相比，echelon 75 cm 的计算总时间减少 49.13 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.314 个百分点，对方为 13.621 个百分点，较低 9.6%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P3+P4+P5，充电 323.69 分钟；对方承担 P1+P2+P3+P4+P5，充电 324.51 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "2|head|2": {
+    "input": {
+      "charging_pad_availability": 2,
+      "wind_direction": "head",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 193.1591860290842,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **193.16 分钟**，比第二名 echelon 50 cm 少 14.63 秒。在这一充电位数量下，关键是共享充电位上三个较短任务的总时间；最后完成的充电位承担 P1、P3、P5。\n\n从布局看，Front 横向展开，避免无人机沿来流方向连续串列；相较 Column，少了连续的前后机尾流相遇，同时横向距离仍会改变相邻旋翼的来流。遮挡减少的阻力与尾流造成的推力变化需要一起考虑。\n\n与 echelon 50 cm 相比，front 50 cm 的计算总时间减少 14.63 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 13.621 个百分点，对方为 13.428 个百分点，较高 1.4%。这组比较中，总时间优势来自充电负担的分布，而不是全队耗电更少。最终完成充电的充电位分别承担 P1+P3+P5，充电 192.74 分钟；对方承担 P1+P2+P3，充电 192.99 分钟。两者间距相同。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "3|head|2": {
+    "input": {
+      "charging_pad_availability": 3,
+      "wind_direction": "head",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 129.4352429199963,
+    "explanation_zh": "选择 **echelon 50 cm**，计算总时间为 **129.44 分钟**，比第二名 echelon 75 cm 少 14.44 秒。在这一充电位数量下，关键是优化分组后，两组双机充电任务中较长的一组；最后完成的充电位承担 P2、P3。\n\nEchelon 在前后错开的同时增加横向偏移，可使后方旋翼避开部分直接下洗流，并改变其接触尾流核心或边缘的方式。这会改变维持推力所需的电机输出以及各位置之间的负担分布。\n\n与 front 50 cm 相比，echelon 50 cm 的计算总时间减少 23.06 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 13.428 个百分点，对方为 13.621 个百分点，较低 1.4%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P2+P3，充电 129.02 分钟；对方承担 P1+P5，充电 129.40 分钟。两者间距相同。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "4|head|2": {
+    "input": {
+      "charging_pad_availability": 4,
+      "wind_direction": "head",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 127.92262428503219,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **127.92 分钟**，比第二名 echelon 50 cm 少 36.48 秒。在这一充电位数量下，关键是两个最短任务共享充电位的时间；最后完成的充电位承担 P3、P5。\n\n从布局看，Front 横向展开，避免无人机沿来流方向连续串列；相较 Column，少了连续的前后机尾流相遇，同时横向距离仍会改变相邻旋翼的来流。遮挡减少的阻力与尾流造成的推力变化需要一起考虑。\n\n与 echelon 50 cm 相比，front 50 cm 的计算总时间减少 36.48 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 13.621 个百分点，对方为 13.428 个百分点，较高 1.4%。这组比较中，总时间优势来自充电负担的分布，而不是全队耗电更少。最终完成充电的充电位分别承担 P3+P5，充电 127.51 分钟；对方承担 P1+P3，充电 128.11 分钟。两者间距相同。 [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "5|head|2": {
+    "input": {
+      "charging_pad_availability": 5,
+      "wind_direction": "head",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 65.85052023334825,
+    "explanation_zh": "选择 **echelon 75 cm**，计算总时间为 **65.85 分钟**，比第二名 diamond 50 cm 少 32.39 秒。在这一充电位数量下，关键是最长的单机充电时间；最后完成的充电位承担 P2。\n\nEchelon 在前后错开的同时增加横向偏移，可使后方旋翼避开部分直接下洗流，并改变其接触尾流核心或边缘的方式。这会改变维持推力所需的电机输出以及各位置之间的负担分布。\n\n与 diamond 50 cm 相比，echelon 75 cm 的计算总时间减少 32.39 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.314 个百分点，对方为 15.341 个百分点，较低 19.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P2，充电 65.43 分钟；对方承担 P2，充电 65.97 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "1|side|1": {
+    "input": {
+      "charging_pad_availability": 1,
+      "wind_direction": "side",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 325.0512817893376,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **325.05 分钟**，比第二名 diamond 75 cm 少 112.15 秒。在这一充电位数量下，关键是五架无人机充电时间的总和；最后完成的充电位承担 P1、P2、P3、P4、P5。\n\n侧风下，Front 横排沿侧向来流形成前后遮挡关系；迎风侧无人机能为后方位置提供一定遮挡，同时也改变后方旋翼来流。因此既要看抗风需求，也要看尾流与位置修正带来的负担。\n\n与 diamond 75 cm 相比，front 50 cm 的计算总时间减少 112.15 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 13.689 个百分点，对方为 16.439 个百分点，较低 16.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P3+P4+P5，充电 324.63 分钟；对方承担 P1+P2+P3+P4+P5，充电 326.50 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "2|side|1": {
+    "input": {
+      "charging_pad_availability": 2,
+      "wind_direction": "side",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 194.01299144777266,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **194.01 分钟**，比第二名 diamond 75 cm 少 31.16 秒。在这一充电位数量下，关键是共享充电位上三个较短任务的总时间；最后完成的充电位承担 P3、P4、P5。\n\n侧风下，Front 横排沿侧向来流形成前后遮挡关系；迎风侧无人机能为后方位置提供一定遮挡，同时也改变后方旋翼来流。因此既要看抗风需求，也要看尾流与位置修正带来的负担。\n\n与 diamond 75 cm 相比，front 50 cm 的计算总时间减少 31.16 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 13.689 个百分点，对方为 16.439 个百分点，较低 16.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P3+P4+P5，充电 193.60 分钟；对方承担 P1+P3+P5，充电 194.12 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "3|side|1": {
+    "input": {
+      "charging_pad_availability": 3,
+      "wind_direction": "side",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 129.68159166529054,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **129.68 分钟**，比第二名 diamond 75 cm 少 50.15 秒。在这一充电位数量下，关键是优化分组后，两组双机充电任务中较长的一组；最后完成的充电位承担 P3、P5。\n\n侧风下，Front 横排沿侧向来流形成前后遮挡关系；迎风侧无人机能为后方位置提供一定遮挡，同时也改变后方旋翼来流。因此既要看抗风需求，也要看尾流与位置修正带来的负担。\n\n与 diamond 75 cm 相比，front 50 cm 的计算总时间减少 50.15 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 13.689 个百分点，对方为 16.439 个百分点，较低 16.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P3+P5，充电 129.26 分钟；对方承担 P1+P5，充电 130.10 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "4|side|1": {
+    "input": {
+      "charging_pad_availability": 4,
+      "wind_direction": "side",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "diamond",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 129.06623084555272,
+    "explanation_zh": "选择 **diamond 75 cm**，计算总时间为 **129.07 分钟**，比第二名 front 50 cm 少 5.92 秒。在这一充电位数量下，关键是两个最短任务共享充电位的时间；最后完成的充电位承担 P3、P5。\n\nDiamond 同时具有中心、前后和横向位置，遮挡与尾流相互作用分布在多个方向。某些位置较低的负担可以改善共享充电位的排程，但并不代表每个位置都更省电。\n\n与 front 50 cm 相比，diamond 75 cm 的计算总时间减少 5.92 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 16.439 个百分点，对方为 13.689 个百分点，较高 20.1%。这组比较中，总时间优势来自充电负担的分布，而不是全队耗电更少。最终完成充电的充电位分别承担 P3+P5，充电 128.65 分钟；对方承担 P3+P4，充电 128.75 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "5|side|1": {
+    "input": {
+      "charging_pad_availability": 5,
+      "wind_direction": "side",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "column",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 66.56394390741183,
+    "explanation_zh": "选择 **column 75 cm**，计算总时间为 **66.56 分钟**，比第二名 front 50 cm 少 1.50 秒。在这一充电位数量下，关键是最长的单机充电时间；最后完成的充电位承担 P1。\n\nColumn 纵向排布时，相对于侧风的横向分量，各机更接近并排受风，减少连续沿侧风方向的遮挡链与尾流串列作用。这种布局更适合从最不利位置的负担来分析，而不能只看全队平均耗电。\n\n与 front 50 cm 相比，column 75 cm 的计算总时间减少 1.50 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 16.650 个百分点，对方为 13.689 个百分点，较高 21.6%。这组比较中，总时间优势来自充电负担的分布，而不是全队耗电更少。最终完成充电的充电位分别承担 P1，充电 66.15 分钟；对方承担 P2，充电 66.17 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "1|side|2": {
+    "input": {
+      "charging_pad_availability": 1,
+      "wind_direction": "side",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 324.0880256865826,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **324.09 分钟**，比第二名 echelon 50 cm 少 3.04 秒。在这一充电位数量下，关键是五架无人机充电时间的总和；最后完成的充电位承担 P1、P2、P3、P4、P5。\n\n侧风下，Front 横排沿侧向来流形成前后遮挡关系；迎风侧无人机能为后方位置提供一定遮挡，同时也改变后方旋翼来流。因此既要看抗风需求，也要看尾流与位置修正带来的负担。\n\n与 echelon 50 cm 相比，front 50 cm 的计算总时间减少 3.04 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.252 个百分点，对方为 12.409 个百分点，较低 1.3%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P3+P4+P5，充电 323.67 分钟；对方承担 P1+P2+P3+P4+P5，充电 323.72 分钟。两者间距相同。 [R5](https://arxiv.org/abs/2003.02992) [R7](https://arxiv.org/abs/2011.06766)"
+  },
+  "2|side|2": {
+    "input": {
+      "charging_pad_availability": 2,
+      "wind_direction": "side",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 193.5311825965474,
+    "explanation_zh": "选择 **echelon 50 cm**，计算总时间为 **193.53 分钟**，比第二名 front 50 cm 少 49.05 秒。在这一充电位数量下，关键是共享充电位上三个较短任务的总时间；最后完成的充电位承担 P1、P3、P5。\n\nEchelon 的斜向错位使相邻无人机在侧风方向和横向都存在偏移，与 Front 的直线遮挡不同；它改变各位置接收到的尾流及需要补偿的力和力矩，因而可能产生明显低耗电的位置。\n\n与 front 50 cm 相比，echelon 50 cm 的计算总时间减少 49.05 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.409 个百分点，对方为 12.252 个百分点，较高 1.3%。这组比较中，总时间优势来自充电负担的分布，而不是全队耗电更少。最终完成充电的充电位分别承担 P1+P3+P5，充电 193.11 分钟；对方承担 P1+P3+P4，充电 193.93 分钟。两者间距相同。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R5](https://arxiv.org/abs/2003.02992) [R7](https://arxiv.org/abs/2011.06766)"
+  },
+  "3|side|2": {
+    "input": {
+      "charging_pad_availability": 3,
+      "wind_direction": "side",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 129.84215788716855,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **129.84 分钟**，比第二名 echelon 50 cm 少 15.60 秒。在这一充电位数量下，关键是优化分组后，两组双机充电任务中较长的一组；最后完成的充电位承担 P1、P2。\n\n侧风下，Front 横排沿侧向来流形成前后遮挡关系；迎风侧无人机能为后方位置提供一定遮挡，同时也改变后方旋翼来流。因此既要看抗风需求，也要看尾流与位置修正带来的负担。\n\n与 echelon 50 cm 相比，front 50 cm 的计算总时间减少 15.60 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.252 个百分点，对方为 12.409 个百分点，较低 1.3%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2，充电 129.43 分钟；对方承担 P1+P5，充电 129.69 分钟。两者间距相同。 [R5](https://arxiv.org/abs/2003.02992) [R7](https://arxiv.org/abs/2011.06766)"
+  },
+  "4|side|2": {
+    "input": {
+      "charging_pad_availability": 4,
+      "wind_direction": "side",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 128.62899033955065,
+    "explanation_zh": "选择 **echelon 50 cm**，计算总时间为 **128.63 分钟**，比第二名 front 75 cm 少 44.93 秒。在这一充电位数量下，关键是两个最短任务共享充电位的时间；最后完成的充电位承担 P1、P3。\n\nEchelon 的斜向错位使相邻无人机在侧风方向和横向都存在偏移，与 Front 的直线遮挡不同；它改变各位置接收到的尾流及需要补偿的力和力矩，因而可能产生明显低耗电的位置。\n\n与 front 75 cm 相比，echelon 50 cm 的计算总时间减少 44.93 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.409 个百分点，对方为 17.006 个百分点，较低 27.0%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P3，充电 128.21 分钟；对方承担 P3+P5，充电 128.96 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R5](https://arxiv.org/abs/2003.02992) [R7](https://arxiv.org/abs/2011.06766)"
+  },
+  "5|side|2": {
+    "input": {
+      "charging_pad_availability": 5,
+      "wind_direction": "side",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "front",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 65.32189275424132,
+    "explanation_zh": "选择 **front 50 cm**，计算总时间为 **65.32 分钟**，比第二名 echelon 50 cm 少 38.10 秒。在这一充电位数量下，关键是最长的单机充电时间；最后完成的充电位承担 P5。\n\n侧风下，Front 横排沿侧向来流形成前后遮挡关系；迎风侧无人机能为后方位置提供一定遮挡，同时也改变后方旋翼来流。因此既要看抗风需求，也要看尾流与位置修正带来的负担。\n\n与 echelon 50 cm 相比，front 50 cm 的计算总时间减少 38.10 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 12.252 个百分点，对方为 12.409 个百分点，较低 1.3%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P5，充电 64.91 分钟；对方承担 P4，充电 65.54 分钟。两者间距相同。 [R5](https://arxiv.org/abs/2003.02992) [R7](https://arxiv.org/abs/2011.06766)"
+  },
+  "1|tail|1": {
+    "input": {
+      "charging_pad_availability": 1,
+      "wind_direction": "tail",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "vee",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 325.86009945563194,
+    "explanation_zh": "选择 **vee 50 cm**，计算总时间为 **325.86 分钟**，比第二名 diamond 75 cm 少 9.37 秒。在这一充电位数量下，关键是五架无人机充电时间的总和；最后完成的充电位承担 P1、P2、P3、P4、P5。\n\n顺风下，Vee 两臂相对于来流的前后关系与逆风不同，遮挡及尾流接触位置随之变化。这里还必须结合 P2 接近零的整数 SOC 差值理解：这个小数值参与计算，但不是该位置不消耗实际能量。\n\n与 diamond 75 cm 相比，vee 50 cm 的计算总时间减少 9.37 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 15.046 个百分点，对方为 15.047 个百分点，较低 0.008%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P3+P4+P5，充电 325.44 分钟；对方承担 P1+P2+P3+P4+P5，充电 325.60 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "2|tail|1": {
+    "input": {
+      "charging_pad_availability": 2,
+      "wind_direction": "tail",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "vee",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 193.62835695741603,
+    "explanation_zh": "选择 **vee 50 cm**，计算总时间为 **193.63 分钟**，比第二名 diamond 75 cm 少 50.36 秒。在这一充电位数量下，关键是共享充电位上三个较短任务的总时间；最后完成的充电位承担 P1、P2、P5。\n\n顺风下，Vee 两臂相对于来流的前后关系与逆风不同，遮挡及尾流接触位置随之变化。这里还必须结合 P2 接近零的整数 SOC 差值理解：这个小数值参与计算，但不是该位置不消耗实际能量。\n\n与 diamond 75 cm 相比，vee 50 cm 的计算总时间减少 50.36 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 15.046 个百分点，对方为 15.047 个百分点，较低 0.008%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P5，充电 193.21 分钟；对方承担 P3+P4+P5，充电 194.05 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "3|tail|1": {
+    "input": {
+      "charging_pad_availability": 3,
+      "wind_direction": "tail",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "diamond",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 130.51517090135783,
+    "explanation_zh": "选择 **diamond 75 cm**，计算总时间为 **130.52 分钟**，比第二名 vee 50 cm 少 11.98 秒。在这一充电位数量下，关键是优化分组后，两组双机充电任务中较长的一组；最后完成的充电位承担 P2、P3。\n\nDiamond 将位置同时分布在前后和两侧，改变顺风下的遮挡与旋翼来流，使最耗电位置与低耗电位置的分布不同于 Vee 或 Column。判断其优势要看充电瓶颈是否降低。\n\n与 vee 50 cm 相比，diamond 75 cm 的计算总时间减少 11.98 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 15.047 个百分点，对方为 15.046 个百分点，较高 0.008%。这组比较中，总时间优势来自充电负担的分布，而不是全队耗电更少。最终完成充电的充电位分别承担 P2+P3，充电 130.10 分钟；对方承担 P1+P5，充电 130.30 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "4|tail|1": {
+    "input": {
+      "charging_pad_availability": 4,
+      "wind_direction": "tail",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "vee",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 128.3073818204989,
+    "explanation_zh": "选择 **vee 50 cm**，计算总时间为 **128.31 分钟**，比第二名 column 75 cm 少 61.77 秒。在这一充电位数量下，关键是两个最短任务共享充电位的时间；最后完成的充电位承担 P2、P5。\n\n顺风下，Vee 两臂相对于来流的前后关系与逆风不同，遮挡及尾流接触位置随之变化。这里还必须结合 P2 接近零的整数 SOC 差值理解：这个小数值参与计算，但不是该位置不消耗实际能量。\n\n与 column 75 cm 相比，vee 50 cm 的计算总时间减少 61.77 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 15.046 个百分点，对方为 16.427 个百分点，较低 8.4%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P2+P5，充电 127.89 分钟；对方承担 P3+P4，充电 128.92 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "5|tail|1": {
+    "input": {
+      "charging_pad_availability": 5,
+      "wind_direction": "tail",
+      "wind_strength": "low"
+    },
+    "configuration": {
+      "formation": "diamond",
+      "inter_drone_spacing_cm": 75,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 66.27232757181773,
+    "explanation_zh": "选择 **diamond 75 cm**，计算总时间为 **66.27 分钟**，比第二名 column 75 cm 少 17.67 秒。在这一充电位数量下，关键是最长的单机充电时间；最后完成的充电位承担 P1。\n\nDiamond 将位置同时分布在前后和两侧，改变顺风下的遮挡与旋翼来流，使最耗电位置与低耗电位置的分布不同于 Vee 或 Column。判断其优势要看充电瓶颈是否降低。\n\n与 column 75 cm 相比，diamond 75 cm 的计算总时间减少 17.67 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 15.047 个百分点，对方为 16.427 个百分点，较低 8.4%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1，充电 65.86 分钟；对方承担 P2，充电 66.15 分钟。两者间距相同。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R7](https://arxiv.org/abs/2011.06766) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "1|tail|2": {
+    "input": {
+      "charging_pad_availability": 1,
+      "wind_direction": "tail",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "column",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 323.33186939055145,
+    "explanation_zh": "选择 **column 50 cm**，计算总时间为 **323.33 分钟**，比第二名 echelon 50 cm 少 165.16 秒。在这一充电位数量下，关键是五架无人机充电时间的总和；最后完成的充电位承担 P1、P2、P3、P4、P5。\n\nColumn 在纵向形成连续遮挡，也使各位置依次受到前方机体与尾流影响。遮挡与不均匀旋翼来流共同作用，可以形成部分位置负担低、个别位置负担高的分布；顺风时不能照搬逆风的领航机解释。\n\n与 echelon 50 cm 相比，column 50 cm 的计算总时间减少 165.16 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 11.432 个百分点，对方为 15.174 个百分点，较低 24.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P1+P2+P3+P4+P5，充电 322.92 分钟；对方承担 P1+P2+P3+P4+P5，充电 325.67 分钟。两者间距相同。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R5](https://arxiv.org/abs/2003.02992) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "2|tail|2": {
+    "input": {
+      "charging_pad_availability": 2,
+      "wind_direction": "tail",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "column",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 191.99625874907505,
+    "explanation_zh": "选择 **column 50 cm**，计算总时间为 **192.00 分钟**，比第二名 vee 50 cm 少 149.12 秒。在这一充电位数量下，关键是共享充电位上三个较短任务的总时间；最后完成的充电位承担 P3、P4、P5。\n\nColumn 在纵向形成连续遮挡，也使各位置依次受到前方机体与尾流影响。遮挡与不均匀旋翼来流共同作用，可以形成部分位置负担低、个别位置负担高的分布；顺风时不能照搬逆风的领航机解释。\n\n与 vee 50 cm 相比，column 50 cm 的计算总时间减少 149.12 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 11.432 个百分点，对方为 16.553 个百分点，较低 30.9%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P3+P4+P5，充电 191.58 分钟；对方承担 P1+P3+P4，充电 194.06 分钟。两者间距相同。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "3|tail|2": {
+    "input": {
+      "charging_pad_availability": 3,
+      "wind_direction": "tail",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "column",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 128.77830265561306,
+    "explanation_zh": "选择 **column 50 cm**，计算总时间为 **128.78 分钟**，比第二名 vee 50 cm 少 87.29 秒。在这一充电位数量下，关键是优化分组后，两组双机充电任务中较长的一组；最后完成的充电位承担 P4、P5。\n\nColumn 在纵向形成连续遮挡，也使各位置依次受到前方机体与尾流影响。遮挡与不均匀旋翼来流共同作用，可以形成部分位置负担低、个别位置负担高的分布；顺风时不能照搬逆风的领航机解释。\n\n与 vee 50 cm 相比，column 50 cm 的计算总时间减少 87.29 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 11.432 个百分点，对方为 16.553 个百分点，较低 30.9%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P4+P5，充电 128.36 分钟；对方承担 P4+P5，充电 129.82 分钟。两者间距相同。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "4|tail|2": {
+    "input": {
+      "charging_pad_availability": 4,
+      "wind_direction": "tail",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "column",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 127.44868757444912,
+    "explanation_zh": "选择 **column 50 cm**，计算总时间为 **127.45 分钟**，比第二名 echelon 50 cm 少 113.24 秒。在这一充电位数量下，关键是两个最短任务共享充电位的时间；最后完成的充电位承担 P3、P4。\n\nColumn 在纵向形成连续遮挡，也使各位置依次受到前方机体与尾流影响。遮挡与不均匀旋翼来流共同作用，可以形成部分位置负担低、个别位置负担高的分布；顺风时不能照搬逆风的领航机解释。\n\n与 echelon 50 cm 相比，column 50 cm 的计算总时间减少 113.24 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 11.432 个百分点，对方为 15.174 个百分点，较低 24.7%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P3+P4，充电 127.03 分钟；对方承担 P3+P4，充电 128.92 分钟。两者间距相同。 [R4](https://hiperlab.berkeley.edu/wp-content/uploads/2019/05/Modeling_of_aerodynamic_disturbances_for_proximity_flight_of_multirotors.pdf) [R5](https://arxiv.org/abs/2003.02992) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  },
+  "5|tail|2": {
+    "input": {
+      "charging_pad_availability": 5,
+      "wind_direction": "tail",
+      "wind_strength": "high"
+    },
+    "configuration": {
+      "formation": "echalon",
+      "inter_drone_spacing_cm": 50,
+      "position_assignment": {
+        "drone_1": 1,
+        "drone_2": 2,
+        "drone_3": 3,
+        "drone_4": 4,
+        "drone_5": 5
+      }
+    },
+    "total_time_minutes": 66.20968293824679,
+    "explanation_zh": "选择 **echelon 50 cm**，计算总时间为 **66.21 分钟**，比第二名 diamond 75 cm 少 0.68 秒。在这一充电位数量下，关键是最长的单机充电时间；最后完成的充电位承担 P2。\n\nEchelon 的侧向错位改变顺风搬运的尾流与相邻旋翼相遇的位置。相比直线 Column，这种几何变化可以重新分配各机负担，尤其影响最大耗电率及最后完成充电的无人机。\n\n与 diamond 75 cm 相比，echelon 50 cm 的计算总时间减少 0.68 秒。25 秒内五架无人机的标准化 SOC 消耗之和为 15.174 个百分点，对方为 17.026 个百分点，较低 10.9%。这组比较中，总时间优势伴随着更低的全队标准化耗电。最终完成充电的充电位分别承担 P2，充电 65.79 分钟；对方承担 P2，充电 65.80 分钟。这组比较同时改变了队形和间距；另附相同间距的比较表。 [R5](https://arxiv.org/abs/2003.02992) [R6](https://link.springer.com/article/10.1007/s00348-024-03880-3) [R10](https://elib.dlr.de/207785/1/s9.pdf)"
+  }
+}

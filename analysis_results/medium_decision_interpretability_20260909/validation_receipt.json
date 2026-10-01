@@ -1,0 +1,27 @@
+{
+  "validation": {
+    "ok": true,
+    "surface": "report",
+    "title": "Why each Medium configuration is selected",
+    "dataset_count": 13,
+    "source_count": 14
+  },
+  "render": {
+    "ok": true,
+    "surface": "report",
+    "widget_type": "artifact"
+  },
+  "verification": {
+    "unit_tests_passed": 44,
+    "computed_candidate_schedules_checked": 275,
+    "unchanged_decisions": 30,
+    "source_and_output_hashes": "passed",
+    "cross_formation_comparisons_checked": 120,
+    "matched_spacing_comparisons_checked": 99,
+    "paper_figure_cells_checked": 30,
+    "paper_figure_pdf": "One page, 180 x 111 mm, vector graphics with embedded TrueType text; no raster image objects",
+    "paper_figure_visual_inspection": "Inspected the final PDF rasterized at 180 dpi and the exported 600 dpi PNG; labels, coordinates, spacing and clipping checked",
+    "visual_inspection": "MCP render accepted. Independent MCP screenshot inspection was not performed; the separately requested paper figure received direct visual QA."
+  },
+  "scope": "Interpretation artifacts, cross-formation comparisons and paper decision map; no original experiments, frozen decisions or flight-control changes."
+}

@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "independent_residual_checks": 15,
+  "source_run_count": 5,
+  "excluded_run_absent": true,
+  "active_model_changed": false
+}

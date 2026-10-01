@@ -1,0 +1,5 @@
+stage,mode,flights,same_fastest,same_order,leader_still_top2,leader_within5pct_of_fastest,leader_within10pct_of_fastest,top_two_within2pct,median_rank_correlation,median_fastest_over_medium_leader_pct
+high,Bideal,2,1,0,2,1,1,0,0.05,30.234855633
+high,raw,2,0,0,1,0,0,0,-0.65,74.2856391115
+low,Bideal,11,2,0,3,6,9,9,0.1,4.49354620666
+low,raw,11,10,0,11,11,11,2,0.2,0

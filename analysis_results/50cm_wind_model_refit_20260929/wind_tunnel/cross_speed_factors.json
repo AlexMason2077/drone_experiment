@@ -1,0 +1,66 @@
+[
+  {
+    "family": "echalon_50_head",
+    "reliable_medium_pair_count": 0,
+    "paired_positions": [],
+    "paired_l2_over_l1_rates": [],
+    "empirical_medium_ratio": null,
+    "applied_l2_over_l1_rate_multiplier": 1.0526315789473684,
+    "source": "user_authorized_5_percent_L1_rate_reduction_scenario",
+    "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+  },
+  {
+    "family": "front_50_side",
+    "reliable_medium_pair_count": 5,
+    "paired_positions": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "paired_l2_over_l1_rates": [
+      1.1794341791557827,
+      1.146836595542936,
+      1.018981211717438,
+      1.1433470655120657,
+      1.0437019123976967
+    ],
+    "empirical_medium_ratio": 1.1433470655120657,
+    "applied_l2_over_l1_rate_multiplier": 1.1433470655120657,
+    "source": "same_family_reliable_Medium_pairs",
+    "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+  },
+  {
+    "family": "front_50_tail",
+    "reliable_medium_pair_count": 0,
+    "paired_positions": [],
+    "paired_l2_over_l1_rates": [],
+    "empirical_medium_ratio": null,
+    "applied_l2_over_l1_rate_multiplier": 1.0526315789473684,
+    "source": "user_authorized_5_percent_L1_rate_reduction_scenario",
+    "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+  },
+  {
+    "family": "vee_50_tail",
+    "reliable_medium_pair_count": 5,
+    "paired_positions": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "paired_l2_over_l1_rates": [
+      1.1332346148191463,
+      1.1040099636819924,
+      1.0576166524636372,
+      1.1494223351956177,
+      1.1589702105035264
+    ],
+    "empirical_medium_ratio": 1.1332346148191463,
+    "applied_l2_over_l1_rate_multiplier": 1.1332346148191463,
+    "source": "same_family_reliable_Medium_pairs",
+    "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "status": "passed_independent_offline_replay",
+  "baseline_model_unchanged": true,
+  "both_products_independent": true,
+  "averaging_applied": false,
+  "wind_observed_stages_replayed": 293,
+  "wind_replay_max_error_pp_min": 3.552713678800501e-15,
+  "wind_partial_stage_spans": 100,
+  "wind_drones_without_own_20_endpoint": [
+    {
+      "experiment_id": "wind_tunnel_front_50_tail_lv2_004",
+      "drone_name": "drone_1",
+      "observed_lower_soc": 38.0
+    }
+  ],
+  "forward_transfer_and_normalization_verified": true,
+  "active_training_unchanged": true,
+  "interrupted_attempt_selection_checked": true,
+  "interrupted_attempts_with_hover_SOC_30_or_lower": 0,
+  "plots_visually_inspected": [
+    "diamond_50_head_lv2_forward_medium.png",
+    "diamond_50_head_lv2_wind_three_stage.png",
+    "50cm_wind_overview.png"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "audience": "technical",
+  "delivery": "mcp-app; HTML only after renderer failure",
+  "snapshot": "2026-09-09T07:13:13.339997+00:00",
+  "scope": "Current 30 Medium decisions; no Overleaf edits, original data edits, flight changes or new ML training",
+  "required_structure_mapping": {
+    "title": "title",
+    "technical_summary": "summary",
+    "definitions": "baseline/labels",
+    "method": "math",
+    "findings": "map and six wind sections",
+    "uncertainty": "uncertainty/bootstrap/checks",
+    "next_steps": "next",
+    "further_questions": "Unresolved issues in next; no new user questions needed"
+  },
+  "chart_contract": {
+    "question": "How large are the five-pad decision margins?",
+    "family": "Comparison & Ranking",
+    "variant": "single-series vertical bars",
+    "grain": "six wind conditions, k=5",
+    "fields": [
+      "condition",
+      "gap_s"
+    ],
+    "sufficiency": "Six categorical comparisons, not a time trend",
+    "palette": "single blue root plus neutrals",
+    "non_color": "category labels and numeric value labels",
+    "footprint": "full report width",
+    "source": "Frozen decision table; contextual configuration, runner-up, trial count and resampling fields retained"
+  },
+  "omitted_other_charts": "All 30 decisions require exact lookup and prose; six repeated charts would duplicate the tables rather than explain the schedule.",
+  "source_limitations": "R1 abstract/project record only; R9 abstract/introduction only; all other cited sources full text inspected; no paywall circumvention",
+  "sensitivity": "Whole-trial bootstrap and deletion, calibration fixed; incomplete draws explicitly counted; not a formal significance claim",
+  "geometry": "No new wind-tunnel layout is assigned to historical forward-flight positions",
+  "revision": "Adds comparisons against all other formations at best and matched spacings; all 30 choices, numerical evidence and existing charts/tables retained. Paper decision map exported separately as explicitly requested.",
+  "cross_formation_comparisons": {
+    "decisions": 30,
+    "best_other_formation_comparisons": 120,
+    "matched_spacing_comparisons": 99,
+    "selected_has_lower_aggregate_discharge": 112,
+    "selected_wins_despite_higher_aggregate_discharge": 8
+  },
+  "publication_figure": "output/pdf/medium_configuration_decision_map.pdf; SVG, PNG, caption and LaTeX companion under output/figures",
+  "artifact_companion": "thesis_explanations.md is copy-ready text, not a second report rendering mode"
+}

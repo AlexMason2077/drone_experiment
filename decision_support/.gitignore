@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+data/sydney_osm.xml
+data/sydney_osm.json

@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "rate-first-corrected-trial",
+      "title": "先估计阶段耗电率，再计算参考曲线时间",
+      "queries": [
+        {
+          "id": "individual-window",
+          "source": {
+            "label": "wind_tunnel_diamond_50_head_lv2_002 · run 20260928_232343",
+            "filters": [
+              "实验：Diamond / 50 cm / Headwind / Level2",
+              "各机仅使用wind_tunnel_hover记录",
+              "从各机首次掉电至其自身首次实测20%",
+              "去除开头不掉电平台，保留后续整数SOC阶梯"
+            ],
+            "caveats": [
+              "保留其他无人机先降落后的本机悬停记录；这些后续区间不都代表五架同时悬停。"
+            ]
+          },
+          "rows": [
+            {
+              "position": 1,
+              "starting_post_drop_soc": 93,
+              "own_discharge_duration_s": 416.937,
+              "own_first_20_s": 439.49
+            },
+            {
+              "position": 2,
+              "starting_post_drop_soc": 86,
+              "own_discharge_duration_s": 351.041,
+              "own_first_20_s": 368.607
+            },
+            {
+              "position": 3,
+              "starting_post_drop_soc": 80,
+              "own_discharge_duration_s": 298.919,
+              "own_first_20_s": 324.855
+            },
+            {
+              "position": 4,
+              "starting_post_drop_soc": 77,
+              "own_discharge_duration_s": 289.038,
+              "own_first_20_s": 312.957
+            },
+            {
+              "position": 5,
+              "starting_post_drop_soc": 80,
+              "own_discharge_duration_s": 262.989,
+              "own_first_20_s": 288.817
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "starting_post_drop_soc",
+              "label": "首次掉电后的实测SOC（%）"
+            },
+            {
+              "field": "own_discharge_duration_s",
+              "label": "本机保留的实际耗电时长（秒）"
+            },
+            {
+              "field": "own_first_20_s",
+              "label": "本机达到20%的原始实验时间（秒）"
+            }
+          ]
+        },
+        {
+          "id": "battery-baseline",
+          "source": {
+            "label": "Bideal v3 with B15 · 20260909",
+            "caveats": [
+              "阶段实际耗电率先按各实体电池自己的基线阶段边界拟合，再与理想电池的对应阶段比较。",
+              "既有理想电池模型仍为冻结候选，本次未重新拟合或激活。"
+            ]
+          },
+          "summary": "标准化阶段率 = 实测阶段率 ÷ 本电池基线阶段率 × 理想电池对应阶段率。理想电池阶段分界保留82%与52%。"
+        },
+        {
+          "id": "stage-slopes-and-time",
+          "source": {
+            "label": "stage_rates.csv · rate-first corrected trial",
+            "caveats": [
+              "P3与P4缺少High观测，补齐假设为同位置High与Medium有相同的相对耗电因子。",
+              "P2和P5的High各只有两档实测SOC，斜率需要重复实验核对。",
+              "这是单组试处理，未加入训练。",
+              "模型100%至20%的时长与每机不同起始SOC的实际记录时长含义不同。"
+            ]
+          },
+          "summary": "各阶段独立加权直线拟合，保留斜率。连接时只计算阶段持续时间，不再联合改变斜率。",
+          "rows": [
+            {
+              "position": 1,
+              "stage": "High",
+              "normalized_rate_pp_min": 16.8162075712,
+              "observed_duration_s": 57.912,
+              "soc_levels": 12,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 64.2237552924
+            },
+            {
+              "position": 1,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 8.70370902185,
+              "observed_duration_s": 218.926,
+              "soc_levels": 32,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 206.808384274
+            },
+            {
+              "position": 1,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.8946384584,
+              "observed_duration_s": 149.938,
+              "soc_levels": 32,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 148.899095247
+            },
+            {
+              "position": 2,
+              "stage": "High",
+              "normalized_rate_pp_min": 19.1967627985,
+              "observed_duration_s": 5.937,
+              "soc_levels": 2,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 56.2594855881
+            },
+            {
+              "position": 2,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 10.1174813399,
+              "observed_duration_s": 191.84,
+              "soc_levels": 30,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 177.909890766
+            },
+            {
+              "position": 2,
+              "stage": "Low",
+              "normalized_rate_pp_min": 13.7174224166,
+              "observed_duration_s": 161.034,
+              "soc_levels": 37,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 139.967986819
+            },
+            {
+              "position": 3,
+              "stage": "High",
+              "normalized_rate_pp_min": 23.3066333755,
+              "observed_duration_s": 0.0,
+              "soc_levels": 0,
+              "origin": "modeled_missing_high_from_medium_relative_factor",
+              "model_stage_duration_s": 46.3387389591
+            },
+            {
+              "position": 3,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 10.5300398898,
+              "observed_duration_s": 165.807,
+              "soc_levels": 30,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 170.939523387
+            },
+            {
+              "position": 3,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.7570136721,
+              "observed_duration_s": 137.902,
+              "soc_levels": 32,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 150.505443464
+            },
+            {
+              "position": 4,
+              "stage": "High",
+              "normalized_rate_pp_min": 25.5726765087,
+              "observed_duration_s": 0.0,
+              "soc_levels": 0,
+              "origin": "modeled_missing_high_from_medium_relative_factor",
+              "model_stage_duration_s": 42.2325758367
+            },
+            {
+              "position": 4,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 11.553848185,
+              "observed_duration_s": 128.848,
+              "soc_levels": 22,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 155.792249575
+            },
+            {
+              "position": 4,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.8033957208,
+              "observed_duration_s": 164.009,
+              "soc_levels": 37,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 149.960216951
+            },
+            {
+              "position": 5,
+              "stage": "High",
+              "normalized_rate_pp_min": 28.5199859482,
+              "observed_duration_s": 4.792,
+              "soc_levels": 2,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 37.8681813505
+            },
+            {
+              "position": 5,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 9.17130210749,
+              "observed_duration_s": 155.921,
+              "soc_levels": 32,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 196.264388514
+            },
+            {
+              "position": 5,
+              "stage": "Low",
+              "normalized_rate_pp_min": 13.692902724,
+              "observed_duration_s": 106.097,
+              "soc_levels": 29,
+              "origin": "independent_time_weighted_raw_SOC_stage_regression",
+              "model_stage_duration_s": 140.218625569
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "stage",
+              "label": "阶段"
+            },
+            {
+              "field": "normalized_rate_pp_min",
+              "label": "标准化耗电率（百分点/分钟）"
+            },
+            {
+              "field": "observed_duration_s",
+              "label": "阶段观测时长（秒）"
+            },
+            {
+              "field": "soc_levels",
+              "label": "实测SOC等级数"
+            },
+            {
+              "field": "origin",
+              "label": "耗电率来源"
+            },
+            {
+              "field": "model_stage_duration_s",
+              "label": "参考曲线阶段时长（秒）"
+            }
+          ],
+          "methods": [
+            {
+              "language": "calculation",
+              "code": "T_stage（秒） = 60 × 参考阶段SOC跨度 / 标准化阶段率\nP1 Low: T = 60 × (52 − 20) / 12.8946384584 = 148.899095247 秒"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

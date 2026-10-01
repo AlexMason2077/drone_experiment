@@ -1,0 +1,7 @@
+{
+  "battery": "B13",
+  "baseline_95_to_81_s": 27.130000000000003,
+  "baseline_89_to_81_s": 15.071000000000002,
+  "wind_89_to_81_s": 77.946,
+  "interpretation": "Raw reported SOC already differs. This does not prove a physical energy cause or validate full-stage extrapolation."
+}

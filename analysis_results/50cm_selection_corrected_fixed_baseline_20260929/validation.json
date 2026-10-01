@@ -1,0 +1,18 @@
+{
+  "status": "passed_offline_checks_for_recovered_selection",
+  "sources_unchanged": true,
+  "fixed_september_baseline_unchanged": true,
+  "all_safe_conditions_have_collected_records": true,
+  "prior_stage_rates_unchanged": true,
+  "prior_curve_rate_max_error_pp_min": 7.105427357601002e-15,
+  "recovered_raw_WLS_replay_max_error_pp_min": 1.4210854715202004e-14,
+  "every_plotted_condition_has_five_positions": true,
+  "all_curves_have_three_stages": true,
+  "stage_time_slope_identity": true,
+  "excluded_conditions_absent": true,
+  "simulated_gap_rows_used": 0,
+  "user_confirmed_Level3_metadata_corrected_to_actual_Level2": true,
+  "actual_missing_sources_not_invented": true,
+  "original_raw_records_or_controller_changed": false,
+  "active_training_dataset_changed": false
+}

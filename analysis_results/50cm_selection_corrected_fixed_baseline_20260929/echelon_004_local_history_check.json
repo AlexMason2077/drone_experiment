@@ -1,0 +1,14 @@
+{
+  "experiment_id": "wind_tunnel_echalon_50_head_lv1_004",
+  "inspected_git_commit": "055cfeef",
+  "earliest_version_rows": 290,
+  "earliest_version_duration_s": 6.062,
+  "current_rows": 290,
+  "current_duration_s": 6.062,
+  "telemetry_clock_and_SOC_identical_to_earliest_version": true,
+  "all_current_phases": [
+    "wind_tunnel_takeoff"
+  ],
+  "full_hover_copy_found_in_local_git_history": false,
+  "conclusion": "Earliest saved version is already a short takeoff record; no evidence that a complete hover curve was later overwritten in local Git."
+}

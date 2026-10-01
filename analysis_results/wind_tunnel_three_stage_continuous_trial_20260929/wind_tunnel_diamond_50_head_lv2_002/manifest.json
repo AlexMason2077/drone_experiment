@@ -1,0 +1,494 @@
+{
+  "experiment_id": "wind_tunnel_diamond_50_head_lv2_002",
+  "run_id": "20260928_232343",
+  "source": "database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv",
+  "input_sha256": {
+    "database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv": "8797f9ba585076ea919945e1b4908d3a7d32edc8243852504048bcf97af5829b",
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "battery_normalization.py": "53143559c73306a7ac78b03e1123783cc7d7af1accbf57c16d58077e4400f6de",
+    "TRAINING_EXCLUSIONS.md": "81ba056a6492061350d4f83276611467048f7c1aeb99f7d7d0d5f0515e8aa997",
+    "database/experiment_registry.json": "abf3ae02fdacc3adcab05271a708271bcc7d2fe8558f7aada532a8c25ec6a5e1",
+    "output_py/fit_wind_tunnel_three_stage_continuous_trial.py": "9b0f1ac2bbd0c16476247816b853f5acf71eb7cec929fee57053c13200e9132f"
+  },
+  "reference_model_version": "individual_three_stage_v3_extended100_with_B15_20260909",
+  "reference_model_sha256": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "reference_model_status": "candidate_with_explicit_extrapolation_not_active_not_independently_validated",
+  "reference_frozen": true,
+  "source_rows": 20830,
+  "analysis_type": "single_run_pilot_not_active_training_data",
+  "experiment_type": "stationary_wind_tunnel_hover_not_forward_flight",
+  "reference_anchor_convention": "At the first retained post-drop sample, reference SOC equals the numerical measured SOC; this is an alignment convention, not a proof of absolute SOC equivalence",
+  "normalization": "Continuous equivalent-hover-time integration using own battery calibration then Bideal; x-axis is actual elapsed hovering time, not equivalent hovering time",
+  "plateau_policy": "Exclude takeoff/centering and initial unchanged-SOC hover plateau; start at the first observed decrease; exclude that first already-spent percentage point; keep subsequent integer-SOC plateaus",
+  "common_five_drone_window": {
+    "all_ready_s": 15.036,
+    "first_landing_s": 289.552,
+    "rule": "Only wind_tunnel_hover samples before the first drone starts landing"
+  },
+  "fit_method": "Initialize from individual stage regressions; jointly fit a continuous three-stage normalized SOC-time model with fixed 82/52 knots and first-drop SOC anchor. Time-weighted least squares, one trial; no repeated-trial average yet",
+  "missing_high_policy": "For this pilot only, inherit this position's fitted Medium relative drain factor and multiply by the frozen Bideal High rate; no synthetic points enter the fit",
+  "curve_definition": "A derived reference-battery model with three constant rates, continuous at 82 and 52, from 100 to 20. Model time differs from the original recorded flight duration",
+  "plot_extension_labels": false,
+  "training_eligibility": false,
+  "training_limitation": "P3-P5 have no observed High; P1 Low and P2 High have short/few-level support; repeated-trial consistency and missing-stage assumptions remain to be assessed",
+  "audit": [
+    {
+      "drone_id": "drone_1",
+      "battery_id": "B11",
+      "initial_takeoff_soc": 94.0,
+      "initial_hover_soc": 94.0,
+      "first_hover_s": 15.036,
+      "first_drop_s": 22.553,
+      "reference_start_soc": 93.0,
+      "initial_hover_plateau_removed_s": 7.517000000000001,
+      "excluded_pre_first_drop_s": 22.553,
+      "fit_end_s": 289.445,
+      "last_actual_soc_used": 52.0,
+      "last_reference_soc_used": 48.15247901305958,
+      "sample_count": 2520,
+      "floor_rejected_rows": 0,
+      "own_pad_fraction": 1.0,
+      "model_full_100_to_20_s": 345.6528134387001
+    },
+    {
+      "drone_id": "drone_2",
+      "battery_id": "B10",
+      "initial_takeoff_soc": 87.0,
+      "initial_hover_soc": 87.0,
+      "first_hover_s": 15.036,
+      "first_drop_s": 17.566,
+      "reference_start_soc": 86.0,
+      "initial_hover_plateau_removed_s": 2.5299999999999994,
+      "excluded_pre_first_drop_s": 17.566,
+      "fit_end_s": 289.445,
+      "last_actual_soc_used": 41.0,
+      "last_reference_soc_used": 32.31388140151933,
+      "sample_count": 2567,
+      "floor_rejected_rows": 0,
+      "own_pad_fraction": 1.0,
+      "model_full_100_to_20_s": 344.54160428066496
+    },
+    {
+      "drone_id": "drone_3",
+      "battery_id": "B13",
+      "initial_takeoff_soc": 81.0,
+      "initial_hover_soc": 81.0,
+      "first_hover_s": 15.036,
+      "first_drop_s": 25.936,
+      "reference_start_soc": 80.0,
+      "initial_hover_plateau_removed_s": 10.9,
+      "excluded_pre_first_drop_s": 25.936,
+      "fit_end_s": 289.445,
+      "last_actual_soc_used": 31.0,
+      "last_reference_soc_used": 24.666749550996098,
+      "sample_count": 2488,
+      "floor_rejected_rows": 0,
+      "own_pad_fraction": 0.9971864951768489,
+      "model_full_100_to_20_s": 331.875314054499
+    },
+    {
+      "drone_id": "drone_4",
+      "battery_id": "B14",
+      "initial_takeoff_soc": 79.0,
+      "initial_hover_soc": 78.0,
+      "first_hover_s": 15.036,
+      "first_drop_s": 23.919,
+      "reference_start_soc": 77.0,
+      "initial_hover_plateau_removed_s": 8.883000000000001,
+      "excluded_pre_first_drop_s": 23.919,
+      "fit_end_s": 289.445,
+      "last_actual_soc_used": 27.0,
+      "last_reference_soc_used": 21.801784258274893,
+      "sample_count": 2507,
+      "floor_rejected_rows": 0,
+      "own_pad_fraction": 1.0,
+      "model_full_100_to_20_s": 344.1240426787176
+    },
+    {
+      "drone_id": "drone_5",
+      "battery_id": "B12",
+      "initial_takeoff_soc": 81.0,
+      "initial_hover_soc": 81.0,
+      "first_hover_s": 15.036,
+      "first_drop_s": 25.828,
+      "reference_start_soc": 80.0,
+      "initial_hover_plateau_removed_s": 10.792,
+      "excluded_pre_first_drop_s": 25.828,
+      "fit_end_s": 289.445,
+      "last_actual_soc_used": 20.0,
+      "last_reference_soc_used": 30.676164878233934,
+      "sample_count": 2489,
+      "floor_rejected_rows": 0,
+      "own_pad_fraction": 1.0,
+      "model_full_100_to_20_s": 374.6520130462095
+    }
+  ],
+  "curves": {
+    "drone_1": {
+      "battery_id": "B11",
+      "reference_start_soc": 93.0,
+      "rates_pp_min": [
+        17.4246136556326,
+        8.24711406911027,
+        29.351802923004843
+      ],
+      "stages": [
+        {
+          "rate_pp_min": 17.4246136556326,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 93.0,
+          "last_normalized_soc": 82.98803714218833,
+          "observed_duration_s": 31.901,
+          "sample_count": 301,
+          "unique_raw_soc_levels": 8,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 20.614226484985743,
+          "independent_stage_rmse_pp": 0.5837056832819174,
+          "independent_stage_r_squared": 0.9670857301505433,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 1.3061167598443444
+        },
+        {
+          "rate_pp_min": 8.24711406911027,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 81.80019253927908,
+          "last_normalized_soc": 52.62877843708115,
+          "observed_duration_s": 217.944,
+          "sample_count": 2058,
+          "unique_raw_soc_levels": 31,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 8.387923183076786,
+          "independent_stage_rmse_pp": 0.5655633894037242,
+          "independent_stage_r_squared": 0.9958822933352225,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 0.6909836547646805
+        },
+        {
+          "rate_pp_min": 29.351802923004843,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 51.390320139143064,
+          "last_normalized_soc": 48.15247901305958,
+          "observed_duration_s": 16.83699999999999,
+          "sample_count": 161,
+          "unique_raw_soc_levels": 3,
+          "support_note": "short_or_few_levels",
+          "independent_stage_rate_pp_min": 15.746547542874218,
+          "independent_stage_rmse_pp": 0.4547644246500981,
+          "independent_stage_r_squared": 0.8872379990563783,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 1.0600562642859246
+        }
+      ],
+      "continuous_fit": {
+        "converged": true,
+        "function_evaluations": 15,
+        "observed_normalized_rmse_pp": 0.8157430857039653,
+        "initial_reference_soc": 93.0,
+        "fixed_start_anchor": true
+      },
+      "knots_time_s": [
+        0.0,
+        61.981288156187276,
+        280.2394551848132,
+        345.6528134387001
+      ],
+      "knots_reference_soc": [
+        100.0,
+        82.0,
+        52.0,
+        20.0
+      ]
+    },
+    "drone_2": {
+      "battery_id": "B10",
+      "reference_start_soc": 86.0,
+      "rates_pp_min": [
+        52.220525422539616,
+        10.248378857860802,
+        12.953494919250742
+      ],
+      "stages": [
+        {
+          "rate_pp_min": 52.220525422539616,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 86.0,
+          "last_normalized_soc": 82.06945560963169,
+          "observed_duration_s": 9.862000000000002,
+          "sample_count": 94,
+          "unique_raw_soc_levels": 3,
+          "support_note": "short_or_few_levels",
+          "independent_stage_rate_pp_min": 30.073311197244546,
+          "independent_stage_rmse_pp": 0.5807813901190175,
+          "independent_stage_r_squared": 0.8579115939299611,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 1.428100109828919
+        },
+        {
+          "rate_pp_min": 10.248378857860802,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 80.9024454317101,
+          "last_normalized_soc": 52.67907244512969,
+          "observed_duration_s": 162.93200000000002,
+          "sample_count": 1535,
+          "unique_raw_soc_levels": 26,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 9.94154047570555,
+          "independent_stage_rmse_pp": 0.5429355693951108,
+          "independent_stage_r_squared": 0.9951698897182096,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 0.6149042696389487
+        },
+        {
+          "rate_pp_min": 12.953494919250742,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 51.277934018236124,
+          "last_normalized_soc": 32.31388140151933,
+          "observed_duration_s": 98.874,
+          "sample_count": 938,
+          "unique_raw_soc_levels": 17,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 12.874114545904405,
+          "independent_stage_rmse_pp": 0.8350607387694109,
+          "independent_stage_r_squared": 0.9817476077613652,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 0.8131564254484739
+        }
+      ],
+      "continuous_fit": {
+        "converged": true,
+        "function_evaluations": 20,
+        "observed_normalized_rmse_pp": 0.7360111019602636,
+        "initial_reference_soc": 86.0,
+        "fixed_start_anchor": true
+      },
+      "knots_time_s": [
+        0.0,
+        20.681523045990772,
+        196.31905801273803,
+        344.54160428066496
+      ],
+      "knots_reference_soc": [
+        100.0,
+        82.0,
+        52.0,
+        20.0
+      ]
+    },
+    "drone_3": {
+      "battery_id": "B13",
+      "reference_start_soc": 80.0,
+      "rates_pp_min": [
+        26.17411759175086,
+        11.825581922563696,
+        13.87275263665049
+      ],
+      "stages": [
+        {
+          "rate_pp_min": 26.17411759175086,
+          "status": "modeled_missing_high_from_medium_relative_factor",
+          "sample_count": 0,
+          "unique_raw_soc_levels": 0,
+          "observed_duration_s": 0,
+          "support_note": "unobserved_high_requires_review_before_training",
+          "assumption": "High relative drain factor equals this position's fitted Medium relative drain factor",
+          "independent_stage_rate_pp_min": 22.4081169840793,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": null
+        },
+        {
+          "rate_pp_min": 11.825581922563696,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 80.0,
+          "last_normalized_soc": 52.58488926626731,
+          "observed_duration_s": 151.881,
+          "sample_count": 1431,
+          "unique_raw_soc_levels": 25,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 10.12408621596228,
+          "independent_stage_rmse_pp": 0.6684890840030518,
+          "independent_stage_r_squared": 0.9919011789629187,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 1.429644838636211
+        },
+        {
+          "rate_pp_min": 13.87275263665049,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 51.105316255545844,
+          "last_normalized_soc": 24.666749550996098,
+          "observed_duration_s": 111.52199999999999,
+          "sample_count": 1057,
+          "unique_raw_soc_levels": 25,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 11.983052720081186,
+          "independent_stage_rmse_pp": 1.037202383390848,
+          "independent_stage_r_squared": 0.9746372155302039,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 1.538187526712926
+        }
+      ],
+      "continuous_fit": {
+        "converged": true,
+        "function_evaluations": 9,
+        "observed_normalized_rmse_pp": 1.4765782830947163,
+        "initial_reference_soc": 80.0,
+        "fixed_start_anchor": true
+      },
+      "knots_time_s": [
+        0.0,
+        41.262136009520226,
+        193.47451860403137,
+        331.875314054499
+      ],
+      "knots_reference_soc": [
+        100.0,
+        82.0,
+        52.0,
+        20.0
+      ]
+    },
+    "drone_4": {
+      "battery_id": "B14",
+      "reference_start_soc": 77.0,
+      "rates_pp_min": [
+        27.975895988266483,
+        12.639633359431091,
+        11.771183861502507
+      ],
+      "stages": [
+        {
+          "rate_pp_min": 27.975895988266483,
+          "status": "modeled_missing_high_from_medium_relative_factor",
+          "sample_count": 0,
+          "unique_raw_soc_levels": 0,
+          "observed_duration_s": 0,
+          "support_note": "unobserved_high_requires_review_before_training",
+          "assumption": "High relative drain factor equals this position's fitted Medium relative drain factor",
+          "independent_stage_rate_pp_min": 25.67365736050249,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": null
+        },
+        {
+          "rate_pp_min": 12.639633359431091,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 77.0,
+          "last_normalized_soc": 52.35548455365476,
+          "observed_duration_s": 124.921,
+          "sample_count": 1177,
+          "unique_raw_soc_levels": 21,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 11.599471779867692,
+          "independent_stage_rmse_pp": 0.6806809257657801,
+          "independent_stage_r_squared": 0.9905571629968881,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 1.2178626278605604
+        },
+        {
+          "rate_pp_min": 11.771183861502507,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 50.592758798687775,
+          "last_normalized_soc": 21.801784258274893,
+          "observed_duration_s": 140.49699999999999,
+          "sample_count": 1330,
+          "unique_raw_soc_levels": 30,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 12.406135309895664,
+          "independent_stage_rmse_pp": 0.5116455167675956,
+          "independent_stage_r_squared": 0.9962914777667887,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 0.7046113697629269
+        }
+      ],
+      "continuous_fit": {
+        "converged": true,
+        "function_evaluations": 9,
+        "observed_normalized_rmse_pp": 0.9802512727269961,
+        "initial_reference_soc": 77.0,
+        "fixed_start_anchor": true
+      },
+      "knots_time_s": [
+        0.0,
+        38.604661686366306,
+        181.0138557518671,
+        344.1240426787176
+      ],
+      "knots_reference_soc": [
+        100.0,
+        82.0,
+        52.0,
+        20.0
+      ]
+    },
+    "drone_5": {
+      "battery_id": "B12",
+      "reference_start_soc": 80.0,
+      "rates_pp_min": [
+        21.8609223500802,
+        9.87686126370704,
+        13.426135918164604
+      ],
+      "stages": [
+        {
+          "rate_pp_min": 21.8609223500802,
+          "status": "modeled_missing_high_from_medium_relative_factor",
+          "sample_count": 0,
+          "unique_raw_soc_levels": 0,
+          "observed_duration_s": 0,
+          "support_note": "unobserved_high_requires_review_before_training",
+          "assumption": "High relative drain factor equals this position's fitted Medium relative drain factor",
+          "independent_stage_rate_pp_min": 20.65270846275354,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": null
+        },
+        {
+          "rate_pp_min": 9.87686126370704,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 80.0,
+          "last_normalized_soc": 52.081347167837045,
+          "observed_duration_s": 169.851,
+          "sample_count": 1600,
+          "unique_raw_soc_levels": 36,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 9.33098489349223,
+          "independent_stage_rmse_pp": 0.5006061433632996,
+          "independent_stage_r_squared": 0.9957084245783546,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 0.8384106332731331
+        },
+        {
+          "rate_pp_min": 13.426135918164604,
+          "status": "fitted_observed_normalized_samples",
+          "first_normalized_soc": 51.27239268403616,
+          "last_normalized_soc": 30.676164878233934,
+          "observed_duration_s": 93.66,
+          "sample_count": 889,
+          "unique_raw_soc_levels": 25,
+          "support_note": "observed_partial_or_full_stage",
+          "independent_stage_rate_pp_min": 14.053895829994024,
+          "independent_stage_rmse_pp": 0.5910925684186105,
+          "independent_stage_r_squared": 0.99136375582771,
+          "fit_method": "joint_time_weighted_SOC_least_squares_with_continuous_82_52_knots_and_first_drop_anchor",
+          "continuous_fit_stage_rmse_pp": 0.6754965241887205
+        }
+      ],
+      "continuous_fit": {
+        "converged": true,
+        "function_evaluations": 8,
+        "observed_normalized_rmse_pp": 0.7843823399365314,
+        "initial_reference_soc": 80.0,
+        "fixed_start_anchor": true
+      },
+      "knots_time_s": [
+        0.0,
+        49.40322200065076,
+        231.64735320194433,
+        374.6520130462095
+      ],
+      "knots_reference_soc": [
+        100.0,
+        82.0,
+        52.0,
+        20.0
+      ]
+    }
+  }
+}

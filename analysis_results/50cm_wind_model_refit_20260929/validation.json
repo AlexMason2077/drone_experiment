@@ -1,0 +1,21 @@
+{
+  "fixed_baseline_unchanged": true,
+  "raw_inputs_unchanged": true,
+  "forward_outputs_byte_preserved": true,
+  "excluded_conditions_absent": true,
+  "every_curve_has_three_positive_stages": true,
+  "safe_condition_count": 25,
+  "refitted_condition_count": 8,
+  "target_condition_count": 4,
+  "remaining_condition_coefficients_unchanged": true,
+  "stage_duration_identity_max_error_s": 0.0,
+  "fitted_points_all_nominal_hover": true,
+  "fitted_points_all_assigned_pad": true,
+  "fitted_points_all_height_60_100": true,
+  "real_stage_fit_count": 96,
+  "cross_speed_modeled_stage_count": 54,
+  "active_training_changed": false,
+  "hardware_commands_sent": false,
+  "protocols_averaged": false,
+  "interpretation": "Repaired conditional model estimates, not newly measured discharge or independently verified flight performance."
+}

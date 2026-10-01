@@ -1,0 +1,158 @@
+{
+  "status": "repaired_model_candidate_not_activated",
+  "fixed_baseline_sha256": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "refitted_conditions": [
+    "echalon_50_head_lv1",
+    "echalon_50_head_lv2",
+    "front_50_side_lv1",
+    "front_50_side_lv2",
+    "front_50_tail_lv1",
+    "front_50_tail_lv2",
+    "vee_50_tail_lv1",
+    "vee_50_tail_lv2"
+  ],
+  "target_conditions": [
+    "echalon_50_head_lv1",
+    "front_50_side_lv1",
+    "front_50_tail_lv2",
+    "vee_50_tail_lv2"
+  ],
+  "all_safe_conditions": [
+    "column_50_head_lv1",
+    "column_50_side_lv1",
+    "column_50_tail_lv1",
+    "diamond_50_head_lv1",
+    "diamond_50_head_lv2",
+    "diamond_50_side_lv1",
+    "diamond_50_tail_lv1",
+    "echalon_50_head_lv1",
+    "echalon_50_head_lv2",
+    "echalon_50_side_lv1",
+    "echalon_50_side_lv2",
+    "echalon_50_tail_lv1",
+    "echalon_50_tail_lv2",
+    "front_50_head_lv1",
+    "front_50_head_lv2",
+    "front_50_side_lv1",
+    "front_50_side_lv2",
+    "front_50_tail_lv1",
+    "front_50_tail_lv2",
+    "vee_50_head_lv1",
+    "vee_50_head_lv2",
+    "vee_50_side_lv1",
+    "vee_50_side_lv2",
+    "vee_50_tail_lv1",
+    "vee_50_tail_lv2"
+  ],
+  "source_hashes": {
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "database/experiment_registry.json": "abf3ae02fdacc3adcab05271a708271bcc7d2fe8558f7aada532a8c25ec6a5e1",
+    "TRAINING_EXCLUSIONS.md": "81ba056a6492061350d4f83276611467048f7c1aeb99f7d7d0d5f0515e8aa997",
+    "output_py/repair_50cm_wind_curve_estimates.py": "cb8be304a3e89708f728bf4a6df5a8bef9ed026da1ceb42c44d002405d8e8704",
+    "analysis_results/50cm_selection_corrected_fixed_baseline_20260929/wind_tunnel/curve_stage_rates.csv": "dc90b6143abffda1a7b4b7c4d5bd7107ce42ae42112b8a568318aea8a9833a24",
+    "analysis_results/50cm_selection_corrected_fixed_baseline_20260929/wind_tunnel/observed_run_stage_rates.csv": "a06edf35f2d6b215c615b7f1f764ce035dafabefac2966257aa748cc4333e41b",
+    "database/wind_tunnel_echalon_50_head_lv1_001/wind_tunnel_echalon_50_head_lv1_001_20260908_205751_all_coordination.csv": "ff822737d61de784bc3452cbac07581df916759b22d20002c6b1f95be8e11d35",
+    "database/wind_tunnel_echalon_50_head_lv1_002/wind_tunnel_echalon_50_head_lv1_002_20260908_205928_all_coordination.csv": "365928e706551777dd3b4243c514afcd363f6fe92c570fa3c0f3a99ba4a91cff",
+    "database/wind_tunnel_echalon_50_head_lv1_003/wind_tunnel_echalon_50_head_lv1_003_20260908_210026_all_coordination.csv": "e357daba05683bb914da00dc1bd45dfb30b9e0f654d80ff8ddd11714f17c4c87",
+    "database/wind_tunnel_echalon_50_head_lv1_004/wind_tunnel_echalon_50_head_lv1_004_20260908_210136_all_coordination.csv": "0d57cbda2a52425697fac0095c70669c35679cc930f6980096887efbfacb65f8",
+    "database/wind_tunnel_echalon_50_head_lv2_001/wind_tunnel_echalon_50_head_lv2_001_20260911_201908_all_coordination.csv": "06f3b18bafdb6f7776ab58ce0d442e988a9a36cf39211978046ec193bbdabaa6",
+    "database/wind_tunnel_echalon_50_head_lv2_002/wind_tunnel_echalon_50_head_lv2_002_20260911_201958_all_coordination.csv": "c503974c56eea1cad65d7fdc848058c70213b46a0fcccc163c1e5bc8c578493c",
+    "database/wind_tunnel_echalon_50_head_lv2_003/wind_tunnel_echalon_50_head_lv2_003_20260911_202122_all_coordination.csv": "84d462798f99c6f648832c5951b87b85ffb060bb002c89064674e00ca1d34e54",
+    "database/wind_tunnel_front_50_side_lv1_001/wind_tunnel_front_50_side_lv1_001_20260913_182154_all_coordination.csv": "0abd61d3fb0edb59c49347626679ec83a5d945dbf3eb81f5042da542d865cd7f",
+    "database/wind_tunnel_front_50_side_lv1_002/wind_tunnel_front_50_side_lv1_002_20260922_201003_all_coordination.csv": "78959b7ec5df853de6a8cfaf3c14a7548292ea0a7e6fed5f9851d5af8d3d7887",
+    "database/wind_tunnel_front_50_side_lv1_002/wind_tunnel_front_50_side_lv1_002_20260922_201053_all_coordination.csv": "ede6efed74b307044ed6ad0ddfa3216edda8f77441ccc1d9792aed7c75201a53",
+    "database/wind_tunnel_front_50_side_lv2_001/wind_tunnel_front_50_side_lv2_001_20260922_213257_all_coordination.csv": "b13bcee7eb4dd4e23f33ffd25e00bde736b88542126af2bd73a0c4c5aac2bdc7",
+    "database/wind_tunnel_front_50_side_lv2_001/wind_tunnel_front_50_side_lv2_001_20260922_213353_all_coordination.csv": "e06d9a876379b7ad3877fa39c6bcc1f0a4b6ae82dbaee8415c9aef88b907ea23",
+    "database/wind_tunnel_front_50_side_lv2_002/wind_tunnel_front_50_side_lv2_002_20260922_213458_all_coordination.csv": "ada51e036a16373cd86040121d2b179d2d74bf4d49f4ccbe2d550819db58cbd8",
+    "database/wind_tunnel_front_50_tail_lv1_001/wind_tunnel_front_50_tail_lv1_001_20260908_181151_all_coordination.csv": "925cbd90b2d8df5acc9d96e4b1623c1ecf2bfeac4b1ad50aa9e3c2ff1eb110eb",
+    "database/wind_tunnel_front_50_tail_lv1_002/wind_tunnel_front_50_tail_lv1_002_20260908_181251_all_coordination.csv": "74ec2d5287e855e9e76307062a1469b2b8ac5bfa12a49db679d883f91784e985",
+    "database/wind_tunnel_front_50_tail_lv2_001/wind_tunnel_front_50_tail_lv2_001_20260908_193008_all_coordination.csv": "d6671a48b31c9cc6f767d57c6a4b09c1f608f08ddc5e572d1e6ec092152aab5d",
+    "database/wind_tunnel_front_50_tail_lv2_001/wind_tunnel_front_50_tail_lv2_001_20260908_193108_all_coordination.csv": "ab7cd4c34522b3ee176f71a1986af7c3cb4cf70d38cf6aaa470f131cf00f3092",
+    "database/wind_tunnel_front_50_tail_lv2_002/wind_tunnel_front_50_tail_lv2_002_20260908_193521_all_coordination.csv": "945c049a7298930c0211aa45b1b581bec6e135de5b6ee9fd1b9a1a17010e4c73",
+    "database/wind_tunnel_front_50_tail_lv2_003/wind_tunnel_front_50_tail_lv2_003_20260908_193626_all_coordination.csv": "d445e579e1576e84f2b8959d435e8e923d1912bd127e040bd76aed09c4250c57",
+    "database/wind_tunnel_front_50_tail_lv2_003/wind_tunnel_front_50_tail_lv2_003_20260908_193724_all_coordination.csv": "4d5c8b8f6d064f015179cf0b1bf06b68a109a0073664136c7204682b5f46b26b",
+    "database/wind_tunnel_front_50_tail_lv2_003/wind_tunnel_front_50_tail_lv2_003_20260908_193831_all_coordination.csv": "09dd79a4765a6edf05d86b9008e64102c86ee1181d871faba4b7b68da34f7fb2",
+    "database/wind_tunnel_front_50_tail_lv2_004/wind_tunnel_front_50_tail_lv2_004_20260908_193946_all_coordination.csv": "34b267a002c430697d87aa8d9ef1986583e8b07e8811d173b095a055f4883ea6",
+    "database/wind_tunnel_vee_50_tail_lv1_001/wind_tunnel_vee_50_tail_lv1_001_20260925_181240_all_coordination.csv": "2e0d7391f740563a72f6ce4f4ee099aa7a29ec4187f35269c325718824849796",
+    "database/wind_tunnel_vee_50_tail_lv1_001/wind_tunnel_vee_50_tail_lv1_001_20260925_181336_all_coordination.csv": "77acea5b7688a8926bed82d41a0a86956f735732a098eed044b5fe5ca4f5bc1b",
+    "database/wind_tunnel_vee_50_tail_lv2_001/wind_tunnel_vee_50_tail_lv2_001_20260925_201018_all_coordination.csv": "f16887c179e0dbe829ba82dd10cec83777180a4daa97ae8446ad16ab9bdee44e",
+    "database/wind_tunnel_vee_50_tail_lv2_001/wind_tunnel_vee_50_tail_lv2_001_20260925_201109_all_coordination.csv": "76eef1d3a29b0cd6e8aaae5cb3279ae235b1ebd2455c2d1245b6a5341bfd23ef",
+    "database/wind_tunnel_vee_50_tail_lv2_002/wind_tunnel_vee_50_tail_lv2_002_20260925_201748_all_coordination.csv": "53de5c24b5be10459f397b88fc5bee93c7432f0c49a862aa4a6e8ab1ff7c33b4"
+  },
+  "speed_factors": [
+    {
+      "family": "echalon_50_head",
+      "reliable_medium_pair_count": 0,
+      "paired_positions": [],
+      "paired_l2_over_l1_rates": [],
+      "empirical_medium_ratio": null,
+      "applied_l2_over_l1_rate_multiplier": 1.0526315789473684,
+      "source": "user_authorized_5_percent_L1_rate_reduction_scenario",
+      "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+    },
+    {
+      "family": "front_50_side",
+      "reliable_medium_pair_count": 5,
+      "paired_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "paired_l2_over_l1_rates": [
+        1.1794341791557827,
+        1.146836595542936,
+        1.018981211717438,
+        1.1433470655120657,
+        1.0437019123976967
+      ],
+      "empirical_medium_ratio": 1.1433470655120657,
+      "applied_l2_over_l1_rate_multiplier": 1.1433470655120657,
+      "source": "same_family_reliable_Medium_pairs",
+      "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+    },
+    {
+      "family": "front_50_tail",
+      "reliable_medium_pair_count": 0,
+      "paired_positions": [],
+      "paired_l2_over_l1_rates": [],
+      "empirical_medium_ratio": null,
+      "applied_l2_over_l1_rate_multiplier": 1.0526315789473684,
+      "source": "user_authorized_5_percent_L1_rate_reduction_scenario",
+      "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+    },
+    {
+      "family": "vee_50_tail",
+      "reliable_medium_pair_count": 5,
+      "paired_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "paired_l2_over_l1_rates": [
+        1.1332346148191463,
+        1.1040099636819924,
+        1.0576166524636372,
+        1.1494223351956177,
+        1.1589702105035264
+      ],
+      "empirical_medium_ratio": 1.1332346148191463,
+      "applied_l2_over_l1_rate_multiplier": 1.1332346148191463,
+      "source": "same_family_reliable_Medium_pairs",
+      "assumption": "Same multiplier transferred to unavailable stages; this is model completion, not new measurement."
+    }
+  ],
+  "fitting": "SOC(first-crossing time) OLS with independent real-block intercepts; first lower-boundary point closes each stage",
+  "model_weight": "own-stage observed SOC coverage squared / (1 + (weighted log repeat-rate spread / log(1.25)) squared)",
+  "combination": "geometric blend of real refit and same-position other-speed prior; suspect-stage factor >2 limits observed weight to 0.1",
+  "modeling_assumptions": [
+    "Other-speed scaling is transferred across stages only for model estimation.",
+    "When reliable same-family paired Medium rates cannot establish the requested trend, Level1 rate is set to 95% of Level2 as an explicit user-authorized scenario.",
+    "A missing donor High stage may use the fixed reference shape and observed mature-stage relative load; it is flagged modeled.",
+    "These curve coefficients are not silently promoted to observed training labels."
+  ],
+  "uncertainty": "Coverage weights and the five-percent scenario are modeling choices; no new empirical confidence interval or physical causal verification is claimed."
+}

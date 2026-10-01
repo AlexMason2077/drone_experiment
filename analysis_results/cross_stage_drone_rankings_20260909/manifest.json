@@ -1,0 +1,71 @@
+{
+  "source_sha256": {
+    "analysis_results/wind_strength_stage_ratio_diagnosis_20260909/expanded_stage_pairs.csv": "8a34f259138fd67bb80c21b1a4803d17462228711dcb2ff9ccb1d936e712d75a",
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5"
+  },
+  "definition": "Within the same flight, rank all five observed drone rates descending; no incomplete fleet rankings.",
+  "stage_policy": "High begins at first post-takeoff SOC decrease; preserve later integer-step plateaus. Own-battery stage knots.",
+  "normalization": "own observed rate / own frozen baseline rate * Bideal reference stage rate",
+  "user_confirmed": "Fans on before takeoff; same position and distance for Lv1/Lv2.",
+  "limitations": [
+    "Only 2 full five-drone High/Medium flights and 11 Medium/Low flights",
+    "Some High samples before full initial hover; Low can extend after other drones land",
+    "Ranks computed without rounding; small gaps are not demonstrated statistically distinct",
+    "Baseline normalization is a model correction, not a guarantee of isolated aerodynamic position effects"
+  ],
+  "summary": [
+    {
+      "stage": "high",
+      "mode": "Bideal",
+      "flights": 2,
+      "same_fastest": 1,
+      "same_order": 0,
+      "leader_still_top2": 2,
+      "leader_within5pct_of_fastest": 1,
+      "leader_within10pct_of_fastest": 1,
+      "top_two_within2pct": 0,
+      "median_rank_correlation": 0.05,
+      "median_fastest_over_medium_leader_pct": 30.234855633
+    },
+    {
+      "stage": "high",
+      "mode": "raw",
+      "flights": 2,
+      "same_fastest": 0,
+      "same_order": 0,
+      "leader_still_top2": 1,
+      "leader_within5pct_of_fastest": 0,
+      "leader_within10pct_of_fastest": 0,
+      "top_two_within2pct": 0,
+      "median_rank_correlation": -0.65,
+      "median_fastest_over_medium_leader_pct": 74.2856391115
+    },
+    {
+      "stage": "low",
+      "mode": "Bideal",
+      "flights": 11,
+      "same_fastest": 2,
+      "same_order": 0,
+      "leader_still_top2": 3,
+      "leader_within5pct_of_fastest": 6,
+      "leader_within10pct_of_fastest": 9,
+      "top_two_within2pct": 9,
+      "median_rank_correlation": 0.1,
+      "median_fastest_over_medium_leader_pct": 4.4935462067
+    },
+    {
+      "stage": "low",
+      "mode": "raw",
+      "flights": 11,
+      "same_fastest": 10,
+      "same_order": 0,
+      "leader_still_top2": 11,
+      "leader_within5pct_of_fastest": 11,
+      "leader_within10pct_of_fastest": 11,
+      "top_two_within2pct": 2,
+      "median_rank_correlation": 0.2,
+      "median_fastest_over_medium_leader_pct": 0.0
+    }
+  ],
+  "raw_sources_unchanged": true
+}

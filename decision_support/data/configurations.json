@@ -1,0 +1,392 @@
+[
+  {
+    "id": "front-50",
+    "formation": "Front",
+    "spacing_m": 0.5,
+    "positions": [
+      {
+        "id": "P1",
+        "x": 1.0,
+        "y": 0.0
+      },
+      {
+        "id": "P2",
+        "x": 0.5,
+        "y": 0.0
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": -0.5,
+        "y": 0.0
+      },
+      {
+        "id": "P5",
+        "x": -1.0,
+        "y": 0.0
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "front-75",
+    "formation": "Front",
+    "spacing_m": 0.75,
+    "positions": [
+      {
+        "id": "P1",
+        "x": 1.5,
+        "y": 0.0
+      },
+      {
+        "id": "P2",
+        "x": 0.75,
+        "y": 0.0
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": -0.75,
+        "y": 0.0
+      },
+      {
+        "id": "P5",
+        "x": -1.5,
+        "y": 0.0
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "column-50",
+    "formation": "Column",
+    "spacing_m": 0.5,
+    "positions": [
+      {
+        "id": "P1",
+        "x": 0.0,
+        "y": 1.0
+      },
+      {
+        "id": "P2",
+        "x": 0.0,
+        "y": 0.5
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": 0.0,
+        "y": -0.5
+      },
+      {
+        "id": "P5",
+        "x": 0.0,
+        "y": -1.0
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "column-75",
+    "formation": "Column",
+    "spacing_m": 0.75,
+    "positions": [
+      {
+        "id": "P1",
+        "x": 0.0,
+        "y": 1.5
+      },
+      {
+        "id": "P2",
+        "x": 0.0,
+        "y": 0.75
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": 0.0,
+        "y": -0.75
+      },
+      {
+        "id": "P5",
+        "x": 0.0,
+        "y": -1.5
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "vee-50",
+    "formation": "Vee",
+    "spacing_m": 0.5,
+    "positions": [
+      {
+        "id": "P1",
+        "x": -0.70711,
+        "y": -0.28284
+      },
+      {
+        "id": "P2",
+        "x": -0.35355,
+        "y": 0.07071
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.42426
+      },
+      {
+        "id": "P4",
+        "x": 0.35355,
+        "y": 0.07071
+      },
+      {
+        "id": "P5",
+        "x": 0.70711,
+        "y": -0.28284
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "vee-75",
+    "formation": "Vee",
+    "spacing_m": 0.75,
+    "positions": [
+      {
+        "id": "P1",
+        "x": -1.06066,
+        "y": -0.42426
+      },
+      {
+        "id": "P2",
+        "x": -0.53033,
+        "y": 0.10607
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.6364
+      },
+      {
+        "id": "P4",
+        "x": 0.53033,
+        "y": 0.10607
+      },
+      {
+        "id": "P5",
+        "x": 1.06066,
+        "y": -0.42426
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "echelon-50",
+    "formation": "Echelon",
+    "spacing_m": 0.5,
+    "positions": [
+      {
+        "id": "P1",
+        "x": -0.70711,
+        "y": 0.70711
+      },
+      {
+        "id": "P2",
+        "x": -0.35355,
+        "y": 0.35355
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": 0.35355,
+        "y": -0.35355
+      },
+      {
+        "id": "P5",
+        "x": 0.70711,
+        "y": -0.70711
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P2",
+      "P3"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "echelon-75",
+    "formation": "Echelon",
+    "spacing_m": 0.75,
+    "positions": [
+      {
+        "id": "P1",
+        "x": -1.06066,
+        "y": 1.06066
+      },
+      {
+        "id": "P2",
+        "x": -0.53033,
+        "y": 0.53033
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": 0.53033,
+        "y": -0.53033
+      },
+      {
+        "id": "P5",
+        "x": 1.06066,
+        "y": -1.06066
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P2"
+    ],
+    "spacing_definition": "adjacent pad-centre distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "diamond-50",
+    "formation": "Diamond",
+    "spacing_m": 0.5,
+    "positions": [
+      {
+        "id": "P1",
+        "x": 0.0,
+        "y": -0.5
+      },
+      {
+        "id": "P2",
+        "x": -0.5,
+        "y": 0.0
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": 0.5,
+        "y": 0.0
+      },
+      {
+        "id": "P5",
+        "x": 0.0,
+        "y": 0.5
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P3"
+    ],
+    "spacing_definition": "centre-to-outer pad distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  },
+  {
+    "id": "diamond-75",
+    "formation": "Diamond",
+    "spacing_m": 0.75,
+    "positions": [
+      {
+        "id": "P1",
+        "x": 0.0,
+        "y": -0.75
+      },
+      {
+        "id": "P2",
+        "x": -0.75,
+        "y": 0.0
+      },
+      {
+        "id": "P3",
+        "x": 0.0,
+        "y": 0.0
+      },
+      {
+        "id": "P4",
+        "x": 0.75,
+        "y": 0.0
+      },
+      {
+        "id": "P5",
+        "x": 0.0,
+        "y": 0.75
+      }
+    ],
+    "frame": "local metres; +Y forward",
+    "spacing_reference": [
+      "P1",
+      "P3"
+    ],
+    "spacing_definition": "centre-to-outer pad distance",
+    "geometry_source": "wind_tunnel_layouts.layout_description; headwind geometry rotated into +Y-forward display frame"
+  }
+]

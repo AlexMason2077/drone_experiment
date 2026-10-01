@@ -1,0 +1,17 @@
+{
+  "assessment": "Share with caveats \u2014 synthetic exploratory data only",
+  "source_hashes_unchanged": 165,
+  "raw_endpoint_intervals_traced": 401,
+  "runs_verified": 162,
+  "logger_rows_verified": 4231980,
+  "integer_soc_events": 64800,
+  "original_logger_columns_retained": 62,
+  "unknown_telemetry_blank": true,
+  "only_land_at20": true,
+  "reproducible_seed": true,
+  "different_seeds_differ": true,
+  "source_experiment_registry_unchanged": true,
+  "real_flight_controls_used": false,
+  "full_sensor_physics_validated": false,
+  "missing_conditions_experimentally_validated": false
+}

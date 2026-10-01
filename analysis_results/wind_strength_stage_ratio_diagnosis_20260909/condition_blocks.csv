@@ -1,0 +1,6 @@
+wind_direction,formation,spacing_cm,high_change_pct,low_change_pct,drone_pairs
+head,front,75,18.912093728,2.41189345918,1
+side,diamond,75,-28.3890464965,3.27676630683,2
+side,front,75,8.74717946144,6.04261356901,1
+tail,diamond,75,-37.9134326502,2.6966101261,1
+tail,front,75,18.3339287974,-4.40464452276,2

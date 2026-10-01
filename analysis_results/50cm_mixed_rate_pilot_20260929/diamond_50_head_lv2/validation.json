@@ -1,0 +1,14 @@
+{
+  "only_one_condition": true,
+  "raw_inputs_unchanged": true,
+  "wind_stage_rates_match_approved_pilot_max_error": 4.866684832904866e-11,
+  "forward_aggregate_matches_existing_coefficients_max_error": 5.000444502911705e-12,
+  "medium_average_max_error": 0.0,
+  "all_curves_monotone": true,
+  "modeled_stage_rows": 2,
+  "initial_raw_diagnostic_figure_in_dataset": false,
+  "active_training_dataset_modified": false,
+  "plotted_condition": "diamond_50_head_lv2",
+  "independent_knot_rate_max_error": 3.552713678800501e-15,
+  "rendered_png_checked": "title, legend, axes, stage labels and curves visually inspected"
+}

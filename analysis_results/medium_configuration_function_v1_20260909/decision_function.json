@@ -1,0 +1,2219 @@
+{
+  "schema_version": 1,
+  "kind": "medium_configuration_lookup",
+  "version": "medium_configuration_function_v1_20260909",
+  "function_inputs": [
+    "charging_pad_availability",
+    "wind_direction",
+    "wind_level"
+  ],
+  "assumptions": {
+    "reference_soc_preprocessing": 75,
+    "Bideal_middle_band": [
+      52.0,
+      82.0
+    ],
+    "flight_distance_cm": 250,
+    "flight_duration_seconds": 25.0,
+    "batteries": "five equivalent Bideal batteries; not five physical batteries at merely equal displayed percentages",
+    "position_assignment": "identity retained; permutations are time-equivalent under equal SOC and identical charging assumptions",
+    "charging_model": "existing exponential model",
+    "charging_target_soc": 99.0,
+    "zero_to_target_minutes": 90.0,
+    "charging_pads": "1..5 identical pads, all available on arrival, one drone per pad at a time, non-preemptive charging",
+    "charging_completion": "minimum time until every drone has completed charging; do not sum individual waiting times again",
+    "ground_wait": "no battery drain while waiting on the ground",
+    "switching": "not included; configuration is chosen before this segment",
+    "objective": "single standardized flight segment + subsequent whole-swarm charging completion; not a global multi-segment optimum",
+    "evidence": "unchanged equal-run mean Medium discharge rates; source short, partial, flat, and low-count warnings retained; no new filters",
+    "source_coverage": "observed real forward-flight candidates only; no simulated or invented missing configurations",
+    "total_time": "computed from empirical discharge rates and an assumed charging model, not directly measured total mission time"
+  },
+  "decisions": {
+    "1|head|1": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "head",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 19299.78783346633,
+      "total_time_seconds": 19324.78783346633,
+      "total_time_minutes": 322.07979722443883,
+      "arrival_soc_by_position": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "charging_seconds_by_position": [
+        3806.0461104042006,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.832614697794
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19299.78783346633
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 19544.299802318572
+      },
+      "gap_to_runner_up_seconds": 219.51196885224272,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "1|head|2": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "head",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 19421.45937477667,
+      "total_time_seconds": 19446.45937477667,
+      "total_time_minutes": 324.1076562462778,
+      "arrival_soc_by_position": [
+        73.26820437787917,
+        71.54977962289166,
+        72.62275661918333,
+        73.13223360107084,
+        72.11324029950417
+      ],
+      "charging_seconds_by_position": [
+        3852.9759565807135,
+        3926.0312140008946,
+        3880.952235402806,
+        3858.9252219397845,
+        3902.574746852469
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19421.45937477667
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 19489.232270157983
+      },
+      "gap_to_runner_up_seconds": 42.77289538131299,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 2,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "1|side|1": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "side",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 19478.076907360253,
+      "total_time_seconds": 19503.076907360253,
+      "total_time_minutes": 325.05128178933757,
+      "arrival_soc_by_position": [
+        72.3646391096,
+        70.454124247625,
+        72.99246124631667,
+        73.1102563573125,
+        72.38984269891667
+      ],
+      "charging_seconds_by_position": [
+        3891.955879106881,
+        3970.341541387015,
+        3865.0095214425514,
+        3859.8839869489275,
+        3890.8859784748797
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19478.076907360253
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 19615.22778823962
+      },
+      "gap_to_runner_up_seconds": 112.15088087936601,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 3,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "1|side|2": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "side",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 19420.281541194952,
+      "total_time_seconds": 19445.281541194952,
+      "total_time_minutes": 324.0880256865825,
+      "arrival_soc_by_position": [
+        72.75027190602917,
+        72.40948201502083,
+        72.66132362267916,
+        72.6183888658125,
+        72.30901798847083
+      ],
+      "charging_seconds_by_position": [
+        3875.477867403965,
+        3890.0516058261474,
+        3879.2992069220963,
+        3881.1392957882667,
+        3894.313565254479
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19420.281541194952
+      ],
+      "candidate_count": 8,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 19448.32061365181
+      },
+      "gap_to_runner_up_seconds": 3.0390724568569567,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "1|tail|1": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "tail",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 19526.605967337917,
+      "total_time_seconds": 19551.605967337917,
+      "total_time_minutes": 325.86009945563194,
+      "arrival_soc_by_position": [
+        71.71362951812084,
+        74.99198866776183,
+        71.5637782892875,
+        69.47812039220834,
+        72.20691633108333
+      ],
+      "charging_seconds_by_position": [
+        3919.2585082150276,
+        3774.8137251777252,
+        3925.454107493013,
+        4008.4504423999433,
+        3898.629184052207
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19526.605967337917
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 19560.97314552384
+      },
+      "gap_to_runner_up_seconds": 9.367178185922967,
+      "tied_configurations": [
+        {
+          "formation": "vee",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "1|tail|2": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "tail",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 19374.912163433084,
+      "total_time_seconds": 19399.912163433084,
+      "total_time_minutes": 323.3318693905514,
+      "arrival_soc_by_position": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "charging_seconds_by_position": [
+        3997.6164031045564,
+        3882.5202353840264,
+        3793.0773656077195,
+        3828.8438888592273,
+        3872.8542704775564
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19374.912163433084
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 19565.07084863147
+      },
+      "gap_to_runner_up_seconds": 165.15868519838477,
+      "tied_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 1,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "2|head|1": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "head",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 11420.93837521788,
+      "total_time_seconds": 11445.93837521788,
+      "total_time_minutes": 190.76563958696468,
+      "arrival_soc_by_position": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "charging_seconds_by_position": [
+        3806.0461104042006,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.832614697794
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3",
+          "drone_4"
+        ],
+        [
+          "drone_2",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11420.93837521788,
+        7878.849458248441
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 11615.71053840724
+      },
+      "gap_to_runner_up_seconds": 169.77216318936007,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "2|head|2": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "head",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 11564.55116174508,
+      "total_time_seconds": 11589.55116174508,
+      "total_time_minutes": 193.15918602908465,
+      "arrival_soc_by_position": [
+        71.835543682875,
+        71.37781117015834,
+        74.44084990992083,
+        70.38868913129167,
+        73.33636739659167
+      ],
+      "charging_seconds_by_position": [
+        3914.1937046431217,
+        3933.0976749510837,
+        3800.375302346387,
+        3972.9356109339387,
+        3849.9821547555434
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_2",
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11564.55116174508,
+        7906.03328588502
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 11604.18542683468
+      },
+      "gap_to_runner_up_seconds": 14.634265089600376,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "2|side|1": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "side",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 11615.77948686636,
+      "total_time_seconds": 11640.77948686636,
+      "total_time_minutes": 194.01299144777266,
+      "arrival_soc_by_position": [
+        72.3646391096,
+        70.454124247625,
+        72.99246124631667,
+        73.1102563573125,
+        72.38984269891667
+      ],
+      "charging_seconds_by_position": [
+        3891.955879106881,
+        3970.341541387015,
+        3865.0095214425514,
+        3859.8839869489275,
+        3890.8859784748797
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11615.77948686636,
+        7862.297420493899
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 11671.93518291976
+      },
+      "gap_to_runner_up_seconds": 31.15569605339988,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 3,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "2|side|2": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "side",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 11586.87095579286,
+      "total_time_seconds": 11611.87095579286,
+      "total_time_minutes": 193.53118259654767,
+      "arrival_soc_by_position": [
+        72.4811724415875,
+        72.07836832347917,
+        74.3236775236875,
+        71.39460373782917,
+        72.3133163124625
+      ],
+      "charging_seconds_by_position": [
+        3887.000802388669,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.1315354198064
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_2",
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11586.87095579286,
+        7836.44965785894
+      ],
+      "candidate_count": 8,
+      "runner_up": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 11660.916370114299
+      },
+      "gap_to_runner_up_seconds": 49.04541432143924,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "2|tail|1": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "tail",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 11592.70141744494,
+      "total_time_seconds": 11617.70141744494,
+      "total_time_minutes": 193.62835695741566,
+      "arrival_soc_by_position": [
+        71.71362951812084,
+        74.99198866776183,
+        71.5637782892875,
+        69.47812039220834,
+        72.20691633108333
+      ],
+      "charging_seconds_by_position": [
+        3919.2585082150276,
+        3774.8137251777252,
+        3925.454107493013,
+        4008.4504423999433,
+        3898.629184052207
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_5"
+        ],
+        [
+          "drone_3",
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11592.70141744494,
+        7933.90454989296
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 11668.06039678528
+      },
+      "gap_to_runner_up_seconds": 50.35897934034074,
+      "tied_configurations": [
+        {
+          "formation": "vee",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "2|tail|2": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "tail",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 11494.77552494448,
+      "total_time_seconds": 11519.77552494448,
+      "total_time_minutes": 191.99625874907466,
+      "arrival_soc_by_position": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "charging_seconds_by_position": [
+        3997.6164031045564,
+        3882.5202353840264,
+        3793.0773656077195,
+        3828.8438888592273,
+        3872.8542704775564
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11494.77552494448,
+        7880.13663848856
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 11668.89620677156
+      },
+      "gap_to_runner_up_seconds": 149.12068182708026,
+      "tied_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 1,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "3|head|1": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "head",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7703.020701274319,
+      "total_time_seconds": 7728.020701274319,
+      "total_time_minutes": 128.80034502123866,
+      "arrival_soc_by_position": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "charging_seconds_by_position": [
+        3806.0461104042006,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.832614697794
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7703.020701274319,
+        7627.7502886413595,
+        3969.01684355064
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7801.29596129998
+      },
+      "gap_to_runner_up_seconds": 73.27526002566083,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "3|head|2": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "head",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7741.1145751998,
+      "total_time_seconds": 7766.1145751998,
+      "total_time_minutes": 129.43524291999668,
+      "arrival_soc_by_position": [
+        73.60584742734167,
+        72.35531624737084,
+        73.36407114593334,
+        69.95722760170834,
+        72.28928624985417
+      ],
+      "charging_seconds_by_position": [
+        3838.0708516348905,
+        3892.3513904619367,
+        3848.76318473784,
+        3989.8980205663693,
+        3895.1488227569453
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2",
+          "drone_3"
+        ],
+        [
+          "drone_1",
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7741.1145751998,
+        7733.21967439182,
+        3989.89802056638
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 7780.5507034331795
+      },
+      "gap_to_runner_up_seconds": 14.43612823337935,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 4,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "3|side|1": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "side",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7755.89549991744,
+      "total_time_seconds": 7780.89549991744,
+      "total_time_minutes": 129.68159166529068,
+      "arrival_soc_by_position": [
+        72.3646391096,
+        70.454124247625,
+        72.99246124631667,
+        73.1102563573125,
+        72.38984269891667
+      ],
+      "charging_seconds_by_position": [
+        3891.955879106881,
+        3970.341541387015,
+        3865.0095214425514,
+        3859.8839869489275,
+        3890.8859784748797
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7755.89549991744,
+        7751.8398660558,
+        3970.34154138702
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 7831.04254089034
+      },
+      "gap_to_runner_up_seconds": 50.14704097289996,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 3,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "3|side|2": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "side",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7765.529473230121,
+      "total_time_seconds": 7790.529473230121,
+      "total_time_minutes": 129.84215788716867,
+      "arrival_soc_by_position": [
+        72.75027190602917,
+        72.40948201502083,
+        72.66132362267916,
+        72.6183888658125,
+        72.30901798847083
+      ],
+      "charging_seconds_by_position": [
+        3875.477867403965,
+        3890.0516058261474,
+        3879.2992069220963,
+        3881.1392957882667,
+        3894.313565254479
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2"
+        ],
+        [
+          "drone_3",
+          "drone_4"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7765.529473230121,
+        7760.43850271034,
+        3894.3135652545
+      ],
+      "candidate_count": 8,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7806.132337808501
+      },
+      "gap_to_runner_up_seconds": 15.602864578379922,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "3|tail|1": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "tail",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7805.91025408146,
+      "total_time_seconds": 7830.91025408146,
+      "total_time_minutes": 130.51517090135766,
+      "arrival_soc_by_position": [
+        70.92905622145416,
+        71.17018292337917,
+        73.00794283240417,
+        72.8078147902875,
+        72.0382404543
+      ],
+      "charging_seconds_by_position": [
+        3951.3396543090635,
+        3941.5730944294723,
+        3864.3371596519964,
+        3872.9990959861784,
+        3905.72414114713
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2",
+          "drone_3"
+        ],
+        [
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7805.91025408146,
+        7778.723237133299,
+        3951.33965430906
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7842.88769226724
+      },
+      "gap_to_runner_up_seconds": 11.977438185779647,
+      "tied_configurations": [
+        {
+          "formation": "diamond",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 2,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "3|tail|2": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "tail",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7701.69815933676,
+      "total_time_seconds": 7726.69815933676,
+      "total_time_minutes": 128.77830265561266,
+      "arrival_soc_by_position": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "charging_seconds_by_position": [
+        3997.6164031045564,
+        3882.5202353840264,
+        3793.0773656077195,
+        3828.8438888592273,
+        3872.8542704775564
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_2",
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7701.69815933676,
+        7675.59760099176,
+        3997.6164031045805
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7813.991893449101
+      },
+      "gap_to_runner_up_seconds": 87.29373411234064,
+      "tied_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 1,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "4|head|1": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "head",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7599.234196980779,
+      "total_time_seconds": 7624.234196980779,
+      "total_time_minutes": 127.07056994967965,
+      "arrival_soc_by_position": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "charging_seconds_by_position": [
+        3806.0461104042006,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.832614697794
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7599.234196980779,
+        3969.01684355064,
+        3909.8326146977997,
+        3821.70417823716
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7719.00146349244
+      },
+      "gap_to_runner_up_seconds": 94.76726651166064,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "4|head|2": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "head",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7650.3574571019,
+      "total_time_seconds": 7675.3574571019,
+      "total_time_minutes": 127.92262428503166,
+      "arrival_soc_by_position": [
+        71.835543682875,
+        71.37781117015834,
+        74.44084990992083,
+        70.38868913129167,
+        73.33636739659167
+      ],
+      "charging_seconds_by_position": [
+        3914.1937046431217,
+        3933.0976749510837,
+        3800.375302346387,
+        3972.9356109339387,
+        3849.9821547555434
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7650.3574571019,
+        3972.93561093396,
+        3933.09767495106,
+        3914.19370464312
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7711.834036372721
+      },
+      "gap_to_runner_up_seconds": 36.476579270821276,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "4|side|1": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "side",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7718.97385073316,
+      "total_time_seconds": 7743.97385073316,
+      "total_time_minutes": 129.06623084555267,
+      "arrival_soc_by_position": [
+        71.50291135103333,
+        69.709276573625,
+        73.54225475777083,
+        71.1164494395125,
+        72.68970611479584
+      ],
+      "charging_seconds_by_position": [
+        3927.9613321865745,
+        3999.536043152014,
+        3840.89264202939,
+        3943.75656216787,
+        3878.081208703773
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7718.97385073316,
+        3999.5360431520394,
+        3943.75656216786,
+        3927.9613321866
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7749.893508391479
+      },
+      "gap_to_runner_up_seconds": 5.919657658319011,
+      "tied_configurations": [
+        {
+          "formation": "diamond",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "4|side|2": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "side",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7692.73942037304,
+      "total_time_seconds": 7717.73942037304,
+      "total_time_minutes": 128.62899033955065,
+      "arrival_soc_by_position": [
+        72.4811724415875,
+        72.07836832347917,
+        74.3236775236875,
+        71.39460373782917,
+        72.3133163124625
+      ],
+      "charging_seconds_by_position": [
+        3887.000802388669,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.1315354198064
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7692.73942037304,
+        3932.4095144033395,
+        3904.0401434556,
+        3894.13153541982
+      ],
+      "candidate_count": 8,
+      "runner_up": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 7762.6742159962605
+      },
+      "gap_to_runner_up_seconds": 44.93479562322045,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "4|tail|1": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "tail",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7673.442909229921,
+      "total_time_seconds": 7698.442909229921,
+      "total_time_minutes": 128.30738182049868,
+      "arrival_soc_by_position": [
+        71.71362951812084,
+        74.99198866776183,
+        71.5637782892875,
+        69.47812039220834,
+        72.20691633108333
+      ],
+      "charging_seconds_by_position": [
+        3919.2585082150276,
+        3774.8137251777252,
+        3925.454107493013,
+        4008.4504423999433,
+        3898.629184052207
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2",
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7673.442909229921,
+        4008.45044239992,
+        3925.4541074930403,
+        3919.25850821502
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 7760.2088009379395
+      },
+      "gap_to_runner_up_seconds": 61.7658917080189,
+      "tied_configurations": [
+        {
+          "formation": "vee",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "4|tail|2": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "tail",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 7621.92125446692,
+      "total_time_seconds": 7646.92125446692,
+      "total_time_minutes": 127.44868757444867,
+      "arrival_soc_by_position": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "charging_seconds_by_position": [
+        3997.6164031045564,
+        3882.5202353840264,
+        3793.0773656077195,
+        3828.8438888592273,
+        3872.8542704775564
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_4"
+        ],
+        [
+          "drone_1"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7621.92125446692,
+        3997.6164031045805,
+        3882.52023538404,
+        3872.85427047756
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 7760.16500889424
+      },
+      "gap_to_runner_up_seconds": 113.2437544273198,
+      "tied_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 1,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "5|head|1": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "head",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 3928.0010071995785,
+      "total_time_seconds": 3953.0010071995785,
+      "total_time_minutes": 65.88335011999297,
+      "arrival_soc_by_position": [
+        72.33473265760833,
+        72.34640068809583,
+        71.70063668672083,
+        71.5019471294625,
+        72.51524263594166
+      ],
+      "charging_seconds_by_position": [
+        3893.224152674008,
+        3892.729497724622,
+        3919.796994850987,
+        3928.0010071995785,
+        3885.5481498693744
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3928.0010071995785,
+        3919.796994850987,
+        3893.224152674008,
+        3892.729497724622,
+        3885.5481498693744
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 3980.1882591396843
+      },
+      "gap_to_runner_up_seconds": 27.187251940105853,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 1,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "5|head|2": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "head",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 3926.0312140008946,
+      "total_time_seconds": 3951.0312140008946,
+      "total_time_minutes": 65.85052023334825,
+      "arrival_soc_by_position": [
+        73.26820437787917,
+        71.54977962289166,
+        72.62275661918333,
+        73.13223360107084,
+        72.11324029950417
+      ],
+      "charging_seconds_by_position": [
+        3852.9759565807135,
+        3926.0312140008946,
+        3880.952235402806,
+        3858.9252219397845,
+        3902.574746852469
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3926.0312140008946,
+        3902.574746852469,
+        3880.952235402806,
+        3858.9252219397845,
+        3852.9759565807135
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 3983.425697569511
+      },
+      "gap_to_runner_up_seconds": 32.39448356861658,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 2,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "5|side|1": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "side",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 3968.8366344447095,
+      "total_time_seconds": 3993.8366344447095,
+      "total_time_minutes": 66.56394390741183,
+      "arrival_soc_by_position": [
+        70.49201906170833,
+        71.7477305190625,
+        73.03618423854167,
+        71.516259216525,
+        71.55742055362917
+      ],
+      "charging_seconds_by_position": [
+        3968.8366344447095,
+        3917.8440181769492,
+        3863.1096477719148,
+        3927.411967000831,
+        3925.716245567891
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_3"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3968.8366344447095,
+        3927.411967000831,
+        3925.716245567891,
+        3917.8440181769492,
+        3863.1096477719148
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 3995.341541387015
+      },
+      "gap_to_runner_up_seconds": 1.504906942305297,
+      "tied_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [
+        {
+          "formation": "column",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "5|side|2": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "side",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 3894.313565254479,
+      "total_time_seconds": 3919.313565254479,
+      "total_time_minutes": 65.32189275424132,
+      "arrival_soc_by_position": [
+        72.75027190602917,
+        72.40948201502083,
+        72.66132362267916,
+        72.6183888658125,
+        72.30901798847083
+      ],
+      "charging_seconds_by_position": [
+        3875.477867403965,
+        3890.0516058261474,
+        3879.2992069220963,
+        3881.1392957882667,
+        3894.313565254479
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_5"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3894.313565254479,
+        3890.0516058261474,
+        3881.1392957882667,
+        3879.2992069220963,
+        3875.477867403965
+      ],
+      "candidate_count": 8,
+      "runner_up": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "total_time_seconds": 3957.4095144033395
+      },
+      "gap_to_runner_up_seconds": 38.095949148860655,
+      "tied_configurations": [
+        {
+          "formation": "front",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 1,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "5|tail|1": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "tail",
+        "wind_level": 1
+      },
+      "configuration": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 3951.3396543090635,
+      "total_time_seconds": 3976.3396543090635,
+      "total_time_minutes": 66.27232757181773,
+      "arrival_soc_by_position": [
+        70.92905622145416,
+        71.17018292337917,
+        73.00794283240417,
+        72.8078147902875,
+        72.0382404543
+      ],
+      "charging_seconds_by_position": [
+        3951.3396543090635,
+        3941.5730944294723,
+        3864.3371596519964,
+        3872.9990959861784,
+        3905.72414114713
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3951.3396543090635,
+        3941.5730944294723,
+        3905.72414114713,
+        3872.9990959861784,
+        3864.3371596519964
+      ],
+      "candidate_count": 10,
+      "runner_up": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 3994.0084627316587
+      },
+      "gap_to_runner_up_seconds": 17.668808422595248,
+      "tied_configurations": [
+        {
+          "formation": "diamond",
+          "inter_drone_spacing_cm": 75
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 0,
+      "flat_trace_position_records": 2,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    },
+    "5|tail|2": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "tail",
+        "wind_level": 2
+      },
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "flight_seconds": 25.0,
+      "charging_completion_seconds": 3947.580976294808,
+      "total_time_seconds": 3972.580976294808,
+      "total_time_minutes": 66.2096829382468,
+      "arrival_soc_by_position": [
+        71.57005581971667,
+        71.02209206803333,
+        73.87351790581667,
+        71.95890344128334,
+        71.4014303332375
+      ],
+      "charging_seconds_by_position": [
+        3925.195218878208,
+        3947.580976294808,
+        3826.1185280841614,
+        3909.046480810088,
+        3932.1296445642024
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_1"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3947.580976294808,
+        3932.1296445642024,
+        3925.195218878208,
+        3909.046480810088,
+        3826.1185280841614
+      ],
+      "candidate_count": 9,
+      "runner_up": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "total_time_seconds": 3973.2650234843945
+      },
+      "gap_to_runner_up_seconds": 0.6840471895866358,
+      "tied_configurations": [
+        {
+          "formation": "echalon",
+          "inter_drone_spacing_cm": 50
+        }
+      ],
+      "missing_safe_configurations": [],
+      "min_position_run_count": 2,
+      "short_trace_position_records": 2,
+      "flat_trace_position_records": 0,
+      "interpretation": "computed optimum among observed non-excluded configurations under fixed preprocessed baseline; statistical superiority not established"
+    }
+  }
+}

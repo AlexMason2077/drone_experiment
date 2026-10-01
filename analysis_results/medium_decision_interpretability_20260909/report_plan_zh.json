@@ -1,0 +1,35 @@
+{
+  "language": "zh-CN",
+  "surface": "mcp-app",
+  "audience": "technical",
+  "source_sha256": "4ee477db66fcdc38f7f3e478086df817d95cb01a3d39c0b1686ae9e98317b74d",
+  "reporting_job": "中文整理既有 Medium 配置结果，支持与导师讨论；不重新估计数据或改变结果",
+  "structure_mapping": {
+    "title": "title",
+    "technical_summary": "summary",
+    "findings": "map, six wind sections, cross_formation_intro",
+    "scope": "baseline, labels",
+    "methodology": "math, mechanism sections",
+    "limitations": "geometry, uncertainty, bootstrap, checks",
+    "next_steps_and_questions": "next"
+  },
+  "chart_contract": {
+    "question": "五位充电时最优与次优配置差多少秒",
+    "family": "comparison",
+    "type": "single-series bar",
+    "rows": 6,
+    "palette": "single blue root",
+    "non_color": "category labels and values",
+    "scope": "existing chart translated; no numerical changes",
+    "table_rationale": "exact 30-cell decision lookup and detailed pairwise audit"
+  },
+  "preserved": {
+    "blocks": 67,
+    "tables": 10,
+    "sources": 14,
+    "datasets": 13,
+    "decisions": 30,
+    "numerical_values": "unchanged"
+  },
+  "english_original": "preserved; independent Chinese edition"
+}

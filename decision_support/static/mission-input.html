@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Swarm | Mission input</title>
+  <link rel="icon" type="image/svg+xml" href="/static/drone-icon.svg">
+  <link rel="stylesheet" href="/static/vendor/leaflet.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/mission-input.css">
+</head>
+<body class="input-page">
+  <div id="input-map" aria-label="Interactive map for selecting the flight route"></div>
+  <header class="input-header">
+    <div><div class="eyebrow">MISSION <span>/</span> INPUT</div><h1>Plan a delivery mission</h1><p>Select a route on the map and set the starting battery level for each drone.</p></div>
+    <div class="input-header-actions"><span class="draft-indicator"><i></i>Mission draft</span><a href="/" class="input-outline-link">View decision platform <span aria-hidden="true">↗</span></a></div>
+  </header>
+
+  <main class="input-layout">
+    <aside class="input-sidebar" aria-label="Mission inputs">
+      <section class="input-card route-card">
+        <div class="input-card-heading"><div><span class="section-kicker">01 / ROUTE</span><h2>Flight route</h2></div><span class="step-count" id="route-status">0 of 2 required points</span></div>
+        <p class="input-help">Select Start, Stop or Finish, then click the map. Add stops in flight order.</p>
+        <div class="route-actions" role="group" aria-label="Choose a route point to place">
+          <button id="pick-origin" class="route-action active" type="button" aria-pressed="true"><span class="route-action-icon origin-icon">A</span>Start</button>
+          <button id="pick-stop" class="route-action" type="button" aria-pressed="false"><span class="route-action-icon stop-icon">+</span>Stop</button>
+          <button id="pick-destination" class="route-action" type="button" aria-pressed="false"><span class="route-action-icon destination-icon">B</span>Finish</button>
+        </div>
+        <ol id="route-list" class="route-list" aria-live="polite"></ol>
+        <div class="route-card-footer"><button id="clear-route" class="text-button" type="button">Clear route</button><span id="map-instruction">Click the map to set the start point</span></div>
+      </section>
+
+      <section class="input-card battery-card">
+        <div class="input-card-heading"><div><span class="section-kicker">02 / BATTERY</span><h2>Initial battery level</h2></div><span class="step-count">D1–D5</span></div>
+        <p class="input-help">Set each drone’s state of charge before departure.</p>
+        <div id="battery-inputs" class="battery-inputs"></div>
+        <p class="battery-note">Each drone can start at a different battery level.</p>
+      </section>
+      <div class="input-save-row"><button id="save-inputs" class="save-button" type="button" disabled>Save mission inputs <span aria-hidden="true">→</span></button><span id="save-status" role="status">Select a route and enter five battery levels.</span></div>
+    </aside>
+
+    <div class="map-tools input-map-tools"><button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button><button id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button><button id="map-fit" title="Fit selected route" aria-label="Fit selected route">⌖</button></div>
+    <div class="north input-north">↑<b>N</b></div>
+    <div class="map-hint"><span class="map-hint-dot"></span><div><strong id="map-hint-title">Choose the starting point</strong><small id="map-hint-detail">Click anywhere on the map to place it.</small></div></div>
+    <div class="input-map-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a> · Tiles © <a href="https://www.openstreetmap.de/" target="_blank" rel="noreferrer">OpenStreetMap.de</a></div>
+  </main>
+  <script src="/static/vendor/leaflet.js"></script>
+  <script type="module" src="/static/mission-input.js"></script>
+</body>
+</html>

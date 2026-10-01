@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Drone">
+  <rect width="48" height="48" rx="10" fill="#238d83"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8.5" y="8.5" width="31" height="31" rx="7" stroke-width="1.6"/>
+    <path d="m20.4 20.4 7.2 7.2m0-7.2-7.2 7.2" stroke-width="2.2"/>
+    <circle cx="16.5" cy="16.5" r="3.8" stroke-width="1.7"/>
+    <circle cx="31.5" cy="16.5" r="3.8" stroke-width="1.7"/>
+    <circle cx="16.5" cy="31.5" r="3.8" stroke-width="1.7"/>
+    <circle cx="31.5" cy="31.5" r="3.8" stroke-width="1.7"/>
+    <path d="m19.5 19.5-1.5-1.5m10.5 1.5 1.5-1.5m-10.5 10.5-1.5 1.5m10.5-1.5 1.5 1.5" stroke-width="1.5"/>
+  </g>
+  <circle cx="24" cy="24" r="2" fill="#fff"/>
+</svg>

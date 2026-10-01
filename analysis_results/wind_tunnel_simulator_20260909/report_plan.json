@@ -1,0 +1,24 @@
+{
+  "audience": "technical research; Chinese narrative",
+  "surface": "mcp-artifact",
+  "companion": "executed scientific notebook",
+  "chart_contracts": [
+    {
+      "question": "Do independent simulations retain non-uniform integer SOC timing?",
+      "family": "trend",
+      "variants": "three separate line panels; observed/in-sample reference and two seeded simulations",
+      "palette": "relaxed five-category approved roots; series labels",
+      "grain": "SOC event endpoints",
+      "qa": "Notebook PNG inspection; native report validation"
+    },
+    {
+      "question": "How does the selected predictor compare with baselines?",
+      "family": "comparison",
+      "variant": "bar",
+      "palette": "single root",
+      "grain": "four prespecified models, same held-out conditions"
+    }
+  ],
+  "notebook_execution": "Code cells executed sequentially, not through Jupyter kernel (missing nbformat/nbclient).",
+  "assumptions": "Independent empirical stochastic surrogate. No fabricated real telemetry; all uncertainty and exclusions recorded."
+}

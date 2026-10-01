@@ -1,0 +1,17 @@
+{
+  "equivalent_hover_time_max_error_s": 5.684341886080802e-14,
+  "equivalent_hover_time_conserved": true,
+  "five_positions": true,
+  "three_continuous_segments_each": true,
+  "positive_rates": true,
+  "initial_flat_section_removed": true,
+  "common_five_drone_window_only": true,
+  "missing_high_positions": [
+    3,
+    4,
+    5
+  ],
+  "raw_sources_unchanged": true,
+  "hardware_access": false,
+  "training_data_modified": false
+}

@@ -14,33 +14,85 @@ class LegacyRestorationTests(unittest.TestCase):
         self.w = load_offline()
         self.config = self.w.build_configs(experiment("vee", "head wind", 50))[2]
 
-    def test_entire_collector_has_only_authorized_description_and_layout_changes(self):
+    def test_entire_collector_matches_github_except_requested_layout_and_wind_text(self):
         original = subprocess.check_output(
-            ["git", "show", REFERENCE_COMMIT + ":wind_tunnel_collector.py"], cwd=ROOT, text=True)
-        historical = '''        + WIND_FLOW_DESCRIPTIONS.get(
-            str(experiment.get("wind_direction", "")).strip().lower(),
-            "unknown; verify fan placement before takeoff",
-        ),'''
-        correction = '''        + ("source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
-           if configs[0]["formation"] == "vee" and configs[0]["wind_direction"] == "head wind"
-           else WIND_FLOW_DESCRIPTIONS.get(
-            str(experiment.get("wind_direction", "")).strip().lower(),
-            "unknown; verify fan placement before takeoff",
-        )),'''
-        current = (ROOT / "wind_tunnel_collector.py").read_text()
-        diamond_branch = '''        elif formation == "diamond" and wind_direction == "head wind" and spacing == 50:
-            # Match the same diamond geometry at 50 cm centre-to-outer spacing.
-            fixed_positions.append(tuple(value * (spacing / 75.0)
-                                         for value in WIND_TUNNEL_DIAMOND_75_POSITIONS_CM[idx]))
+            ["git", "show", "038b238265f5f312337964f3280622726365d37f:wind_tunnel_collector.py"],
+            cwd=ROOT, text=True)
+        column_anchor = '''        elif diamond_75_side:
 '''
-        self.assertEqual(current.count(diamond_branch), 1)
-        current = current.replace(diamond_branch, "")
+        column_branch = '''        elif formation == "column" and wind_direction in {"head wind", "tail wind", "side wind"} and spacing == 50:
+            # 50 cm Column shares targets: Pad 5 at +Y, then 6, 7, 8, 1 toward -Y.
+            fixed_positions.append((0.0, (4 - idx) * spacing))
+'''
+        self.assertEqual(original.count(column_anchor), 1)
+        historical = '''        + ("source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
+           if configs[0]["formation"] == "vee" and configs[0]["wind_direction"] == "head wind"'''
+        correction = '''        + ("source at +X; airflow +X -> -X"
+           if (dc.is_echalon_formation(configs[0]["formation"])
+               or configs[0]["formation"] in {"vee", "column", "diamond"})
+           and configs[0]["wind_direction"] == "side wind"
+           and configs[0]["inter_drone_distance_cm"] == 50
+           else "source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
+           if (configs[0]["formation"] == "vee"
+               or (configs[0]["formation"] in {"column", "diamond"}
+                   and configs[0]["inter_drone_distance_cm"] == 50))
+           and configs[0]["wind_direction"] == "head wind"
+           else "source at -Y; airflow -Y -> +Y (from behind the +Y-facing noses)"
+           if configs[0]["formation"] in {"column", "diamond"}
+           and configs[0]["inter_drone_distance_cm"] == 50
+           and configs[0]["wind_direction"] == "tail wind"'''
         self.assertEqual(original.count(historical), 1)
-        self.assertEqual(current, original.replace(historical, correction))
-        # Removing only the authorized layout branch and console correction
-        # yields identical full AST, including RC, takeoff and landing logic.
-        self.assertEqual(ast.dump(ast.parse(current.replace(correction, historical))),
-                         ast.dump(ast.parse(original)))
+        current = (ROOT / "wind_tunnel_collector.py").read_text()
+        expected = original.replace(column_anchor, column_branch + column_anchor)
+        expected = expected.replace(
+            'elif formation == "diamond" and wind_direction == "head wind" and spacing == 50:',
+            'elif formation == "diamond" and wind_direction in {"head wind", "tail wind", "side wind"} and spacing == 50:',
+        )
+        expected = expected.replace(
+            "WIND_FLOW_DESCRIPTIONS = {",
+            "# Headwind defaults to Front's +X-facing frame; run() overrides Vee and 50 cm Column/Diamond.\n"
+            "WIND_FLOW_DESCRIPTIONS = {",
+        )
+        expected = expected.replace(
+            "# Physical frame shown on the Wind Tunnel floor plan:",
+            "# Front physical frame shown on the Wind Tunnel floor plan:",
+        )
+        expected = expected.replace(
+            "# Consequently +pad Y is global +Y, while aircraft body-right is global -Y.\n",
+            "# Consequently +pad Y is global +Y, while aircraft body-right is global -Y.\n"
+            "# At 50 cm, Column places Pad 5 at the +Y/front end, then 6, 7, 8, 1 toward -Y\n"
+            "# for all wind directions; noses point +Y. Headwind runs +Y -> -Y,\n"
+            "# tailwind -Y -> +Y, and sidewind +X -> -X.\n",
+        )
+        self.assertEqual(current, expected.replace(historical, correction))
+
+    def test_column_and_diamond_preflight_text_changes_only_at_50_cm(self):
+        tree = ast.parse((ROOT / "wind_tunnel_collector.py").read_text())
+        run = next(node for node in tree.body
+                   if isinstance(node, ast.FunctionDef) and node.name == "run")
+        message = next(node.args[0] for node in ast.walk(run)
+                       if isinstance(node, ast.Call)
+                       and isinstance(node.func, ast.Name) and node.func.id == "print"
+                       and node.args and any(isinstance(part, ast.Constant)
+                                             and part.value == "Physical wind direction: "
+                                             for part in ast.walk(node.args[0])))
+        expression = compile(ast.Expression(message), "isolated-preflight-text", "eval")
+        cases = (
+            ("head wind", 50, "Physical wind direction: source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"),
+            ("head wind", 75, "Physical wind direction: source at +X; airflow +X -> -X (against the nose)"),
+            ("tail wind", 50, "Physical wind direction: source at -Y; airflow -Y -> +Y (from behind the +Y-facing noses)"),
+            ("tail wind", 75, "Physical wind direction: source at -X; airflow -X -> +X (from behind)"),
+            ("side wind", 50, "Physical wind direction: source at +X; airflow +X -> -X"),
+            ("side wind", 75, "Physical wind direction: source at +Y; airflow +Y -> -Y (down the pad line)"),
+        )
+        for formation in ("column", "diamond"):
+            for wind, spacing, expected in cases:
+                with self.subTest(formation=formation, wind=wind, spacing=spacing):
+                    config = self.w.build_configs(experiment(formation, wind, spacing))[0]
+                    actual = eval(expression, {"dc": self.w.dc, "configs": [config],
+                                               "experiment": experiment(formation, wind, spacing),
+                                               "WIND_FLOW_DESCRIPTIONS": self.w.WIND_FLOW_DESCRIPTIONS})
+                    self.assertEqual(actual, expected)
 
     def test_own_pad_rc_points_toward_local_centre_and_target_height(self):
         for x,y,z,expected in ((20,0,80,[-8,0,0,0]),(0,20,80,[0,-8,0,0]),

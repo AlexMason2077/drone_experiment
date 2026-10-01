@@ -1,0 +1,12 @@
+{
+  "version": "medium_bideal_v1_20260908",
+  "file_checksums": "passed",
+  "source_mean_reconciliation": "passed",
+  "battery_scale_reconciliation": "passed",
+  "coverage_check": "passed",
+  "source_runs": 134,
+  "rate_cells": 55,
+  "position_rates": 275,
+  "verification_script_sha256": "3f1d9dc4cd16240b863a17b6437c1d61347d987292bfe71b71f64793f21259b7",
+  "note": "Verified after fixing UTF-8 BOM decoding in the snapshot reader; no frozen data values or payload files were changed."
+}

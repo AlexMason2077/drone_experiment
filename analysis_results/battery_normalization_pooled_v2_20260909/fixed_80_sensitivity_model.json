@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "kind": "individual_battery_normalization_candidate",
+  "version": "recent_fixed80_sensitivity_20260909_not_selected",
+  "status": "candidate_not_active_not_independently_validated",
+  "units": "SOC percentage points per minute",
+  "calibrated_soc_range": [
+    20,
+    95
+  ],
+  "excluded_run_ids": [
+    "20260906_165812"
+  ],
+  "fitting": {
+    "individual": "raw-sample RMSE of endpoint-anchored continuous lines",
+    "reference": "time-integral RMSE of endpoint-anchored lines against same-SOC arithmetic mean-rate curve",
+    "min_segment_soc_width_pp": 10,
+    "min_segment_duration_s": 20,
+    "boundary_grid_pp": 1,
+    "battery_weights": {
+      "B10": 0.2,
+      "B11": 0.2,
+      "B12": 0.2,
+      "B13": 0.2,
+      "B14": 0.2
+    },
+    "upper_soc_constraints": {
+      "B10": 80,
+      "B11": 80
+    }
+  },
+  "reference": {
+    "boundaries_soc": [
+      95.0,
+      82.0,
+      54.0,
+      20.0
+    ],
+    "rates_pp_min": [
+      15.955172784474659,
+      8.063608839162761,
+      12.65716702483295
+    ],
+    "anchor_times_s": [
+      0.0,
+      48.886966661933414,
+      257.23040612054103,
+      418.40391327246425
+    ],
+    "approximation_rmse_pp": 0.364656912658846,
+    "approximation_max_error_pp": 0.7874948401232018,
+    "mean_rate_knot_soc": [
+      95.0,
+      85.0,
+      81.0,
+      80.0,
+      79.0,
+      56.0,
+      51.0,
+      48.0,
+      20.0
+    ],
+    "mean_rate_pp_min": [
+      17.319038098305974,
+      12.637777838363192,
+      7.839898164025428,
+      8.103933538304473,
+      7.783910684327199,
+      10.66664725202729,
+      11.948783377565361,
+      12.999656776774781
+    ],
+    "mean_rate_knot_times_s": [
+      0.0,
+      34.64395635567588,
+      53.63463676401926,
+      61.28779739757432,
+      68.69160935091783,
+      245.98038564412627,
+      274.1054368351631,
+      289.1697320284262,
+      418.40391327246425
+    ]
+  },
+  "batteries": {
+    "B10": {
+      "drone_id": "drone_2",
+      "boundaries_soc": [
+        95.0,
+        80.0,
+        56.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        7.053899630845919,
+        7.9627520155716045,
+        11.56211693796603
+      ],
+      "run_id": "20260906_173013",
+      "source": "database/baselines/drone_2_B10/drone_2_B10_hover_lv1_20260906_173013_20260906_173013_all_coordination.csv",
+      "sha256": "da6993e538d3970ee930b10053fd605082d5b8899e1dd46c3a565a0e30d2b2db",
+      "in_sample_rmse_pp": 1.2678976971902565,
+      "max_in_sample_error_pp": 2.9923426000674027,
+      "observed_sample_count": 494,
+      "anchor_elapsed_times_s": [
+        34.594,
+        162.183,
+        343.025,
+        529.842
+      ],
+      "first_boundary_source": "explicit_80_percent_model_constraint"
+    },
+    "B11": {
+      "drone_id": "drone_1",
+      "boundaries_soc": [
+        95.0,
+        80.0,
+        56.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        7.466525079228127,
+        7.877849565897665,
+        12.278936507665808
+      ],
+      "run_id": "20260906_164725",
+      "source": "database/baselines/drone_1_B11/drone_1_B11_hover_lv1_20260906_164725_20260906_164725_all_coordination.csv",
+      "sha256": "64f7fc219e0ed81e8a8fa3e2ec04db8ad7e0d1eb3c3970b3e4d7becc631d73e6",
+      "in_sample_rmse_pp": 1.469413822548195,
+      "max_in_sample_error_pp": 3.166840049797912,
+      "observed_sample_count": 478,
+      "anchor_elapsed_times_s": [
+        47.914,
+        168.452,
+        351.243,
+        527.154
+      ],
+      "first_boundary_source": "explicit_80_percent_model_constraint"
+    },
+    "B12": {
+      "drone_id": "drone_5",
+      "boundaries_soc": [
+        95.0,
+        79.0,
+        48.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        11.242665917155605,
+        9.64255164726924,
+        14.89691864331634
+      ],
+      "run_id": "20260906_182131",
+      "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260906_182131_20260906_182131_all_coordination.csv",
+      "sha256": "f037c27f085a75ea3b0c9d8a991922a3bb47b316a9d40abb83904b5620352a9a",
+      "in_sample_rmse_pp": 1.1272697733867243,
+      "max_in_sample_error_pp": 2.9302252046516486,
+      "observed_sample_count": 390,
+      "anchor_elapsed_times_s": [
+        47.646,
+        133.035,
+        325.93,
+        438.705
+      ]
+    },
+    "B13": {
+      "drone_id": "drone_3",
+      "boundaries_soc": [
+        95.0,
+        81.0,
+        51.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        30.96203464799115,
+        6.9726362763023335,
+        13.383316903992686
+      ],
+      "run_id": "20260906_170951",
+      "source": "database/baselines/drone_3_B13/drone_3_B13_hover_lv1_20260906_170951_20260906_170951_all_coordination.csv",
+      "sha256": "bc7ef3eef2c2bce1ecf141f6ae5d0468e5a9fdbf0448649f4d6b1bc08c087ead",
+      "in_sample_rmse_pp": 1.5634034178580984,
+      "max_in_sample_error_pp": 2.8092829030958484,
+      "observed_sample_count": 423,
+      "anchor_elapsed_times_s": [
+        13.046,
+        40.176,
+        298.328,
+        437.307
+      ]
+    },
+    "B14": {
+      "drone_id": "drone_4",
+      "boundaries_soc": [
+        95.0,
+        85.0,
+        56.0,
+        20.0
+      ],
+      "rates_pp_min": [
+        29.870065216309055,
+        6.463763916595157,
+        12.876994890933046
+      ],
+      "run_id": "20260906_171938",
+      "source": "database/baselines/drone_4_B14/drone_4_B14_hover_lv1_20260906_171938_20260906_171938_all_coordination.csv",
+      "sha256": "6ec0bf99e3f1a469884c61b85913685259ae688aa22f778a59f05233fb745c75",
+      "in_sample_rmse_pp": 1.970444601243552,
+      "max_in_sample_error_pp": 3.443607374634553,
+      "observed_sample_count": 456,
+      "anchor_elapsed_times_s": [
+        23.883,
+        43.97,
+        313.163,
+        480.904
+      ]
+    }
+  },
+  "previous_model_sha256": "c5a604e76f49e5655194701d0d194e8e6710095430e983f5e889e2f4d650bc6e",
+  "revision": {
+    "primary": "Latest raw data, first boundary explicitly fixed at 80 for B10/B11 only",
+    "reason": "User requested about-80% stage comparability; this is a model constraint, not the unconstrained optimum",
+    "historical_role": "not used in this recent-only alternative; user confirmed old runs no-wind and same set height",
+    "untouched_batteries": [
+      "B12",
+      "B13",
+      "B14"
+    ]
+  }
+}

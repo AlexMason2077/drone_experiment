@@ -1,0 +1,13 @@
+{
+  "pdfs_checked": 27,
+  "pdf_pages_checked": 51,
+  "main_pdf_pages": 25,
+  "wind_tunnel_absent_from_pdf_text_metadata_and_filenames": true,
+  "stage_coefficients_unchanged": true,
+  "baseline_unchanged": true,
+  "standalone_png_resolution": [
+    3300,
+    2040
+  ],
+  "individual_figure_subtitle_removed": true
+}

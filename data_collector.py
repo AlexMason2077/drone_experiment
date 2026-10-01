@@ -44,11 +44,11 @@ REGISTRY_FILE = DATA_DIR / "experiment_registry.json"
 
 IP_PREFIX = "192.168.0."
 DRONE_NUMBER_TO_IP_SUFFIX = {
-    "1": "100",
-    "2": "101",
+    "1": "104",
+    "2": "103",
     "3": "102",
-    "4": "103",
-    "5": "104",
+    "4": "105",
+    "5": "101",
 }
 ROW_SPACING_CM = 50
 COLUMN_SPACING_CM = 50

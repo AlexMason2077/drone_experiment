@@ -1,0 +1,4681 @@
+{
+  "version": 1,
+  "kind": "medium_decision_interpretation",
+  "source_sha256": {
+    "preprocessed_75pct_250cm.csv": "196323c9261ad26a1885a471fd9777ecdfc3b8885d0cb39777108b35928ad4e5",
+    "README.md": "c9f2aa7b5307dba916bdfe360768329a5c8769825a4a7a15492c536838aadce5",
+    "decision_function.json": "702f783506f015d244b76d077113b45a2915facf153d8350698d9776b00512c0",
+    "candidate_rankings.csv": "b11cf02eab285005a26831ba37c751544674f886d5efc2050c1c602f767e1525",
+    "manifest.json": "ec1f77a4a458b62a5c3957e05bc03bd5c47de27af0db08210a8ab8e8fb82bef9",
+    "decision_table.csv": "b7eabae52ba8137e00beb10a80c2db7c4fb4ad853ca3b2763a4fb63e13a6e29d"
+  },
+  "raw_rate_sha256": "99d27578e809994ae26000760f803b2f0fce67d98c4a27851096ef494749d827",
+  "seed": 20260909,
+  "bootstrap_attempts_per_wind_condition": 2000,
+  "wind_label_mapping": {
+    "1": "low",
+    "2": "high"
+  },
+  "decisions": {
+    "1|head|1": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "head",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 75 cm",
+      "paper_wind": "low headwind",
+      "data_explanation_en": "With 1 available charging pad, front 75 cm gives the lowest computed total time (322.08 min), 219.51 s below echelon 75 cm. It minimizes the sum of all five charging times; the limiting pad serves P1, P2, P3, P4, P5 and finishes charging after 321.66 min.",
+      "data_explanation_zh": "1个充电位时选front 75 cm：计算总时间322.08分钟，比第二名echelon 75 cm少219.51秒；最后完成的充电位承担P1, P2, P3, P4, P5，该位充电负担为321.66分钟。",
+      "total_time_minutes": 322.07979722443883,
+      "gap_to_runner_up_seconds": 219.51196885224272,
+      "runner_up_configuration": "echelon 75 cm",
+      "decision_driver": "the sum of all five charging times",
+      "bottleneck_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19299.78783346633
+      ],
+      "position_rates_Bideal_pp_min": [
+        1.63933565451,
+        10.8300388592,
+        0.967125358149,
+        2.46794707131,
+        7.34376537103
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.39664162174,
+        6.36863834857,
+        7.91847195187,
+        8.39532688929,
+        5.96341767374
+      ],
+      "position_charging_seconds": [
+        3806.0461104042015,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.8326146977943
+      ],
+      "runner_up_position_charging_seconds": [
+        3893.224152674008,
+        3892.7294977246224,
+        3919.796994850987,
+        3928.001007199579,
+        3885.5481498693753
+      ],
+      "arrival_soc_Bideal": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        3,
+        1,
+        4,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        5,
+        2,
+        1,
+        3,
+        4
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 80.6% of 1765 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "1|head|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1765,
+        "bootstrap_invalid": 235,
+        "nominal_winner_selection_frequency": 0.8062322946175637,
+        "fixed_runner_up_gap_p025_s": 82.21337903062522,
+        "fixed_runner_up_gap_p975_s": 343.7141722629858,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 24,
+        "loo_retained": 24,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 50 cm",
+        "gap_to_selected_seconds": 222.23584716202095,
+        "rates_Bideal_pp_min": [
+          6.59426423848,
+          13.9890262315,
+          7.41841806262,
+          6.00011169762,
+          1.73166412175
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "2|head|1": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "head",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 75 cm",
+      "paper_wind": "low headwind",
+      "data_explanation_en": "With 2 available charging pads, front 75 cm gives the lowest computed total time (190.77 min), 169.77 s below front 50 cm. It minimizes the combined charging time of the three shortest charging jobs; the limiting pad serves P1, P3, P4 and finishes charging after 190.35 min.",
+      "data_explanation_zh": "2个充电位时选front 75 cm：计算总时间190.77分钟，比第二名front 50 cm少169.77秒；最后完成的充电位承担P1, P3, P4，该位充电负担为190.35分钟。",
+      "total_time_minutes": 190.76563958696497,
+      "gap_to_runner_up_seconds": 169.77216318934734,
+      "runner_up_configuration": "front 50 cm",
+      "decision_driver": "the combined charging time of the three shortest charging jobs",
+      "bottleneck_positions": [
+        1,
+        3,
+        4
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3",
+          "drone_4"
+        ],
+        [
+          "drone_2",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11420.93837521788,
+        7878.849458248441
+      ],
+      "position_rates_Bideal_pp_min": [
+        1.63933565451,
+        10.8300388592,
+        0.967125358149,
+        2.46794707131,
+        7.34376537103
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.59426423848,
+        13.9890262315,
+        7.41841806262,
+        6.00011169762,
+        1.73166412175
+      ],
+      "position_charging_seconds": [
+        3806.0461104042015,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.8326146977943
+      ],
+      "runner_up_position_charging_seconds": [
+        3896.709074914834,
+        4020.1813887416592,
+        3911.131753479448,
+        3886.200257826121,
+        3807.8012056662897
+      ],
+      "arrival_soc_Bideal": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        3,
+        1,
+        4,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        5,
+        4,
+        1,
+        3,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 95.0% of 1765 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "2|head|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1765,
+        "bootstrap_invalid": 235,
+        "nominal_winner_selection_frequency": 0.9501416430594901,
+        "fixed_runner_up_gap_p025_s": 33.33967539216428,
+        "fixed_runner_up_gap_p975_s": 217.00798882013987,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 24,
+        "loo_retained": 24,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 50 cm",
+        "gap_to_selected_seconds": 169.77216318934734,
+        "rates_Bideal_pp_min": [
+          6.59426423848,
+          13.9890262315,
+          7.41841806262,
+          6.00011169762,
+          1.73166412175
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "3|head|1": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "head",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 75 cm",
+      "paper_wind": "low headwind",
+      "data_explanation_en": "With 3 available charging pads, front 75 cm gives the lowest computed total time (128.80 min), 73.28 s below column 50 cm. It minimizes the larger of the two optimally paired charging workloads, with the longest job charged alone; the limiting pad serves P3, P5 and finishes charging after 128.38 min.",
+      "data_explanation_zh": "3个充电位时选front 75 cm：计算总时间128.80分钟，比第二名column 50 cm少73.28秒；最后完成的充电位承担P3, P5，该位充电负担为128.38分钟。",
+      "total_time_minutes": 128.80034502123908,
+      "gap_to_runner_up_seconds": 73.27526002564991,
+      "runner_up_configuration": "column 50 cm",
+      "decision_driver": "the larger of the two optimally paired charging workloads, with the longest job charged alone",
+      "bottleneck_positions": [
+        3,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7703.020701274319,
+        7627.7502886413595,
+        3969.01684355064
+      ],
+      "position_rates_Bideal_pp_min": [
+        1.63933565451,
+        10.8300388592,
+        0.967125358149,
+        2.46794707131,
+        7.34376537103
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        3.15774217035,
+        13.2061675581,
+        7.42587599796,
+        7.37128916617,
+        4.87199306092
+      ],
+      "position_charging_seconds": [
+        3806.0461104042015,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.8326146977943
+      ],
+      "runner_up_position_charging_seconds": [
+        3834.581456568105,
+        4007.7083605499624,
+        3911.261460687515,
+        3910.3117633409192,
+        3865.984197959076
+      ],
+      "arrival_soc_Bideal": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        3,
+        1,
+        4,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        1,
+        5,
+        4,
+        3,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 68.0% of 1765 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "3|head|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1765,
+        "bootstrap_invalid": 235,
+        "nominal_winner_selection_frequency": 0.6798866855524079,
+        "fixed_runner_up_gap_p025_s": -86.97557357929236,
+        "fixed_runner_up_gap_p975_s": 234.8905000729019,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 24,
+        "loo_retained": 23,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 50 cm",
+        "gap_to_selected_seconds": 79.8886314666106,
+        "rates_Bideal_pp_min": [
+          6.59426423848,
+          13.9890262315,
+          7.41841806262,
+          6.00011169762,
+          1.73166412175
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "4|head|1": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "head",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 75 cm",
+      "paper_wind": "low headwind",
+      "data_explanation_en": "With 4 available charging pads, front 75 cm gives the lowest computed total time (127.07 min), 94.77 s below front 50 cm. It minimizes the combined charging time of the two shortest jobs sharing a pad; the limiting pad serves P1, P3 and finishes charging after 126.65 min.",
+      "data_explanation_zh": "4个充电位时选front 75 cm：计算总时间127.07分钟，比第二名front 50 cm少94.77秒；最后完成的充电位承担P1, P3，该位充电负担为126.65分钟。",
+      "total_time_minutes": 127.07056994967918,
+      "gap_to_runner_up_seconds": 94.76726651165882,
+      "runner_up_configuration": "front 50 cm",
+      "decision_driver": "the combined charging time of the two shortest jobs sharing a pad",
+      "bottleneck_positions": [
+        1,
+        3
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7599.234196980779,
+        3969.01684355064,
+        3909.8326146977997,
+        3821.70417823716
+      ],
+      "position_rates_Bideal_pp_min": [
+        1.63933565451,
+        10.8300388592,
+        0.967125358149,
+        2.46794707131,
+        7.34376537103
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.59426423848,
+        13.9890262315,
+        7.41841806262,
+        6.00011169762,
+        1.73166412175
+      ],
+      "position_charging_seconds": [
+        3806.0461104042015,
+        3969.0168435506366,
+        3793.18808657655,
+        3821.7041782371466,
+        3909.8326146977943
+      ],
+      "runner_up_position_charging_seconds": [
+        3896.709074914834,
+        4020.1813887416592,
+        3911.131753479448,
+        3886.200257826121,
+        3807.8012056662897
+      ],
+      "arrival_soc_Bideal": [
+        74.3169434772875,
+        70.48748380866667,
+        74.59703110077125,
+        73.9716887202875,
+        71.94009776207083
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        3,
+        1,
+        4,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        5,
+        4,
+        1,
+        3,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 87.9% of 1765 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "4|head|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1765,
+        "bootstrap_invalid": 235,
+        "nominal_winner_selection_frequency": 0.8793201133144476,
+        "fixed_runner_up_gap_p025_s": -24.984341883410707,
+        "fixed_runner_up_gap_p975_s": 141.6923927584594,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 24,
+        "loo_retained": 24,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 50 cm",
+        "gap_to_selected_seconds": 94.76726651165882,
+        "rates_Bideal_pp_min": [
+          6.59426423848,
+          13.9890262315,
+          7.41841806262,
+          6.00011169762,
+          1.73166412175
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "5|head|1": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "head",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 75 cm",
+      "paper_wind": "low headwind",
+      "data_explanation_en": "With 5 available charging pads, echelon 75 cm gives the lowest computed total time (65.88 min), 27.19 s below vee 75 cm. It minimizes the longest individual charging time; the limiting pad serves P4 and finishes charging after 65.47 min.",
+      "data_explanation_zh": "5个充电位时选echelon 75 cm：计算总时间65.88分钟，比第二名vee 75 cm少27.19秒；最后完成的充电位承担P4，该位充电负担为65.47分钟。",
+      "total_time_minutes": 65.88335011999298,
+      "gap_to_runner_up_seconds": 27.187251940105398,
+      "runner_up_configuration": "vee 75 cm",
+      "decision_driver": "the longest individual charging time",
+      "bottleneck_positions": [
+        4
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3928.0010071995785,
+        3919.796994850987,
+        3893.224152674008,
+        3892.729497724622,
+        3885.5481498693744
+      ],
+      "position_rates_Bideal_pp_min": [
+        6.39664162174,
+        6.36863834857,
+        7.91847195187,
+        8.39532688929,
+        5.96341767374
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        7.91847628137,
+        7.75408300362,
+        8.43121697329,
+        7.53966223591,
+        9.9996360736
+      ],
+      "position_charging_seconds": [
+        3893.224152674008,
+        3892.7294977246224,
+        3919.796994850987,
+        3928.001007199579,
+        3885.5481498693753
+      ],
+      "runner_up_position_charging_seconds": [
+        3919.7970695986983,
+        3916.955421331641,
+        3928.6161588573636,
+        3913.238635284157,
+        3955.1882591396843
+      ],
+      "arrival_soc_Bideal": [
+        72.33473265760833,
+        72.34640068809583,
+        71.70063668672083,
+        71.5019471294625,
+        72.51524263594166
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        5,
+        2,
+        1,
+        3,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        4,
+        2,
+        1,
+        3,
+        5
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 35.7% of 1765 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "5|head|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1765,
+        "bootstrap_invalid": 235,
+        "nominal_winner_selection_frequency": 0.35694050991501414,
+        "fixed_runner_up_gap_p025_s": -44.98538792986756,
+        "fixed_runner_up_gap_p975_s": 107.452028296354,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 24,
+        "loo_retained": 21,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 0
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 50 cm",
+        "gap_to_selected_seconds": 133.82125104121724,
+        "rates_Bideal_pp_min": [
+          5.338692066,
+          16.6637141591,
+          4.74217359622,
+          15.2583751873,
+          8.00155089786
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "1|head|2": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "head",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 75 cm",
+      "paper_wind": "high headwind",
+      "data_explanation_en": "With 1 available charging pad, echelon 75 cm gives the lowest computed total time (324.11 min), 42.77 s below echelon 50 cm. It minimizes the sum of all five charging times; the limiting pad serves P1, P2, P3, P4, P5 and finishes charging after 323.69 min.",
+      "data_explanation_zh": "1个充电位时选echelon 75 cm：计算总时间324.11分钟，比第二名echelon 50 cm少42.77秒；最后完成的充电位承担P1, P2, P3, P4, P5，该位充电负担为323.69分钟。",
+      "total_time_minutes": 324.1076562462778,
+      "gap_to_runner_up_seconds": 42.77289538131299,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the sum of all five charging times",
+      "bottleneck_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19421.45937477667
+      ],
+      "position_rates_Bideal_pp_min": [
+        4.15630949309,
+        8.28052890506,
+        5.70538411396,
+        4.48263935743,
+        6.92822328119
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        3.34596617438,
+        6.34724100631,
+        3.92622924976,
+        12.1026537559,
+        6.50571300035
+      ],
+      "position_charging_seconds": [
+        3852.9759565807144,
+        3926.031214000895,
+        3880.9522354028063,
+        3858.925221939785,
+        3902.574746852469
+      ],
+      "runner_up_position_charging_seconds": [
+        3838.070851634891,
+        3892.351390461937,
+        3848.763184737841,
+        3989.8980205663693,
+        3895.1488227569457
+      ],
+      "arrival_soc_Bideal": [
+        73.26820437787917,
+        71.54977962289166,
+        72.62275661918333,
+        73.13223360107084,
+        72.11324029950417
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        1,
+        4,
+        3,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        1,
+        3,
+        2,
+        5,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        2
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 2 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 39.2% of 1162 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "1|head|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1162,
+        "bootstrap_invalid": 838,
+        "nominal_winner_selection_frequency": 0.39156626506024095,
+        "fixed_runner_up_gap_p025_s": -144.28849807916413,
+        "fixed_runner_up_gap_p975_s": 285.53791195052327,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 23,
+        "loo_retained": 18,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 50 cm",
+        "gap_to_selected_seconds": 42.77289538131299,
+        "rates_Bideal_pp_min": [
+          3.34596617438,
+          6.34724100631,
+          3.92622924976,
+          12.1026537559,
+          6.50571300035
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "2|head|2": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "head",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "high headwind",
+      "data_explanation_en": "With 2 available charging pads, front 50 cm gives the lowest computed total time (193.16 min), 14.63 s below echelon 50 cm. It minimizes the combined charging time of the three shortest charging jobs; the limiting pad serves P1, P3, P5 and finishes charging after 192.74 min.",
+      "data_explanation_zh": "2个充电位时选front 50 cm：计算总时间193.16分钟，比第二名echelon 50 cm少14.63秒；最后完成的充电位承担P1, P3, P5，该位充电负担为192.74分钟。",
+      "total_time_minutes": 193.1591860290842,
+      "gap_to_runner_up_seconds": 14.634265089616747,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the combined charging time of the three shortest charging jobs",
+      "bottleneck_positions": [
+        1,
+        3,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_2",
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11564.55116174508,
+        7906.03328588502
+      ],
+      "position_rates_Bideal_pp_min": [
+        7.5946951611,
+        8.69325319162,
+        1.34196021619,
+        11.0671460849,
+        3.99271824818
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        3.34596617438,
+        6.34724100631,
+        3.92622924976,
+        12.1026537559,
+        6.50571300035
+      ],
+      "position_charging_seconds": [
+        3914.1937046431217,
+        3933.0976749510846,
+        3800.375302346387,
+        3972.9356109339387,
+        3849.9821547555434
+      ],
+      "runner_up_position_charging_seconds": [
+        3838.070851634891,
+        3892.351390461937,
+        3848.763184737841,
+        3989.8980205663693,
+        3895.1488227569457
+      ],
+      "arrival_soc_Bideal": [
+        71.835543682875,
+        71.37781117015834,
+        74.44084990992083,
+        70.38868913129167,
+        73.33636739659167
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        2,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        1,
+        3,
+        2,
+        5,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        2,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 20.7% of 1162 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "2|head|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1162,
+        "bootstrap_invalid": 838,
+        "nominal_winner_selection_frequency": 0.20740103270223753,
+        "fixed_runner_up_gap_p025_s": -60.83452119029971,
+        "fixed_runner_up_gap_p975_s": 88.36142869026844,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 23,
+        "loo_retained": 17,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 299.72286669543064,
+        "rates_Bideal_pp_min": [
+          9.97516164645,
+          11.8774335859,
+          10.4073447767,
+          10.4441926313,
+          9.54203807772
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "3|head|2": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "head",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 50 cm",
+      "paper_wind": "high headwind",
+      "data_explanation_en": "With 3 available charging pads, echelon 50 cm gives the lowest computed total time (129.44 min), 14.44 s below echelon 75 cm. It minimizes the larger of the two optimally paired charging workloads, with the longest job charged alone; the limiting pad serves P2, P3 and finishes charging after 129.02 min.",
+      "data_explanation_zh": "3个充电位时选echelon 50 cm：计算总时间129.44分钟，比第二名echelon 75 cm少14.44秒；最后完成的充电位承担P2, P3，该位充电负担为129.02分钟。",
+      "total_time_minutes": 129.4352429199963,
+      "gap_to_runner_up_seconds": 14.436128233405725,
+      "runner_up_configuration": "echelon 75 cm",
+      "decision_driver": "the larger of the two optimally paired charging workloads, with the longest job charged alone",
+      "bottleneck_positions": [
+        2,
+        3
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2",
+          "drone_3"
+        ],
+        [
+          "drone_1",
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7741.1145751998,
+        7733.21967439182,
+        3989.89802056638
+      ],
+      "position_rates_Bideal_pp_min": [
+        3.34596617438,
+        6.34724100631,
+        3.92622924976,
+        12.1026537559,
+        6.50571300035
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        4.15630949309,
+        8.28052890506,
+        5.70538411396,
+        4.48263935743,
+        6.92822328119
+      ],
+      "position_charging_seconds": [
+        3838.070851634891,
+        3892.351390461937,
+        3848.763184737841,
+        3989.8980205663693,
+        3895.1488227569457
+      ],
+      "runner_up_position_charging_seconds": [
+        3852.9759565807144,
+        3926.031214000895,
+        3880.9522354028063,
+        3858.925221939785,
+        3902.574746852469
+      ],
+      "arrival_soc_Bideal": [
+        73.60584742734167,
+        72.35531624737084,
+        73.36407114593334,
+        69.95722760170834,
+        72.28928624985417
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        1,
+        3,
+        2,
+        5,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        1,
+        4,
+        3,
+        5,
+        2
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        2,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "Whole-trial resampling retained this numerical winner in 21.0% of 1162 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "3|head|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1162,
+        "bootstrap_invalid": 838,
+        "nominal_winner_selection_frequency": 0.2099827882960413,
+        "fixed_runner_up_gap_p025_s": -102.27146250058377,
+        "fixed_runner_up_gap_p975_s": 78.33480189261991,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 23,
+        "loo_retained": 17,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 75 cm",
+        "gap_to_selected_seconds": 14.436128233405725,
+        "rates_Bideal_pp_min": [
+          4.15630949309,
+          8.28052890506,
+          5.70538411396,
+          4.48263935743,
+          6.92822328119
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "4|head|2": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "head",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "high headwind",
+      "data_explanation_en": "With 4 available charging pads, front 50 cm gives the lowest computed total time (127.92 min), 36.48 s below echelon 50 cm. It minimizes the combined charging time of the two shortest jobs sharing a pad; the limiting pad serves P3, P5 and finishes charging after 127.51 min.",
+      "data_explanation_zh": "4个充电位时选front 50 cm：计算总时间127.92分钟，比第二名echelon 50 cm少36.48秒；最后完成的充电位承担P3, P5，该位充电负担为127.51分钟。",
+      "total_time_minutes": 127.92262428503219,
+      "gap_to_runner_up_seconds": 36.47657927080127,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the combined charging time of the two shortest jobs sharing a pad",
+      "bottleneck_positions": [
+        3,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7650.3574571019,
+        3972.93561093396,
+        3933.09767495106,
+        3914.19370464312
+      ],
+      "position_rates_Bideal_pp_min": [
+        7.5946951611,
+        8.69325319162,
+        1.34196021619,
+        11.0671460849,
+        3.99271824818
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        3.34596617438,
+        6.34724100631,
+        3.92622924976,
+        12.1026537559,
+        6.50571300035
+      ],
+      "position_charging_seconds": [
+        3914.1937046431217,
+        3933.0976749510846,
+        3800.375302346387,
+        3972.9356109339387,
+        3849.9821547555434
+      ],
+      "runner_up_position_charging_seconds": [
+        3838.070851634891,
+        3892.351390461937,
+        3848.763184737841,
+        3989.8980205663693,
+        3895.1488227569457
+      ],
+      "arrival_soc_Bideal": [
+        71.835543682875,
+        71.37781117015834,
+        74.44084990992083,
+        70.38868913129167,
+        73.33636739659167
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        2,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        1,
+        3,
+        2,
+        5,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        2,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 25.9% of 1162 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "4|head|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1162,
+        "bootstrap_invalid": 838,
+        "nominal_winner_selection_frequency": 0.25903614457831325,
+        "fixed_runner_up_gap_p025_s": -26.44064333184633,
+        "fixed_runner_up_gap_p975_s": 117.83561374797864,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 23,
+        "loo_retained": 18,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 251.9184147315309,
+        "rates_Bideal_pp_min": [
+          9.97516164645,
+          11.8774335859,
+          10.4073447767,
+          10.4441926313,
+          9.54203807772
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "5|head|2": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "head",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 75 cm",
+      "paper_wind": "high headwind",
+      "data_explanation_en": "With 5 available charging pads, echelon 75 cm gives the lowest computed total time (65.85 min), 32.39 s below diamond 50 cm. It minimizes the longest individual charging time; the limiting pad serves P2 and finishes charging after 65.43 min.",
+      "data_explanation_zh": "5个充电位时选echelon 75 cm：计算总时间65.85分钟，比第二名diamond 50 cm少32.39秒；最后完成的充电位承担P2，该位充电负担为65.43分钟。",
+      "total_time_minutes": 65.85052023334825,
+      "gap_to_runner_up_seconds": 32.394483568617034,
+      "runner_up_configuration": "diamond 50 cm",
+      "decision_driver": "the longest individual charging time",
+      "bottleneck_positions": [
+        2
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3926.0312140008946,
+        3902.574746852469,
+        3880.952235402806,
+        3858.9252219397845,
+        3852.9759565807135
+      ],
+      "position_rates_Bideal_pp_min": [
+        4.15630949309,
+        8.28052890506,
+        5.70538411396,
+        4.48263935743,
+        6.92822328119
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        5.93487657579,
+        10.1931663371,
+        8.7596239198,
+        6.16629927222,
+        5.76445989751
+      ],
+      "position_charging_seconds": [
+        3852.9759565807144,
+        3926.031214000895,
+        3880.9522354028063,
+        3858.925221939785,
+        3902.574746852469
+      ],
+      "runner_up_position_charging_seconds": [
+        3885.0406808023927,
+        3958.425697569512,
+        3934.230077537439,
+        3889.1491286794417,
+        3882.0060432865816
+      ],
+      "arrival_soc_Bideal": [
+        73.26820437787917,
+        71.54977962289166,
+        72.62275661918333,
+        73.13223360107084,
+        72.11324029950417
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        1,
+        4,
+        3,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        5,
+        1,
+        4,
+        3,
+        2
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        2
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 2 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 32.4% of 1162 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "5|head|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1162,
+        "bootstrap_invalid": 838,
+        "nominal_winner_selection_frequency": 0.32358003442340794,
+        "fixed_runner_up_gap_p025_s": -20.308236489127466,
+        "fixed_runner_up_gap_p975_s": 40.621760242564505,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 23,
+        "loo_retained": 20,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 50 cm",
+        "gap_to_selected_seconds": 63.866806565474235,
+        "rates_Bideal_pp_min": [
+          3.34596617438,
+          6.34724100631,
+          3.92622924976,
+          12.1026537559,
+          6.50571300035
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "1|side|1": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "side",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "low sidewind",
+      "data_explanation_en": "With 1 available charging pad, front 50 cm gives the lowest computed total time (325.05 min), 112.15 s below diamond 75 cm. It minimizes the sum of all five charging times; the limiting pad serves P1, P2, P3, P4, P5 and finishes charging after 324.63 min.",
+      "data_explanation_zh": "1个充电位时选front 50 cm：计算总时间325.05分钟，比第二名diamond 75 cm少112.15秒；最后完成的充电位承担P1, P2, P3, P4, P5，该位充电负担为324.63分钟。",
+      "total_time_minutes": 325.0512817893376,
+      "gap_to_runner_up_seconds": 112.15088087936601,
+      "runner_up_configuration": "diamond 75 cm",
+      "decision_driver": "the sum of all five charging times",
+      "bottleneck_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19478.076907360253
+      ],
+      "position_rates_Bideal_pp_min": [
+        6.32486613696,
+        10.9101018057,
+        4.81809300884,
+        4.53538474245,
+        6.2643775226
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        8.39301275752,
+        12.6977362233,
+        3.49858858135,
+        9.32052134517,
+        5.54470532449
+      ],
+      "position_charging_seconds": [
+        3891.955879106881,
+        3970.3415413870143,
+        3865.0095214425514,
+        3859.8839869489284,
+        3890.8859784748806
+      ],
+      "runner_up_position_charging_seconds": [
+        3927.9613321865745,
+        3999.536043152014,
+        3840.8926420293906,
+        3943.7565621678705,
+        3878.081208703773
+      ],
+      "arrival_soc_Bideal": [
+        72.3646391096,
+        70.454124247625,
+        72.99246124631667,
+        73.1102563573125,
+        72.38984269891667
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        4,
+        3,
+        5,
+        1,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        4,
+        2
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Column 50 cm has no eligible real profile in this wind condition and is not ranked.",
+        "Whole-trial resampling retained this numerical winner in 37.1% of 1844 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "1|side|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1844,
+        "bootstrap_invalid": 156,
+        "nominal_winner_selection_frequency": 0.37093275488069416,
+        "fixed_runner_up_gap_p025_s": -357.76485459403557,
+        "fixed_runner_up_gap_p975_s": 566.328920062766,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 21,
+        "loo_retained": 16,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 156.56681025833313,
+        "rates_Bideal_pp_min": [
+          7.30420769318,
+          13.6808848482,
+          4.65666793316,
+          7.88532377466,
+          8.44791321263
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "2|side|1": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "side",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "low sidewind",
+      "data_explanation_en": "With 2 available charging pads, front 50 cm gives the lowest computed total time (194.01 min), 31.16 s below diamond 75 cm. It minimizes the combined charging time of the three shortest charging jobs; the limiting pad serves P3, P4, P5 and finishes charging after 193.60 min.",
+      "data_explanation_zh": "2个充电位时选front 50 cm：计算总时间194.01分钟，比第二名diamond 75 cm少31.16秒；最后完成的充电位承担P3, P4, P5，该位充电负担为193.60分钟。",
+      "total_time_minutes": 194.01299144777266,
+      "gap_to_runner_up_seconds": 31.155696053376232,
+      "runner_up_configuration": "diamond 75 cm",
+      "decision_driver": "the combined charging time of the three shortest charging jobs",
+      "bottleneck_positions": [
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11615.77948686636,
+        7862.297420493899
+      ],
+      "position_rates_Bideal_pp_min": [
+        6.32486613696,
+        10.9101018057,
+        4.81809300884,
+        4.53538474245,
+        6.2643775226
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        8.39301275752,
+        12.6977362233,
+        3.49858858135,
+        9.32052134517,
+        5.54470532449
+      ],
+      "position_charging_seconds": [
+        3891.955879106881,
+        3970.3415413870143,
+        3865.0095214425514,
+        3859.8839869489284,
+        3890.8859784748806
+      ],
+      "runner_up_position_charging_seconds": [
+        3927.9613321865745,
+        3999.536043152014,
+        3840.8926420293906,
+        3943.7565621678705,
+        3878.081208703773
+      ],
+      "arrival_soc_Bideal": [
+        72.3646391096,
+        70.454124247625,
+        72.99246124631667,
+        73.1102563573125,
+        72.38984269891667
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        4,
+        3,
+        5,
+        1,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        4,
+        2
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Column 50 cm has no eligible real profile in this wind condition and is not ranked.",
+        "Whole-trial resampling retained this numerical winner in 31.2% of 1844 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "2|side|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1844,
+        "bootstrap_invalid": 156,
+        "nominal_winner_selection_frequency": 0.31182212581344904,
+        "fixed_runner_up_gap_p025_s": -228.97883598876433,
+        "fixed_runner_up_gap_p975_s": 295.56503668531695,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 21,
+        "loo_retained": 16,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 74.67431454025609,
+        "rates_Bideal_pp_min": [
+          7.30420769318,
+          13.6808848482,
+          4.65666793316,
+          7.88532377466,
+          8.44791321263
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "3|side|1": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "side",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "low sidewind",
+      "data_explanation_en": "With 3 available charging pads, front 50 cm gives the lowest computed total time (129.68 min), 50.15 s below diamond 75 cm. It minimizes the larger of the two optimally paired charging workloads, with the longest job charged alone; the limiting pad serves P3, P5 and finishes charging after 129.26 min.",
+      "data_explanation_zh": "3个充电位时选front 50 cm：计算总时间129.68分钟，比第二名diamond 75 cm少50.15秒；最后完成的充电位承担P3, P5，该位充电负担为129.26分钟。",
+      "total_time_minutes": 129.68159166529054,
+      "gap_to_runner_up_seconds": 50.14704097291542,
+      "runner_up_configuration": "diamond 75 cm",
+      "decision_driver": "the larger of the two optimally paired charging workloads, with the longest job charged alone",
+      "bottleneck_positions": [
+        3,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7755.89549991744,
+        7751.8398660558,
+        3970.34154138702
+      ],
+      "position_rates_Bideal_pp_min": [
+        6.32486613696,
+        10.9101018057,
+        4.81809300884,
+        4.53538474245,
+        6.2643775226
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        8.39301275752,
+        12.6977362233,
+        3.49858858135,
+        9.32052134517,
+        5.54470532449
+      ],
+      "position_charging_seconds": [
+        3891.955879106881,
+        3970.3415413870143,
+        3865.0095214425514,
+        3859.8839869489284,
+        3890.8859784748806
+      ],
+      "runner_up_position_charging_seconds": [
+        3927.9613321865745,
+        3999.536043152014,
+        3840.8926420293906,
+        3943.7565621678705,
+        3878.081208703773
+      ],
+      "arrival_soc_Bideal": [
+        72.3646391096,
+        70.454124247625,
+        72.99246124631667,
+        73.1102563573125,
+        72.38984269891667
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        4,
+        3,
+        5,
+        1,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        4,
+        2
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Column 50 cm has no eligible real profile in this wind condition and is not ranked.",
+        "Whole-trial resampling retained this numerical winner in 36.7% of 1844 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "3|side|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1844,
+        "bootstrap_invalid": 156,
+        "nominal_winner_selection_frequency": 0.3665943600867679,
+        "fixed_runner_up_gap_p025_s": -159.13617220374,
+        "fixed_runner_up_gap_p975_s": 255.87298931515397,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 21,
+        "loo_retained": 16,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 72.47269123432397,
+        "rates_Bideal_pp_min": [
+          7.30420769318,
+          13.6808848482,
+          4.65666793316,
+          7.88532377466,
+          8.44791321263
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "4|side|1": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "side",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "diamond 75 cm",
+      "paper_wind": "low sidewind",
+      "data_explanation_en": "With 4 available charging pads, diamond 75 cm gives the lowest computed total time (129.07 min), 5.92 s below front 50 cm. It minimizes the combined charging time of the two shortest jobs sharing a pad; the limiting pad serves P3, P5 and finishes charging after 128.65 min.",
+      "data_explanation_zh": "4个充电位时选diamond 75 cm：计算总时间129.07分钟，比第二名front 50 cm少5.92秒；最后完成的充电位承担P3, P5，该位充电负担为128.65分钟。",
+      "total_time_minutes": 129.06623084555272,
+      "gap_to_runner_up_seconds": 5.919657658316282,
+      "runner_up_configuration": "front 50 cm",
+      "decision_driver": "the combined charging time of the two shortest jobs sharing a pad",
+      "bottleneck_positions": [
+        3,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7718.97385073316,
+        3999.5360431520394,
+        3943.75656216786,
+        3927.9613321866
+      ],
+      "position_rates_Bideal_pp_min": [
+        8.39301275752,
+        12.6977362233,
+        3.49858858135,
+        9.32052134517,
+        5.54470532449
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.32486613696,
+        10.9101018057,
+        4.81809300884,
+        4.53538474245,
+        6.2643775226
+      ],
+      "position_charging_seconds": [
+        3927.9613321865745,
+        3999.536043152014,
+        3840.8926420293906,
+        3943.7565621678705,
+        3878.081208703773
+      ],
+      "runner_up_position_charging_seconds": [
+        3891.955879106881,
+        3970.3415413870143,
+        3865.0095214425514,
+        3859.8839869489284,
+        3890.8859784748806
+      ],
+      "arrival_soc_Bideal": [
+        71.50291135103333,
+        69.709276573625,
+        73.54225475777083,
+        71.1164494395125,
+        72.68970611479584
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        4,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        4,
+        3,
+        5,
+        1,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        3,
+        2,
+        3
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The numerical margin is below 10 s; this is a small-gap flag, not a significance test.",
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Column 50 cm has no eligible real profile in this wind condition and is not ranked.",
+        "Whole-trial resampling retained this numerical winner in 18.3% of 1844 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "4|side|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1844,
+        "bootstrap_invalid": 156,
+        "nominal_winner_selection_frequency": 0.18275488069414317,
+        "fixed_runner_up_gap_p025_s": -178.54717656565663,
+        "fixed_runner_up_gap_p975_s": 151.92983876584185,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 21,
+        "loo_retained": 15,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "diamond 50 cm",
+        "gap_to_selected_seconds": 134.99192201386722,
+        "rates_Bideal_pp_min": [
+          10.3624630486,
+          7.94948468402,
+          10.3455144635,
+          11.1314553276,
+          8.72464862734
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "5|side|1": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "side",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "column 75 cm",
+      "paper_wind": "low sidewind",
+      "data_explanation_en": "With 5 available charging pads, column 75 cm gives the lowest computed total time (66.56 min), 1.50 s below front 50 cm. It minimizes the longest individual charging time; the limiting pad serves P1 and finishes charging after 66.15 min.",
+      "data_explanation_zh": "5个充电位时选column 75 cm：计算总时间66.56分钟，比第二名front 50 cm少1.50秒；最后完成的充电位承担P1，该位充电负担为66.15分钟。",
+      "total_time_minutes": 66.56394390741183,
+      "gap_to_runner_up_seconds": 1.5049069423048422,
+      "runner_up_configuration": "front 50 cm",
+      "decision_driver": "the longest individual charging time",
+      "bottleneck_positions": [
+        1
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_3"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3968.8366344447095,
+        3927.411967000831,
+        3925.716245567891,
+        3917.8440181769492,
+        3863.1096477719148
+      ],
+      "position_rates_Bideal_pp_min": [
+        10.8191542519,
+        7.80544675425,
+        4.7131578275,
+        8.36097788034,
+        8.26219067129
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.32486613696,
+        10.9101018057,
+        4.81809300884,
+        4.53538474245,
+        6.2643775226
+      ],
+      "position_charging_seconds": [
+        3968.8366344447095,
+        3917.8440181769492,
+        3863.1096477719148,
+        3927.4119670008317,
+        3925.716245567891
+      ],
+      "runner_up_position_charging_seconds": [
+        3891.955879106881,
+        3970.3415413870143,
+        3865.0095214425514,
+        3859.8839869489284,
+        3890.8859784748806
+      ],
+      "arrival_soc_Bideal": [
+        70.49201906170833,
+        71.7477305190625,
+        73.03618423854167,
+        71.516259216525,
+        71.55742055362917
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        2,
+        5,
+        4,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        4,
+        3,
+        5,
+        1,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The numerical margin is below 10 s; this is a small-gap flag, not a significance test.",
+        "Column 50 cm has no eligible real profile in this wind condition and is not ranked.",
+        "Whole-trial resampling retained this numerical winner in 26.8% of 1844 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "5|side|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1844,
+        "bootstrap_invalid": 156,
+        "nominal_winner_selection_frequency": 0.26843817787418656,
+        "fixed_runner_up_gap_p025_s": -28.984160748831528,
+        "fixed_runner_up_gap_p975_s": 57.23918898876809,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 21,
+        "loo_retained": 16,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "column 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "column 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "column 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": null,
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "1|side|2": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "side",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "high sidewind",
+      "data_explanation_en": "With 1 available charging pad, front 50 cm gives the lowest computed total time (324.09 min), 3.04 s below echelon 50 cm. It minimizes the sum of all five charging times; the limiting pad serves P1, P2, P3, P4, P5 and finishes charging after 323.67 min.",
+      "data_explanation_zh": "1个充电位时选front 50 cm：计算总时间324.09分钟，比第二名echelon 50 cm少3.04秒；最后完成的充电位承担P1, P2, P3, P4, P5，该位充电负担为323.67分钟。",
+      "total_time_minutes": 324.0880256865826,
+      "gap_to_runner_up_seconds": 3.0390724568569567,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the sum of all five charging times",
+      "bottleneck_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19420.281541194952
+      ],
+      "position_rates_Bideal_pp_min": [
+        5.39934742553,
+        6.21724316395,
+        5.61282330557,
+        5.71586672205,
+        6.45835682767
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.04518614019,
+        7.01191602365,
+        1.62317394315,
+        8.65295102921,
+        6.44804085009
+      ],
+      "position_charging_seconds": [
+        3875.4778674039653,
+        3890.051605826148,
+        3879.299206922097,
+        3881.139295788267,
+        3894.313565254479
+      ],
+      "runner_up_position_charging_seconds": [
+        3887.0008023886694,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.131535419807
+      ],
+      "arrival_soc_Bideal": [
+        72.75027190602917,
+        72.40948201502083,
+        72.66132362267916,
+        72.6183888658125,
+        72.30901798847083
+      ],
+      "lowest_arrival_soc_position": 5,
+      "position_order_shortest_to_longest": [
+        1,
+        3,
+        4,
+        2,
+        5
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        1,
+        5,
+        2,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 8,
+      "caveats": [
+        "The numerical margin is below 10 s; this is a small-gap flag, not a significance test.",
+        "Whole-trial resampling retained this numerical winner in 53.2% of 1863 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "1|side|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1863,
+        "bootstrap_invalid": 137,
+        "nominal_winner_selection_frequency": 0.5324745034889963,
+        "fixed_runner_up_gap_p025_s": -357.9625600368927,
+        "fixed_runner_up_gap_p975_s": 348.46503806878536,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 20,
+        "loo_retained": 18,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 191.72638056922733,
+        "rates_Bideal_pp_min": [
+          9.29698750526,
+          11.1544455232,
+          1.36752944887,
+          10.0839713872,
+          8.91108833472
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "2|side|2": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "side",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 50 cm",
+      "paper_wind": "high sidewind",
+      "data_explanation_en": "With 2 available charging pads, echelon 50 cm gives the lowest computed total time (193.53 min), 49.05 s below front 50 cm. It minimizes the combined charging time of the three shortest charging jobs; the limiting pad serves P1, P3, P5 and finishes charging after 193.11 min.",
+      "data_explanation_zh": "2个充电位时选echelon 50 cm：计算总时间193.53分钟，比第二名front 50 cm少49.05秒；最后完成的充电位承担P1, P3, P5，该位充电负担为193.11分钟。",
+      "total_time_minutes": 193.5311825965474,
+      "gap_to_runner_up_seconds": 49.045414321484714,
+      "runner_up_configuration": "front 50 cm",
+      "decision_driver": "the combined charging time of the three shortest charging jobs",
+      "bottleneck_positions": [
+        1,
+        3,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3",
+          "drone_5"
+        ],
+        [
+          "drone_2",
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11586.87095579286,
+        7836.44965785894
+      ],
+      "position_rates_Bideal_pp_min": [
+        6.04518614019,
+        7.01191602365,
+        1.62317394315,
+        8.65295102921,
+        6.44804085009
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        5.39934742553,
+        6.21724316395,
+        5.61282330557,
+        5.71586672205,
+        6.45835682767
+      ],
+      "position_charging_seconds": [
+        3887.0008023886694,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.131535419807
+      ],
+      "runner_up_position_charging_seconds": [
+        3875.4778674039653,
+        3890.051605826148,
+        3879.299206922097,
+        3881.139295788267,
+        3894.313565254479
+      ],
+      "arrival_soc_Bideal": [
+        72.4811724415875,
+        72.07836832347917,
+        74.3236775236875,
+        71.39460373782917,
+        72.3133163124625
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        3,
+        1,
+        5,
+        2,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        1,
+        3,
+        4,
+        2,
+        5
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 8,
+      "caveats": [
+        "Whole-trial resampling retained this numerical winner in 56.5% of 1863 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "2|side|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1863,
+        "bootstrap_invalid": 137,
+        "nominal_winner_selection_frequency": 0.5652173913043478,
+        "fixed_runner_up_gap_p025_s": -118.88695955667754,
+        "fixed_runner_up_gap_p975_s": 313.2838123959973,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 20,
+        "loo_retained": 18,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 75 cm",
+        "gap_to_selected_seconds": 139.01977281916697,
+        "rates_Bideal_pp_min": [
+          10.6230813121,
+          12.1316143199,
+          8.73463277748,
+          6.89315852879,
+          6.22148229467
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "3|side|2": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "side",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "high sidewind",
+      "data_explanation_en": "With 3 available charging pads, front 50 cm gives the lowest computed total time (129.84 min), 15.60 s below echelon 50 cm. It minimizes the larger of the two optimally paired charging workloads, with the longest job charged alone; the limiting pad serves P1, P2 and finishes charging after 129.43 min.",
+      "data_explanation_zh": "3个充电位时选front 50 cm：计算总时间129.84分钟，比第二名echelon 50 cm少15.60秒；最后完成的充电位承担P1, P2，该位充电负担为129.43分钟。",
+      "total_time_minutes": 129.84215788716855,
+      "gap_to_runner_up_seconds": 15.602864578362642,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the larger of the two optimally paired charging workloads, with the longest job charged alone",
+      "bottleneck_positions": [
+        1,
+        2
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2"
+        ],
+        [
+          "drone_3",
+          "drone_4"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7765.529473230121,
+        7760.43850271034,
+        3894.3135652545
+      ],
+      "position_rates_Bideal_pp_min": [
+        5.39934742553,
+        6.21724316395,
+        5.61282330557,
+        5.71586672205,
+        6.45835682767
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.04518614019,
+        7.01191602365,
+        1.62317394315,
+        8.65295102921,
+        6.44804085009
+      ],
+      "position_charging_seconds": [
+        3875.4778674039653,
+        3890.051605826148,
+        3879.299206922097,
+        3881.139295788267,
+        3894.313565254479
+      ],
+      "runner_up_position_charging_seconds": [
+        3887.0008023886694,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.131535419807
+      ],
+      "arrival_soc_Bideal": [
+        72.75027190602917,
+        72.40948201502083,
+        72.66132362267916,
+        72.6183888658125,
+        72.30901798847083
+      ],
+      "lowest_arrival_soc_position": 5,
+      "position_order_shortest_to_longest": [
+        1,
+        3,
+        4,
+        2,
+        5
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        1,
+        5,
+        2,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 8,
+      "caveats": [
+        "Whole-trial resampling retained this numerical winner in 44.9% of 1863 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "3|side|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1863,
+        "bootstrap_invalid": 137,
+        "nominal_winner_selection_frequency": 0.4492753623188406,
+        "fixed_runner_up_gap_p025_s": -145.94327673937732,
+        "fixed_runner_up_gap_p975_s": 121.18474682609212,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 20,
+        "loo_retained": 17,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 114.63917484342619,
+        "rates_Bideal_pp_min": [
+          9.29698750526,
+          11.1544455232,
+          1.36752944887,
+          10.0839713872,
+          8.91108833472
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "4|side|2": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "side",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 50 cm",
+      "paper_wind": "high sidewind",
+      "data_explanation_en": "With 4 available charging pads, echelon 50 cm gives the lowest computed total time (128.63 min), 44.93 s below front 75 cm. It minimizes the combined charging time of the two shortest jobs sharing a pad; the limiting pad serves P1, P3 and finishes charging after 128.21 min.",
+      "data_explanation_zh": "4个充电位时选echelon 50 cm：计算总时间128.63分钟，比第二名front 75 cm少44.93秒；最后完成的充电位承担P1, P3，该位充电负担为128.21分钟。",
+      "total_time_minutes": 128.62899033955065,
+      "gap_to_runner_up_seconds": 44.93479562323773,
+      "runner_up_configuration": "front 75 cm",
+      "decision_driver": "the combined charging time of the two shortest jobs sharing a pad",
+      "bottleneck_positions": [
+        1,
+        3
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_3"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7692.73942037304,
+        3932.4095144033395,
+        3904.0401434556,
+        3894.13153541982
+      ],
+      "position_rates_Bideal_pp_min": [
+        6.04518614019,
+        7.01191602365,
+        1.62317394315,
+        8.65295102921,
+        6.44804085009
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        9.29698750526,
+        11.1544455232,
+        1.36752944887,
+        10.0839713872,
+        8.91108833472
+      ],
+      "position_charging_seconds": [
+        3887.0008023886694,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.131535419807
+      ],
+      "runner_up_position_charging_seconds": [
+        3943.3584066118597,
+        3974.3751519400835,
+        3800.8639745345968,
+        3956.6001472159624,
+        3936.81024146168
+      ],
+      "arrival_soc_Bideal": [
+        72.4811724415875,
+        72.07836832347917,
+        74.3236775236875,
+        71.39460373782917,
+        72.3133163124625
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        3,
+        1,
+        5,
+        2,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        5,
+        1,
+        4,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 8,
+      "caveats": [
+        "Whole-trial resampling retained this numerical winner in 67.3% of 1863 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "4|side|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1863,
+        "bootstrap_invalid": 137,
+        "nominal_winner_selection_frequency": 0.6731078904991948,
+        "fixed_runner_up_gap_p025_s": -14.669989860485657,
+        "fixed_runner_up_gap_p975_s": 181.54941255421454,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 20,
+        "loo_retained": 20,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 75 cm",
+        "gap_to_selected_seconds": 99.34749565372749,
+        "rates_Bideal_pp_min": [
+          10.6230813121,
+          12.1316143199,
+          8.73463277748,
+          6.89315852879,
+          6.22148229467
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "5|side|2": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "side",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "front",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "front 50 cm",
+      "paper_wind": "high sidewind",
+      "data_explanation_en": "With 5 available charging pads, front 50 cm gives the lowest computed total time (65.32 min), 38.10 s below echelon 50 cm. It minimizes the longest individual charging time; the limiting pad serves P5 and finishes charging after 64.91 min.",
+      "data_explanation_zh": "5个充电位时选front 50 cm：计算总时间65.32分钟，比第二名echelon 50 cm少38.10秒；最后完成的充电位承担P5，该位充电负担为64.91分钟。",
+      "total_time_minutes": 65.32189275424132,
+      "gap_to_runner_up_seconds": 38.095949148860655,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the longest individual charging time",
+      "bottleneck_positions": [
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_5"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3894.313565254479,
+        3890.0516058261474,
+        3881.1392957882667,
+        3879.2992069220963,
+        3875.477867403965
+      ],
+      "position_rates_Bideal_pp_min": [
+        5.39934742553,
+        6.21724316395,
+        5.61282330557,
+        5.71586672205,
+        6.45835682767
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        6.04518614019,
+        7.01191602365,
+        1.62317394315,
+        8.65295102921,
+        6.44804085009
+      ],
+      "position_charging_seconds": [
+        3875.4778674039653,
+        3890.051605826148,
+        3879.299206922097,
+        3881.139295788267,
+        3894.313565254479
+      ],
+      "runner_up_position_charging_seconds": [
+        3887.0008023886694,
+        3904.040143455625,
+        3805.7386179843697,
+        3932.4095144033395,
+        3894.131535419807
+      ],
+      "arrival_soc_Bideal": [
+        72.75027190602917,
+        72.40948201502083,
+        72.66132362267916,
+        72.6183888658125,
+        72.30901798847083
+      ],
+      "lowest_arrival_soc_position": 5,
+      "position_order_shortest_to_longest": [
+        1,
+        3,
+        4,
+        2,
+        5
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        1,
+        5,
+        2,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 8,
+      "caveats": [
+        "Whole-trial resampling retained this numerical winner in 85.7% of 1863 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "5|side|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1863,
+        "bootstrap_invalid": 137,
+        "nominal_winner_selection_frequency": 0.8572195383789587,
+        "fixed_runner_up_gap_p025_s": -17.53558577252943,
+        "fixed_runner_up_gap_p975_s": 120.98654455101314,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 20,
+        "loo_retained": 20,
+        "loo_not_evaluable": 0,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 3
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "front 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "front 75 cm",
+        "gap_to_selected_seconds": 80.06158668560465,
+        "rates_Bideal_pp_min": [
+          9.29698750526,
+          11.1544455232,
+          1.36752944887,
+          10.0839713872,
+          8.91108833472
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "1|tail|1": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "tail",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "vee 50 cm",
+      "paper_wind": "low tailwind",
+      "data_explanation_en": "With 1 available charging pad, vee 50 cm gives the lowest computed total time (325.86 min), 9.37 s below diamond 75 cm. It minimizes the sum of all five charging times; the limiting pad serves P1, P2, P3, P4, P5 and finishes charging after 325.44 min.",
+      "data_explanation_zh": "1个充电位时选vee 50 cm：计算总时间325.86分钟，比第二名diamond 75 cm少9.37秒；最后完成的充电位承担P1, P2, P3, P4, P5，该位充电负担为325.44分钟。",
+      "total_time_minutes": 325.86009945563194,
+      "gap_to_runner_up_seconds": 9.367178185922967,
+      "runner_up_configuration": "diamond 75 cm",
+      "decision_driver": "the sum of all five charging times",
+      "bottleneck_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19526.605967337917
+      ],
+      "position_rates_Bideal_pp_min": [
+        7.88728915651,
+        0.0192271973716,
+        8.24693210571,
+        13.2525110587,
+        6.7034008054
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        9.77026506851,
+        9.19156098389,
+        4.78093720223,
+        5.26124450331,
+        7.10822290968
+      ],
+      "position_charging_seconds": [
+        3919.258508215028,
+        3774.813725177726,
+        3925.4541074930135,
+        4008.450442399943,
+        3898.6291840522076
+      ],
+      "runner_up_position_charging_seconds": [
+        3951.3396543090635,
+        3941.573094429473,
+        3864.3371596519964,
+        3872.999095986179,
+        3905.7241411471305
+      ],
+      "arrival_soc_Bideal": [
+        71.71362951812084,
+        74.99198866776183,
+        71.5637782892875,
+        69.47812039220834,
+        72.20691633108333
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        2,
+        5,
+        1,
+        3,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The numerical margin is below 10 s; this is a small-gap flag, not a significance test.",
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 35.2% of 1514 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "1|tail|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1514,
+        "bootstrap_invalid": 486,
+        "nominal_winner_selection_frequency": 0.3520475561426684,
+        "fixed_runner_up_gap_p025_s": -325.1566052240305,
+        "fixed_runner_up_gap_p975_s": 353.34716715757895,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 25,
+        "loo_retained": 21,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "vee 75 cm",
+        "gap_to_selected_seconds": 168.12637143929896,
+        "rates_Bideal_pp_min": [
+          4.807270385,
+          12.1634954629,
+          8.62262494972,
+          9.31801575987,
+          10.4931274891
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "2|tail|1": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "tail",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "vee 50 cm",
+      "paper_wind": "low tailwind",
+      "data_explanation_en": "With 2 available charging pads, vee 50 cm gives the lowest computed total time (193.63 min), 50.36 s below diamond 75 cm. It minimizes the combined charging time of the three shortest charging jobs; the limiting pad serves P1, P2, P5 and finishes charging after 193.21 min.",
+      "data_explanation_zh": "2个充电位时选vee 50 cm：计算总时间193.63分钟，比第二名diamond 75 cm少50.36秒；最后完成的充电位承担P1, P2, P5，该位充电负担为193.21分钟。",
+      "total_time_minutes": 193.62835695741603,
+      "gap_to_runner_up_seconds": 50.358979340344376,
+      "runner_up_configuration": "diamond 75 cm",
+      "decision_driver": "the combined charging time of the three shortest charging jobs",
+      "bottleneck_positions": [
+        1,
+        2,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_5"
+        ],
+        [
+          "drone_3",
+          "drone_4"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11592.70141744494,
+        7933.90454989296
+      ],
+      "position_rates_Bideal_pp_min": [
+        7.88728915651,
+        0.0192271973716,
+        8.24693210571,
+        13.2525110587,
+        6.7034008054
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        9.77026506851,
+        9.19156098389,
+        4.78093720223,
+        5.26124450331,
+        7.10822290968
+      ],
+      "position_charging_seconds": [
+        3919.258508215028,
+        3774.813725177726,
+        3925.4541074930135,
+        4008.450442399943,
+        3898.6291840522076
+      ],
+      "runner_up_position_charging_seconds": [
+        3951.3396543090635,
+        3941.573094429473,
+        3864.3371596519964,
+        3872.999095986179,
+        3905.7241411471305
+      ],
+      "arrival_soc_Bideal": [
+        71.71362951812084,
+        74.99198866776183,
+        71.5637782892875,
+        69.47812039220834,
+        72.20691633108333
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        2,
+        5,
+        1,
+        3,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 41.8% of 1514 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "2|tail|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1514,
+        "bootstrap_invalid": 486,
+        "nominal_winner_selection_frequency": 0.4180977542932629,
+        "fixed_runner_up_gap_p025_s": -159.74255968753278,
+        "fixed_runner_up_gap_p975_s": 277.9973420741717,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 25,
+        "loo_retained": 20,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "vee 75 cm",
+        "gap_to_selected_seconds": 147.717907782333,
+        "rates_Bideal_pp_min": [
+          4.807270385,
+          12.1634954629,
+          8.62262494972,
+          9.31801575987,
+          10.4931274891
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "3|tail|1": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "tail",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "diamond 75 cm",
+      "paper_wind": "low tailwind",
+      "data_explanation_en": "With 3 available charging pads, diamond 75 cm gives the lowest computed total time (130.52 min), 11.98 s below vee 50 cm. It minimizes the larger of the two optimally paired charging workloads, with the longest job charged alone; the limiting pad serves P2, P3 and finishes charging after 130.10 min.",
+      "data_explanation_zh": "3个充电位时选diamond 75 cm：计算总时间130.52分钟，比第二名vee 50 cm少11.98秒；最后完成的充电位承担P2, P3，该位充电负担为130.10分钟。",
+      "total_time_minutes": 130.51517090135783,
+      "gap_to_runner_up_seconds": 11.977438185766005,
+      "runner_up_configuration": "vee 50 cm",
+      "decision_driver": "the larger of the two optimally paired charging workloads, with the longest job charged alone",
+      "bottleneck_positions": [
+        2,
+        3
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2",
+          "drone_3"
+        ],
+        [
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7805.91025408146,
+        7778.723237133299,
+        3951.33965430906
+      ],
+      "position_rates_Bideal_pp_min": [
+        9.77026506851,
+        9.19156098389,
+        4.78093720223,
+        5.26124450331,
+        7.10822290968
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        7.88728915651,
+        0.0192271973716,
+        8.24693210571,
+        13.2525110587,
+        6.7034008054
+      ],
+      "position_charging_seconds": [
+        3951.3396543090635,
+        3941.573094429473,
+        3864.3371596519964,
+        3872.999095986179,
+        3905.7241411471305
+      ],
+      "runner_up_position_charging_seconds": [
+        3919.258508215028,
+        3774.813725177726,
+        3925.4541074930135,
+        4008.450442399943,
+        3898.6291840522076
+      ],
+      "arrival_soc_Bideal": [
+        70.92905622145416,
+        71.17018292337917,
+        73.00794283240417,
+        72.8078147902875,
+        72.0382404543
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        2,
+        5,
+        1,
+        3,
+        4
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 2 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 29.8% of 1514 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "3|tail|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1514,
+        "bootstrap_invalid": 486,
+        "nominal_winner_selection_frequency": 0.29788639365918096,
+        "fixed_runner_up_gap_p025_s": -158.10854837656825,
+        "fixed_runner_up_gap_p975_s": 169.82629249459296,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 25,
+        "loo_retained": 19,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "diamond 50 cm",
+        "gap_to_selected_seconds": 224.6671659589947,
+        "rates_Bideal_pp_min": [
+          19.0304345558,
+          21.2427557976,
+          7.48785322402,
+          17.5563920437,
+          9.99915855092
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "4|tail|1": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "tail",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "vee",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "vee 50 cm",
+      "paper_wind": "low tailwind",
+      "data_explanation_en": "With 4 available charging pads, vee 50 cm gives the lowest computed total time (128.31 min), 61.77 s below column 75 cm. It minimizes the combined charging time of the two shortest jobs sharing a pad; the limiting pad serves P2, P5 and finishes charging after 127.89 min.",
+      "data_explanation_zh": "4个充电位时选vee 50 cm：计算总时间128.31分钟，比第二名column 75 cm少61.77秒；最后完成的充电位承担P2, P5，该位充电负担为127.89分钟。",
+      "total_time_minutes": 128.3073818204989,
+      "gap_to_runner_up_seconds": 61.76589170800435,
+      "runner_up_configuration": "column 75 cm",
+      "decision_driver": "the combined charging time of the two shortest jobs sharing a pad",
+      "bottleneck_positions": [
+        2,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2",
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7673.442909229921,
+        4008.45044239992,
+        3925.4541074930403,
+        3919.25850821502
+      ],
+      "position_rates_Bideal_pp_min": [
+        7.88728915651,
+        0.0192271973716,
+        8.24693210571,
+        13.2525110587,
+        6.7034008054
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        10.6353671792,
+        10.8295326217,
+        4.12716389632,
+        5.80707668653,
+        8.02497954885
+      ],
+      "position_charging_seconds": [
+        3919.258508215028,
+        3774.813725177726,
+        3925.4541074930135,
+        4008.450442399943,
+        3898.6291840522076
+      ],
+      "runner_up_position_charging_seconds": [
+        3965.7896064644624,
+        3969.0084627316587,
+        3852.443136823386,
+        3882.765664114553,
+        3921.634381067502
+      ],
+      "arrival_soc_Bideal": [
+        71.71362951812084,
+        74.99198866776183,
+        71.5637782892875,
+        69.47812039220834,
+        72.20691633108333
+      ],
+      "lowest_arrival_soc_position": 4,
+      "position_order_shortest_to_longest": [
+        2,
+        5,
+        1,
+        3,
+        4
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        1,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 1 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 59.7% of 1514 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "4|tail|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1514,
+        "bootstrap_invalid": 486,
+        "nominal_winner_selection_frequency": 0.5970937912813739,
+        "fixed_runner_up_gap_p025_s": -29.775469146785326,
+        "fixed_runner_up_gap_p975_s": 177.20733216508597,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 25,
+        "loo_retained": 24,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 2
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "vee 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "vee 75 cm",
+        "gap_to_selected_seconds": 123.26223796177965,
+        "rates_Bideal_pp_min": [
+          4.807270385,
+          12.1634954629,
+          8.62262494972,
+          9.31801575987,
+          10.4931274891
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "5|tail|1": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "tail",
+        "wind_strength": "low"
+      },
+      "legacy_wind_level": 1,
+      "configuration": {
+        "formation": "diamond",
+        "inter_drone_spacing_cm": 75,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "diamond 75 cm",
+      "paper_wind": "low tailwind",
+      "data_explanation_en": "With 5 available charging pads, diamond 75 cm gives the lowest computed total time (66.27 min), 17.67 s below column 75 cm. It minimizes the longest individual charging time; the limiting pad serves P1 and finishes charging after 65.86 min.",
+      "data_explanation_zh": "5个充电位时选diamond 75 cm：计算总时间66.27分钟，比第二名column 75 cm少17.67秒；最后完成的充电位承担P1，该位充电负担为65.86分钟。",
+      "total_time_minutes": 66.27232757181773,
+      "gap_to_runner_up_seconds": 17.668808422595248,
+      "runner_up_configuration": "column 75 cm",
+      "decision_driver": "the longest individual charging time",
+      "bottleneck_positions": [
+        1
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3951.3396543090635,
+        3941.5730944294723,
+        3905.72414114713,
+        3872.9990959861784,
+        3864.3371596519964
+      ],
+      "position_rates_Bideal_pp_min": [
+        9.77026506851,
+        9.19156098389,
+        4.78093720223,
+        5.26124450331,
+        7.10822290968
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        10.6353671792,
+        10.8295326217,
+        4.12716389632,
+        5.80707668653,
+        8.02497954885
+      ],
+      "position_charging_seconds": [
+        3951.3396543090635,
+        3941.573094429473,
+        3864.3371596519964,
+        3872.999095986179,
+        3905.7241411471305
+      ],
+      "runner_up_position_charging_seconds": [
+        3965.7896064644624,
+        3969.0084627316587,
+        3852.443136823386,
+        3882.765664114553,
+        3921.634381067502
+      ],
+      "arrival_soc_Bideal": [
+        70.92905622145416,
+        71.17018292337917,
+        73.00794283240417,
+        72.8078147902875,
+        72.0382404543
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        1,
+        2
+      ],
+      "position_run_counts": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "candidate_count": 10,
+      "caveats": [
+        "The selected profile includes 2 flat-SOC trace(s); an integer gauge plateau does not imply zero physical energy use.",
+        "Whole-trial resampling retained this numerical winner in 55.1% of 1514 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "5|tail|1",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1514,
+        "bootstrap_invalid": 486,
+        "nominal_winner_selection_frequency": 0.5508586525759577,
+        "fixed_runner_up_gap_p025_s": -39.01320272108251,
+        "fixed_runner_up_gap_p975_s": 132.64108146500985,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 25,
+        "loo_retained": 24,
+        "loo_not_evaluable": 1,
+        "winner_trial_deletion_evaluable": 3,
+        "winner_trial_deletion_retained": 3
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "diamond 75 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "diamond 50 cm",
+        "gap_to_selected_seconds": 178.50853857381435,
+        "rates_Bideal_pp_min": [
+          19.0304345558,
+          21.2427557976,
+          7.48785322402,
+          17.5563920437,
+          9.99915855092
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "1|tail|2": {
+      "input": {
+        "charging_pad_availability": 1,
+        "wind_direction": "tail",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "column 50 cm",
+      "paper_wind": "high tailwind",
+      "data_explanation_en": "With 1 available charging pad, column 50 cm gives the lowest computed total time (323.33 min), 165.16 s below echelon 50 cm. It minimizes the sum of all five charging times; the limiting pad serves P1, P2, P3, P4, P5 and finishes charging after 322.92 min.",
+      "data_explanation_zh": "1个充电位时选column 50 cm：计算总时间323.33分钟，比第二名echelon 50 cm少165.16秒；最后完成的充电位承担P1, P2, P3, P4, P5，该位充电负担为322.92分钟。",
+      "total_time_minutes": 323.33186939055145,
+      "gap_to_runner_up_seconds": 165.15868519838114,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the sum of all five charging times",
+      "bottleneck_positions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_1",
+          "drone_2",
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        19374.912163433084
+      ],
+      "position_rates_Bideal_pp_min": [
+        12.5788210774,
+        5.79330444992,
+        0.961368877934,
+        2.84946294081,
+        5.25318468004
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        8.23186603268,
+        9.54697903672,
+        2.70355702604,
+        7.29863174092,
+        8.63656720023
+      ],
+      "position_charging_seconds": [
+        3997.616403104556,
+        3882.520235384027,
+        3793.07736560772,
+        3828.8438888592273,
+        3872.854270477557
+      ],
+      "runner_up_position_charging_seconds": [
+        3925.195218878208,
+        3947.5809762948074,
+        3826.118528084162,
+        3909.0464808100874,
+        3932.1296445642024
+      ],
+      "arrival_soc_Bideal": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        4,
+        1,
+        5,
+        2
+      ],
+      "position_run_counts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "At least one selected position has only one usable trial; its variability is not estimable here.",
+        "Whole-trial resampling retained this numerical winner in 77.2% of 1859 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "1|tail|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1859,
+        "bootstrap_invalid": 141,
+        "nominal_winner_selection_frequency": 0.7719203873050027,
+        "fixed_runner_up_gap_p025_s": 36.14618707390764,
+        "fixed_runner_up_gap_p975_s": 274.82121078800265,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 17,
+        "loo_retained": 16,
+        "loo_not_evaluable": 2,
+        "winner_trial_deletion_evaluable": 0,
+        "winner_trial_deletion_retained": 0
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "column 75 cm",
+        "gap_to_selected_seconds": 414.37310513285775,
+        "rates_Bideal_pp_min": [
+          8.8028946276,
+          19.1968710806,
+          4.3329285725,
+          11.4661973769,
+          7.85352164683
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "2|tail|2": {
+      "input": {
+        "charging_pad_availability": 2,
+        "wind_direction": "tail",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "column 50 cm",
+      "paper_wind": "high tailwind",
+      "data_explanation_en": "With 2 available charging pads, column 50 cm gives the lowest computed total time (192.00 min), 149.12 s below vee 50 cm. It minimizes the combined charging time of the three shortest charging jobs; the limiting pad serves P3, P4, P5 and finishes charging after 191.58 min.",
+      "data_explanation_zh": "2个充电位时选column 50 cm：计算总时间192.00分钟，比第二名vee 50 cm少149.12秒；最后完成的充电位承担P3, P4, P5，该位充电负担为191.58分钟。",
+      "total_time_minutes": 191.99625874907505,
+      "gap_to_runner_up_seconds": 149.12068182707117,
+      "runner_up_configuration": "vee 50 cm",
+      "decision_driver": "the combined charging time of the three shortest charging jobs",
+      "bottleneck_positions": [
+        3,
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_1",
+          "drone_2"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        11494.77552494448,
+        7880.13663848856
+      ],
+      "position_rates_Bideal_pp_min": [
+        12.5788210774,
+        5.79330444992,
+        0.961368877934,
+        2.84946294081,
+        5.25318468004
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        5.81461336377,
+        14.2858737533,
+        6.64270024224,
+        4.73109533063,
+        8.2529363145
+      ],
+      "position_charging_seconds": [
+        3997.616403104556,
+        3882.520235384027,
+        3793.07736560772,
+        3828.8438888592273,
+        3872.854270477557
+      ],
+      "runner_up_position_charging_seconds": [
+        3882.8999500489886,
+        4024.8764843367503,
+        3897.5616284603316,
+        3863.434628262255,
+        3925.5572651868542
+      ],
+      "arrival_soc_Bideal": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        4,
+        1,
+        3,
+        5,
+        2
+      ],
+      "position_run_counts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "At least one selected position has only one usable trial; its variability is not estimable here.",
+        "Whole-trial resampling retained this numerical winner in 77.2% of 1859 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "2|tail|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1859,
+        "bootstrap_invalid": 141,
+        "nominal_winner_selection_frequency": 0.7719203873050027,
+        "fixed_runner_up_gap_p025_s": -71.00276147825753,
+        "fixed_runner_up_gap_p975_s": 328.24085779542656,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 17,
+        "loo_retained": 16,
+        "loo_not_evaluable": 2,
+        "winner_trial_deletion_evaluable": 0,
+        "winner_trial_deletion_retained": 0
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "column 75 cm",
+        "gap_to_selected_seconds": 215.06696360616115,
+        "rates_Bideal_pp_min": [
+          8.8028946276,
+          19.1968710806,
+          4.3329285725,
+          11.4661973769,
+          7.85352164683
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "3|tail|2": {
+      "input": {
+        "charging_pad_availability": 3,
+        "wind_direction": "tail",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "column 50 cm",
+      "paper_wind": "high tailwind",
+      "data_explanation_en": "With 3 available charging pads, column 50 cm gives the lowest computed total time (128.78 min), 87.29 s below vee 50 cm. It minimizes the larger of the two optimally paired charging workloads, with the longest job charged alone; the limiting pad serves P4, P5 and finishes charging after 128.36 min.",
+      "data_explanation_zh": "3个充电位时选column 50 cm：计算总时间128.78分钟，比第二名vee 50 cm少87.29秒；最后完成的充电位承担P4, P5，该位充电负担为128.36分钟。",
+      "total_time_minutes": 128.77830265561306,
+      "gap_to_runner_up_seconds": 87.29373411232518,
+      "runner_up_configuration": "vee 50 cm",
+      "decision_driver": "the larger of the two optimally paired charging workloads, with the longest job charged alone",
+      "bottleneck_positions": [
+        4,
+        5
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_4",
+          "drone_5"
+        ],
+        [
+          "drone_2",
+          "drone_3"
+        ],
+        [
+          "drone_1"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7701.69815933676,
+        7675.59760099176,
+        3997.6164031045805
+      ],
+      "position_rates_Bideal_pp_min": [
+        12.5788210774,
+        5.79330444992,
+        0.961368877934,
+        2.84946294081,
+        5.25318468004
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        5.81461336377,
+        14.2858737533,
+        6.64270024224,
+        4.73109533063,
+        8.2529363145
+      ],
+      "position_charging_seconds": [
+        3997.616403104556,
+        3882.520235384027,
+        3793.07736560772,
+        3828.8438888592273,
+        3872.854270477557
+      ],
+      "runner_up_position_charging_seconds": [
+        3882.8999500489886,
+        4024.8764843367503,
+        3897.5616284603316,
+        3863.434628262255,
+        3925.5572651868542
+      ],
+      "arrival_soc_Bideal": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        4,
+        1,
+        3,
+        5,
+        2
+      ],
+      "position_run_counts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "At least one selected position has only one usable trial; its variability is not estimable here.",
+        "Whole-trial resampling retained this numerical winner in 77.2% of 1859 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "3|tail|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1859,
+        "bootstrap_invalid": 141,
+        "nominal_winner_selection_frequency": 0.7719203873050027,
+        "fixed_runner_up_gap_p025_s": -68.98965704197326,
+        "fixed_runner_up_gap_p975_s": 250.42115706955337,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 17,
+        "loo_retained": 16,
+        "loo_not_evaluable": 2,
+        "winner_trial_deletion_evaluable": 0,
+        "winner_trial_deletion_retained": 0
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "column 75 cm",
+        "gap_to_selected_seconds": 151.94471280234393,
+        "rates_Bideal_pp_min": [
+          8.8028946276,
+          19.1968710806,
+          4.3329285725,
+          11.4661973769,
+          7.85352164683
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "4|tail|2": {
+      "input": {
+        "charging_pad_availability": 4,
+        "wind_direction": "tail",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "column",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "column 50 cm",
+      "paper_wind": "high tailwind",
+      "data_explanation_en": "With 4 available charging pads, column 50 cm gives the lowest computed total time (127.45 min), 113.24 s below echelon 50 cm. It minimizes the combined charging time of the two shortest jobs sharing a pad; the limiting pad serves P3, P4 and finishes charging after 127.03 min.",
+      "data_explanation_zh": "4个充电位时选column 50 cm：计算总时间127.45分钟，比第二名echelon 50 cm少113.24秒；最后完成的充电位承担P3, P4，该位充电负担为127.03分钟。",
+      "total_time_minutes": 127.44868757444912,
+      "gap_to_runner_up_seconds": 113.24375442730252,
+      "runner_up_configuration": "echelon 50 cm",
+      "decision_driver": "the combined charging time of the two shortest jobs sharing a pad",
+      "bottleneck_positions": [
+        3,
+        4
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_3",
+          "drone_4"
+        ],
+        [
+          "drone_1"
+        ],
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        7621.92125446692,
+        3997.6164031045805,
+        3882.52023538404,
+        3872.85427047756
+      ],
+      "position_rates_Bideal_pp_min": [
+        12.5788210774,
+        5.79330444992,
+        0.961368877934,
+        2.84946294081,
+        5.25318468004
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        8.23186603268,
+        9.54697903672,
+        2.70355702604,
+        7.29863174092,
+        8.63656720023
+      ],
+      "position_charging_seconds": [
+        3997.616403104556,
+        3882.520235384027,
+        3793.07736560772,
+        3828.8438888592273,
+        3872.854270477557
+      ],
+      "runner_up_position_charging_seconds": [
+        3925.195218878208,
+        3947.5809762948074,
+        3826.118528084162,
+        3909.0464808100874,
+        3932.1296445642024
+      ],
+      "arrival_soc_Bideal": [
+        69.75882455108334,
+        72.58612314586667,
+        74.59942963419417,
+        73.8127237746625,
+        72.81117304998334
+      ],
+      "lowest_arrival_soc_position": 1,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        5,
+        2,
+        1
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        3,
+        4,
+        1,
+        5,
+        2
+      ],
+      "position_run_counts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "At least one selected position has only one usable trial; its variability is not estimable here.",
+        "Whole-trial resampling retained this numerical winner in 77.2% of 1859 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "4|tail|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1859,
+        "bootstrap_invalid": 141,
+        "nominal_winner_selection_frequency": 0.7719203873050027,
+        "fixed_runner_up_gap_p025_s": 27.573378553250222,
+        "fixed_runner_up_gap_p975_s": 113.24375442721521,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 17,
+        "loo_retained": 16,
+        "loo_not_evaluable": 2,
+        "winner_trial_deletion_evaluable": 0,
+        "winner_trial_deletion_retained": 0
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "column 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "column 75 cm",
+        "gap_to_selected_seconds": 152.9534698246589,
+        "rates_Bideal_pp_min": [
+          8.8028946276,
+          19.1968710806,
+          4.3329285725,
+          11.4661973769,
+          7.85352164683
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    },
+    "5|tail|2": {
+      "input": {
+        "charging_pad_availability": 5,
+        "wind_direction": "tail",
+        "wind_strength": "high"
+      },
+      "legacy_wind_level": 2,
+      "configuration": {
+        "formation": "echalon",
+        "inter_drone_spacing_cm": 50,
+        "position_assignment": {
+          "drone_1": 1,
+          "drone_2": 2,
+          "drone_3": 3,
+          "drone_4": 4,
+          "drone_5": 5
+        }
+      },
+      "paper_configuration": "echelon 50 cm",
+      "paper_wind": "high tailwind",
+      "data_explanation_en": "With 5 available charging pads, echelon 50 cm gives the lowest computed total time (66.21 min), 0.68 s below diamond 75 cm. It minimizes the longest individual charging time; the limiting pad serves P2 and finishes charging after 65.79 min.",
+      "data_explanation_zh": "5个充电位时选echelon 50 cm：计算总时间66.21分钟，比第二名diamond 75 cm少0.68秒；最后完成的充电位承担P2，该位充电负担为65.79分钟。",
+      "total_time_minutes": 66.20968293824679,
+      "gap_to_runner_up_seconds": 0.6840471895870905,
+      "runner_up_configuration": "diamond 75 cm",
+      "decision_driver": "the longest individual charging time",
+      "bottleneck_positions": [
+        2
+      ],
+      "charging_pad_groups": [
+        [
+          "drone_2"
+        ],
+        [
+          "drone_5"
+        ],
+        [
+          "drone_1"
+        ],
+        [
+          "drone_4"
+        ],
+        [
+          "drone_3"
+        ]
+      ],
+      "charging_pad_loads_seconds": [
+        3947.580976294808,
+        3932.1296445642024,
+        3925.195218878208,
+        3909.046480810088,
+        3826.1185280841614
+      ],
+      "position_rates_Bideal_pp_min": [
+        8.23186603268,
+        9.54697903672,
+        2.70355702604,
+        7.29863174092,
+        8.63656720023
+      ],
+      "runner_up_position_rates_Bideal_pp_min": [
+        9.38927833161,
+        9.58756192374,
+        8.76423686371,
+        7.52391896196,
+        5.59781586546
+      ],
+      "position_charging_seconds": [
+        3925.195218878208,
+        3947.5809762948074,
+        3826.118528084162,
+        3909.0464808100874,
+        3932.1296445642024
+      ],
+      "runner_up_position_charging_seconds": [
+        3944.9190483405823,
+        3948.2650234843945,
+        3934.3087419292306,
+        3912.9652753476066,
+        3879.0309718012018
+      ],
+      "arrival_soc_Bideal": [
+        71.57005581971667,
+        71.02209206803333,
+        73.87351790581667,
+        71.95890344128334,
+        71.4014303332375
+      ],
+      "lowest_arrival_soc_position": 2,
+      "position_order_shortest_to_longest": [
+        3,
+        4,
+        1,
+        5,
+        2
+      ],
+      "runner_up_position_order_shortest_to_longest": [
+        5,
+        4,
+        3,
+        1,
+        2
+      ],
+      "position_run_counts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "candidate_count": 9,
+      "caveats": [
+        "The numerical margin is below 10 s; this is a small-gap flag, not a significance test.",
+        "Whole-trial resampling retained this numerical winner in 54.1% of 1859 evaluable draws; this is not a confidence probability."
+      ],
+      "sensitivity": {
+        "key": "5|tail|2",
+        "bootstrap_attempts": 2000,
+        "bootstrap_valid": 1859,
+        "bootstrap_invalid": 141,
+        "nominal_winner_selection_frequency": 0.541151156535772,
+        "fixed_runner_up_gap_p025_s": -177.14099953517052,
+        "fixed_runner_up_gap_p975_s": 58.44452834005142,
+        "interpretation": "Conditional whole-trial bootstrap stability, not probability of true optimality; no calibration/fan/charging-model uncertainty",
+        "loo_evaluable": 17,
+        "loo_retained": 15,
+        "loo_not_evaluable": 2,
+        "winner_trial_deletion_evaluable": 2,
+        "winner_trial_deletion_retained": 1
+      },
+      "charging_model_sensitivity": {
+        "constant_current_target_99": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_80": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        },
+        "exponential_target_90": {
+          "configuration": "echelon 50 cm",
+          "unchanged": true,
+          "regret_seconds": 0.0
+        }
+      },
+      "same_formation_other_spacing": {
+        "configuration": "echelon 75 cm",
+        "gap_to_selected_seconds": 258.59286392920785,
+        "rates_Bideal_pp_min": [
+          14.3145340601,
+          11.9770265133,
+          11.6452587481,
+          16.0857012871,
+          26.7068491747
+        ]
+      },
+      "inference_boundary": "Observed rate profile plus assumed charging model; aerodynamic cause not identified by this optimization"
+    }
+  }
+}

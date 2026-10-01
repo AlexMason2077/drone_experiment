@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Swarm | Mission operations</title>
+  <link rel="icon" type="image/svg+xml" href="/static/drone-icon.svg">
+  <link rel="stylesheet" href="/static/vendor/leaflet.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="operations-page">
+  <div class="map-shell"><svg id="route-map" viewBox="0 0 1100 650" role="img" aria-label="Route from Sydney Central Medical Centre to Royal Prince Alfred Hospital"></svg><div id="real-map" aria-label="Map of the route from Sydney Central Medical Centre to Royal Prince Alfred Hospital"></div><div class="map-tools"><button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button><button id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button><button id="map-fit" title="Fit route" aria-label="Fit route">⌖</button></div><div class="north">↑<b>N</b></div><div id="map-selection" class="map-selection" hidden></div><div class="map-credit"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></div></div>
+  <main>
+    <div class="page-intro">
+      <div><div class="eyebrow">MISSION <span>/</span> MED-024</div><h1>Delivery mission</h1><p>Sydney Central Medical Centre <span class="route-arrow">→</span> Royal Prince Alfred Hospital</p></div>
+      <div class="intro-actions"><a class="mission-input-link" href="/mission-input">Set mission inputs</a><div class="mission-controls"><button id="sources-btn" class="icon-button" title="Data sources" aria-label="Data sources">ⓘ</button><label class="mode-label">Data mode <select id="mode"><option>Demo</option><option>Replay</option><option>Live</option></select></label></div><span id="connection" class="connection"></span><span id="last-updated" class="last-updated"></span></div>
+    </div>
+    <div id="mode-banner" class="mode-banner" hidden></div>
+    <section id="summary" class="summary-grid" aria-label="Next-node times"></section>
+
+    <div class="workspace-grid">
+      <section class="panel decision-panel">
+        <div class="panel-heading"><div><h2>Swarm status</h2><p>Wind, charging availability and configuration</p></div></div>
+        <div id="conditions" class="conditions"></div>
+        <div id="configurations" class="configuration-grid"></div>
+      </section>
+    </div>
+
+    <section class="panel details-panel">
+      <div class="details-heading"><div><h2>Decision details</h2><p>Recommendation, command feedback and records</p></div><span id="decision-badge" class="subtle-tag">—</span><button id="details-toggle" class="button secondary" aria-expanded="false">View details</button></div>
+      <div id="details-body" hidden>
+        <div id="recommendation-detail" class="recommendation-detail"></div>
+        <div id="command" class="command-block"></div>
+        <div id="prediction" class="prediction"></div>
+        <section class="fleet-section"><div class="section-heading"><h2>Drone readings</h2><p id="fleet-source"></p></div><div id="fleet" class="fleet-grid"></div></section>
+        <section class="interval-panel"><div class="interval-top"><h2>Decision intervals <span id="timeline-caption"></span></h2><span id="decision-countdown"></span></div><div id="intervals" class="intervals"></div></section>
+        <div class="detail-tabs" role="tablist"><button data-tab="history" class="active">Decision history</button><button data-tab="candidates">Candidate list</button><button data-tab="charging">Charging schedule</button><button data-tab="activity">Activity</button></div>
+        <div id="detail-content" hidden></div>
+      </div>
+    </section>
+
+    <details id="demo-tools" class="demo-tools"><summary>Demo controls</summary><div class="demo-tool-body"><button id="auto-button" class="button secondary">Pause auto decisions</button><div class="scenario-buttons"><button data-action="wind">Wind change</button><button data-action="pads">Pads change</button><button data-action="swap">Position swap</button><button data-action="interval">Next interval</button><button data-action="await_ack">Awaiting ack</button><button data-action="release_ack">Release ack</button><button data-action="arrive">Arrive at node</button><button data-action="complete_charge">Complete charge</button><button data-action="next_segment">Next segment</button><button data-action="missing">Missing battery</button><button data-action="delay">Delayed data</button><button data-action="late">Late result</button><button data-action="reset">Reset demo</button></div></div></details>
+    <section id="replay-tools" class="replay-tools" hidden><button id="replay-play" class="button secondary">Play recording</button><input id="replay-range" type="range" min="0" max="14" value="0" aria-label="Replay position"><span id="replay-label"></span></section>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <dialog id="source-dialog"><div class="dialog-head"><h2>Data & provenance</h2><button id="close-sources" aria-label="Close data sources">×</button></div><div id="source-content"></div></dialog>
+  <script src="/static/vendor/leaflet.js"></script>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

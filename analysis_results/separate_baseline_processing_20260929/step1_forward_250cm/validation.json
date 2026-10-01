@@ -1,0 +1,17 @@
+{
+  "status": "passed_offline_checks",
+  "input_hashes_unchanged": true,
+  "baseline_model_unchanged": true,
+  "no_wind_experiment_inputs_read": true,
+  "cross_protocol_average_applied": false,
+  "all_existing_raw_slopes_replayed": true,
+  "raw_slope_replay_max_error_pp_min": 4.9974246962847246e-11,
+  "actual_forward_time_replay_max_error_s": 0.0,
+  "baseline_bridge_max_error_pp_min": 3.552713678800501e-15,
+  "relative_factor_preserved": true,
+  "normalized_twice": false,
+  "excluded_conditions_absent": true,
+  "raw_zero_slopes_preserved": 17,
+  "unsupported_High_Low_not_filled": true,
+  "active_training_unchanged": true
+}

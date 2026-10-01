@@ -1,0 +1,27 @@
+{
+  "scope": "Read-only diagnosis; no forward/wind averaging, baseline activation, training or hardware actions",
+  "model_hash_shared_by_forward_v3_and_wind_pilot": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "b12_matched_79_to_48_crossing_rate_increase_percent": 32.34350294201509,
+  "b12_matched_79_to_48_time_weighted_OLS_increase_percent": 32.70580695501495,
+  "same_B12_matched_conditions": 10,
+  "same_B12_wind_higher_conditions": 5,
+  "same_B12_wind_lower_conditions": 5,
+  "same_B12_ratio_min": 0.6387414298009475,
+  "same_B12_ratio_max": 1.2817289896272055,
+  "pilot_old_forward_battery": "B15",
+  "pilot_new_wind_battery": "B12",
+  "pilot_forward_mean_normalized_pp_min": 5.764459897515,
+  "pilot_wind_normalized_pp_min": 9.171302107493666,
+  "pilot_normalized_wind_over_forward_increase_percent": 59.10080511527753,
+  "proposed_mapping": "raw configuration stage rate / contemporaneous same-aircraft same-battery stage baseline rate * fixed ideal reference stage rate",
+  "mapping_status": "Method recommendation only. No retrospective epoch baseline or protocol transfer has been validated or activated.",
+  "limits": [
+    "One complete D5/B12 baseline per date; age, hardware, environmental effects and noise are not separately identifiable.",
+    "79..48 is a matched diagnostic band, not a newly optimized historical three-stage segmentation.",
+    "Telemetry endpoint changes do not prove a physical aircraft change or establish a serial identity.",
+    "Forward fits keep reported drops only during detected motion; some drops happen outside motion.",
+    "Initial no-drop periods, short windows and integer SOC quantization affect forward slope estimates.",
+    "The available B12 matched conditions have only one wind repeat and one to three old forward repeats.",
+    "The original 134-run forward table contains a now-excluded safety condition; this diagnostic applies all five current exclusions."
+  ]
+}

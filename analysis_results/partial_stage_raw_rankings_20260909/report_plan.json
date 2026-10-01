@@ -1,0 +1,24 @@
+{
+  "audience": "technical",
+  "new_companion_not_replacement": true,
+  "required_structure": [
+    "title",
+    "technical summary",
+    "metric definitions before evidence",
+    "evidence and coverage",
+    "method",
+    "robustness and uncertainty",
+    "next steps and open question"
+  ],
+  "chart_contract": {
+    "question": "Does partial-window length change rank retention?",
+    "family": "Comparison & Ranking",
+    "variant": "grouped bars",
+    "sufficiency": "6 stage-by-threshold aggregates; denominator table adjacent; not a temporal trend",
+    "palette": "two semantic groups in native categorical palette",
+    "non_color": "group position, legend and exact values",
+    "footprint": "full width",
+    "surface": "MCP artifact; HTML only if renderer unavailable"
+  },
+  "omitted_other_charts": "Exact per-experiment lookup belongs in the detail table; no redundant ranking chart"
+}

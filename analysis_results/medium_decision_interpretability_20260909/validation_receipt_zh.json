@@ -1,0 +1,17 @@
+{
+  "language": "zh-CN",
+  "validation": {"ok": true, "surface": "report"},
+  "render": {"ok": true, "surface": "report"},
+  "preserved": {"blocks": 67, "tables": 10, "charts": 1, "datasets": 13, "sources": 14, "decisions": 30},
+  "checks": [
+    "All numerical and boolean dataset values match the existing English report",
+    "All section IDs and their reading order preserved",
+    "All canonical source metadata preserved",
+    "Thirty Chinese per-decision explanations present",
+    "Frozen rate tables and optimizer source hashes unchanged",
+    "English original preserved",
+    "Complete Chinese artifact passed validation and render tools"
+  ],
+  "visual_qa": "Native chart encodings and numeric data unchanged; labels translated. Artifact render accepted; no independent screenshot inspection claimed.",
+  "scope": "Chinese language edition only; no new measurements, rate fitting, flight changes or model training"
+}

@@ -28,18 +28,22 @@ MISSION_PAD_CAMERA_YAW_BASELINE_DEG = 180.0
 MISSION_PAD_HEADING_TOLERANCE_DEG = 35.0
 GROUND_HEIGHT_THRESHOLD_CM = 15
 GROUND_CONFIRMATION_HITS = 8
+# Headwind defaults to Front's +X-facing frame; run() overrides Vee and 50 cm Column/Diamond.
 WIND_FLOW_DESCRIPTIONS = {
     "head wind": "source at +X; airflow +X -> -X (against the nose)",
     "tail wind": "source at -X; airflow -X -> +X (from behind)",
     "side wind": "source at +Y; airflow +Y -> -Y (down the pad line)",
 }
 
-# Physical frame shown on the Wind Tunnel floor plan:
+# Front physical frame shown on the Wind Tunnel floor plan:
 #   * Pad 5 -> 6 -> 7 -> 8 -> 1 runs from global -Y to +Y.
 #   * The official Mission Pad guide defines the printed rocket as +pad X.
 #   * Each printed rocket therefore points global +X.
 #   * Each aircraft nose also points global +X.
 # Consequently +pad Y is global +Y, while aircraft body-right is global -Y.
+# At 50 cm, Column places Pad 5 at the +Y/front end, then 6, 7, 8, 1 toward -Y
+# for all wind directions; noses point +Y. Headwind runs +Y -> -Y,
+# tailwind -Y -> +Y, and sidewind +X -> -X.
 FRONT_PAD_X_AXIS_GLOBAL = (1.0, 0.0)
 FRONT_PAD_Y_AXIS_GLOBAL = (0.0, 1.0)
 
@@ -154,6 +158,9 @@ def build_configs(experiment):
             # Physical column layout: pads 5,6,7,8,1 descend along -Y;
             # all pad centres share the same global X coordinate.
             fixed_positions.append(WIND_TUNNEL_COLUMN_75_POSITIONS_CM[idx])
+        elif formation == "column" and wind_direction in {"head wind", "tail wind", "side wind"} and spacing == 50:
+            # 50 cm Column shares targets: Pad 5 at +Y, then 6, 7, 8, 1 toward -Y.
+            fixed_positions.append((0.0, (4 - idx) * spacing))
         elif diamond_75_side:
             # Pad 7 centre; Pad 8 top, Pad 6 bottom, Pad 5 left, Pad 1 right.
             fixed_positions.append(WIND_TUNNEL_DIAMOND_75_SIDE_POSITIONS_CM[idx])
@@ -161,7 +168,7 @@ def build_configs(experiment):
             # Physical diamond layout: Pad 7 is the centre, with Pads 5,6,8,1
             # respectively 75 cm to its -Y, -X, +X, and +Y sides.
             fixed_positions.append(WIND_TUNNEL_DIAMOND_75_POSITIONS_CM[idx])
-        elif formation == "diamond" and wind_direction == "head wind" and spacing == 50:
+        elif formation == "diamond" and wind_direction in {"head wind", "tail wind", "side wind"} and spacing == 50:
             # Match the same diamond geometry at 50 cm centre-to-outer spacing.
             fixed_positions.append(tuple(value * (spacing / 75.0)
                                          for value in WIND_TUNNEL_DIAMOND_75_POSITIONS_CM[idx]))
@@ -521,8 +528,20 @@ def run(experiment_id):
             )
     print(
         "Physical wind direction: "
-        + ("source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
-           if configs[0]["formation"] == "vee" and configs[0]["wind_direction"] == "head wind"
+        + ("source at +X; airflow +X -> -X"
+           if (dc.is_echalon_formation(configs[0]["formation"])
+               or configs[0]["formation"] in {"vee", "column", "diamond"})
+           and configs[0]["wind_direction"] == "side wind"
+           and configs[0]["inter_drone_distance_cm"] == 50
+           else "source at +Y; airflow +Y -> -Y (against the +Y-facing noses)"
+           if (configs[0]["formation"] == "vee"
+               or (configs[0]["formation"] in {"column", "diamond"}
+                   and configs[0]["inter_drone_distance_cm"] == 50))
+           and configs[0]["wind_direction"] == "head wind"
+           else "source at -Y; airflow -Y -> +Y (from behind the +Y-facing noses)"
+           if configs[0]["formation"] in {"column", "diamond"}
+           and configs[0]["inter_drone_distance_cm"] == 50
+           and configs[0]["wind_direction"] == "tail wind"
            else WIND_FLOW_DESCRIPTIONS.get(
             str(experiment.get("wind_direction", "")).strip().lower(),
             "unknown; verify fan placement before takeoff",

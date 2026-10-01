@@ -1,0 +1,27 @@
+{
+  "condition_grid": 30,
+  "excluded_conditions": 5,
+  "included_conditions": 25,
+  "included_numbered_nonempty_source_files": 83,
+  "included_numbered_experiment_ids": 60,
+  "included_registry_outlier_source_files": 3,
+  "condition_images": 25,
+  "position_curves": 125,
+  "stage_coefficients": 375,
+  "actual_run_stage_fit_rows": 338,
+  "actual_fit_supported_unique_stages": 334,
+  "direct_fit_stage_coefficients": 308,
+  "modeled_stage_coefficients": 67,
+  "stages_without_actual_fit_support": 41,
+  "modeled_stages_with_actual_fit_support": 26,
+  "conditions_by_formation": {
+    "column": 3,
+    "diamond": 4,
+    "echalon": 6,
+    "front": 6,
+    "vee": 6
+  },
+  "forward_separate_conditions": 24,
+  "forward_separate_runs": 60,
+  "forward_separate_run_drone_rows": 281
+}

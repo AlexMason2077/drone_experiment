@@ -1,0 +1,4 @@
+protocol,run_id,battery_id,source_file,raw_rate_pp_min,normalized_rate_pp_min,observed_duration_s,selected_SOC_drop_pp,first_reported_forward_drop_at_s,origin_fit_r_squared,observed_start_SOC,observed_end_SOC,telemetry_endpoint
+forward_250cm,20260520_154459,B15,db_copy_for_cleaning/diamond_50_head_lv2_new_001/diamond_50_head_lv2_new_001_20260520_154459_all_coordination.csv,5.0781123503747345,5.62690067062,16.195,3.0,10.097,0.555711268342,59.0,55.0,192.168.0.107
+forward_250cm,20260520_165537,B15,db_copy_for_cleaning/diamond_50_head_lv2_new_002/diamond_50_head_lv2_new_002_20260520_165537_all_coordination.csv,5.326398662814841,5.90201912441,30.009,2.0,4.718,0.747473951636,74.0,68.0,192.168.0.107
+wind_tunnel,20260928_232343,B12,database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv,11.103175373797336,9.171302107493666,155.921,,,,,,192.168.0.101

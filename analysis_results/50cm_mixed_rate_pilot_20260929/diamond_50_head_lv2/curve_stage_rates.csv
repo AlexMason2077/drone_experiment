@@ -1,0 +1,16 @@
+formation,wind_direction,wind_level,spacing_cm,position,stage,condition_id,normalized_rate_pp_min,wind_run_count,forward_run_count,wind_mean_pp_min,forward_mean_pp_min,source_protocol_count,rate_origin,completion_anchor_stage,average_policy,reference_upper_soc,reference_lower_soc,stage_duration_s
+diamond,head,2,50,1,High,diamond_50_head_lv2,16.81620757121132,1,0,16.81620757121132,,1,average_observed_normalized_stage_rates,,equal_protocol,100.0,82.0,64.22375529241904
+diamond,head,2,50,1,Medium,diamond_50_head_lv2,7.3192927988207375,1,2,8.703709021846475,5.934876575795,2,average_observed_normalized_stage_rates,,equal_protocol,82.0,52.0,245.92539873387912
+diamond,head,2,50,1,Low,diamond_50_head_lv2,12.894638458421053,1,0,12.894638458421053,,1,average_observed_normalized_stage_rates,,equal_protocol,52.0,20.0,148.89909524730513
+diamond,head,2,50,2,High,diamond_50_head_lv2,19.19676279847983,1,0,19.19676279847983,,1,average_observed_normalized_stage_rates,,equal_protocol,100.0,82.0,56.25948558813906
+diamond,head,2,50,2,Medium,diamond_50_head_lv2,10.155323838486673,1,1,10.117481339873347,10.1931663371,2,average_observed_normalized_stage_rates,,equal_protocol,82.0,52.0,177.24693260675303
+diamond,head,2,50,2,Low,diamond_50_head_lv2,13.717422416586015,1,0,13.717422416586015,,1,average_observed_normalized_stage_rates,,equal_protocol,52.0,20.0,139.9679868193378
+diamond,head,2,50,3,High,diamond_50_head_lv2,21.347360838698556,0,0,,,0,modeled_missing_stage_same_position_anchor_relative_factor,Medium,equal_protocol,100.0,82.0,50.59173394596736
+diamond,head,2,50,3,Medium,diamond_50_head_lv2,9.644831904786711,1,2,10.530039889768423,8.759623919805,2,average_observed_normalized_stage_rates,,equal_protocol,82.0,52.0,186.62844700348415
+diamond,head,2,50,3,Low,diamond_50_head_lv2,12.757013672148666,1,0,12.757013672148666,,1,average_observed_normalized_stage_rates,,equal_protocol,52.0,20.0,150.50544346376122
+diamond,head,2,50,4,High,diamond_50_head_lv2,19.610418596160077,0,0,,,0,modeled_missing_stage_same_position_anchor_relative_factor,Medium,equal_protocol,100.0,82.0,55.07276628003623
+diamond,head,2,50,4,Medium,diamond_50_head_lv2,8.860073728626691,1,1,11.553848185033385,6.16629927222,2,average_observed_normalized_stage_rates,,equal_protocol,82.0,52.0,203.15858029310095
+diamond,head,2,50,4,Low,diamond_50_head_lv2,12.803395720792116,1,0,12.803395720792116,,1,average_observed_normalized_stage_rates,,equal_protocol,52.0,20.0,149.96021695103977
+diamond,head,2,50,5,High,diamond_50_head_lv2,28.519985948185955,1,0,28.519985948185955,,1,average_observed_normalized_stage_rates,,equal_protocol,100.0,82.0,37.86818135051342
+diamond,head,2,50,5,Medium,diamond_50_head_lv2,7.467881002504333,1,2,9.171302107493666,5.764459897515,2,average_observed_normalized_stage_rates,,equal_protocol,82.0,52.0,241.03222847235716
+diamond,head,2,50,5,Low,diamond_50_head_lv2,13.692902723955443,1,0,13.692902723955443,,1,average_observed_normalized_stage_rates,,equal_protocol,52.0,20.0,140.21862556877736

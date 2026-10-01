@@ -1,0 +1,20 @@
+{
+  "status": "passed_offline_checks",
+  "input_hashes_unchanged": true,
+  "baseline_model_unchanged": true,
+  "no_250cm_experiment_inputs_read": true,
+  "cross_protocol_average_applied": false,
+  "all_curves_have_three_stages": true,
+  "all_curves_monotone": true,
+  "knot_slope_rate_identity_passed": true,
+  "pilot_replay_max_rate_error_pp_min": 1.7763568394002505e-15,
+  "normalization_identity_max_error_pp_min": 0.0,
+  "excluded_conditions_absent": true,
+  "simulated_observations_used": 0,
+  "modeled_rates_separate_from_observed": true,
+  "original_diagnostic_figure_added_to_dataset": false,
+  "active_training_unchanged": true,
+  "all_293_wind_raw_stage_rates_independently_replayed": true,
+  "raw_stage_replay_max_error_pp_min": 3.552713678800501e-15,
+  "partial_SOC_support_traced": true
+}

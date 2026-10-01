@@ -1,0 +1,214 @@
+{
+  "id": "SCENARIO-CENTRAL-RPA",
+  "name": "Central to RPA",
+  "scenario": true,
+  "nodes": [
+    {
+      "id": "N0",
+      "name": "Sydney Central Medical Centre",
+      "kind": "Origin",
+      "lon": 151.20654296875,
+      "lat": -33.87984085083,
+      "xy": [
+        790.86,
+        237.08
+      ],
+      "location_source": "https://internationalstudents.health.nsw.gov.au/healthcareservice/sydney-central-medical-centre/",
+      "facility_status": "Public address reference",
+      "demo_capacity": null,
+      "demo_available": null
+    },
+    {
+      "id": "N1",
+      "name": "Rooftop A",
+      "kind": "Scenario rooftop",
+      "lon": 151.20369596374363,
+      "lat": -33.883872308079795,
+      "xy": [
+        733.92,
+        334.21
+      ],
+      "footprint": [
+        [
+          700.94,
+          325.67
+        ],
+        [
+          702.39,
+          328.85
+        ],
+        [
+          703.62,
+          328.41
+        ],
+        [
+          703.41,
+          327.58
+        ],
+        [
+          706.68,
+          326.13
+        ],
+        [
+          705.49,
+          323.59
+        ],
+        [
+          705.3,
+          323.68
+        ],
+        [
+          700.94,
+          325.67
+        ]
+      ],
+      "osm_way": "548918549",
+      "location_source": "https://www.openstreetmap.org/way/548918549",
+      "facility_status": "Rooftop use unverified",
+      "demo_capacity": 4,
+      "demo_available": 2
+    },
+    {
+      "id": "N2",
+      "name": "Rooftop B",
+      "kind": "Scenario rooftop",
+      "lon": 151.1937768696322,
+      "lat": -33.88555005597564,
+      "xy": [
+        535.54,
+        374.63
+      ],
+      "footprint": [
+        [
+          560.38,
+          380.24
+        ],
+        [
+          563.14,
+          381.13
+        ],
+        [
+          562.45,
+          383.03
+        ],
+        [
+          559.74,
+          382.06
+        ],
+        [
+          560.38,
+          380.24
+        ]
+      ],
+      "osm_way": "369353658",
+      "location_source": "https://www.openstreetmap.org/way/369353658",
+      "facility_status": "Rooftop use unverified",
+      "demo_capacity": 6,
+      "demo_available": 4
+    },
+    {
+      "id": "N3",
+      "name": "Rooftop C",
+      "kind": "Scenario rooftop",
+      "lon": 151.18849083768293,
+      "lat": -33.88746583754087,
+      "xy": [
+        429.82,
+        420.78
+      ],
+      "footprint": [
+        [
+          433.1,
+          413.82
+        ],
+        [
+          433.42,
+          416.82
+        ],
+        [
+          431.47,
+          417.09
+        ],
+        [
+          432.47,
+          424.8
+        ],
+        [
+          434.48,
+          424.46
+        ],
+        [
+          434.67,
+          427.39
+        ],
+        [
+          429.14,
+          428.11
+        ],
+        [
+          427.47,
+          414.54
+        ],
+        [
+          433.1,
+          413.82
+        ]
+      ],
+      "osm_way": "205131017",
+      "location_source": "https://www.openstreetmap.org/way/205131017",
+      "facility_status": "Rooftop use unverified",
+      "demo_capacity": 3,
+      "demo_available": 1
+    },
+    {
+      "id": "N4",
+      "name": "Royal Prince Alfred Hospital",
+      "kind": "Destination",
+      "lon": 151.183123,
+      "lat": -33.8893087,
+      "xy": [
+        322.46,
+        465.18
+      ],
+      "location_source": "https://www.nsw.gov.au/health-and-wellbeing/health-infrastructure-projects/royal-prince-alfred-hospital-redevelopment",
+      "facility_status": "Public address reference",
+      "demo_capacity": 6,
+      "demo_available": 4
+    }
+  ],
+  "segments": [
+    {
+      "id": "S1",
+      "from_node": "N0",
+      "to_node": "N1",
+      "interval_count": 8,
+      "geographic_distance_m": null
+    },
+    {
+      "id": "S2",
+      "from_node": "N1",
+      "to_node": "N2",
+      "interval_count": 8,
+      "geographic_distance_m": null
+    },
+    {
+      "id": "S3",
+      "from_node": "N2",
+      "to_node": "N3",
+      "interval_count": 8,
+      "geographic_distance_m": null
+    },
+    {
+      "id": "S4",
+      "from_node": "N3",
+      "to_node": "N4",
+      "interval_count": 8,
+      "geographic_distance_m": null
+    }
+  ],
+  "map_source": "OpenStreetMap contributors",
+  "map_source_url": "https://www.openstreetmap.org/copyright",
+  "map_retrieved": "2026-09-27",
+  "geographic_scale_to_indoor": null,
+  "description": "Illustrative predefined route. Endpoint map references and OSM building footprints are geographic context. Rooftop suitability, charging facilities and route approval are unverified. Demo capacities are scenario fixtures."
+}

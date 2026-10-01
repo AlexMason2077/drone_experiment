@@ -1,0 +1,107 @@
+[
+  {
+    "battery_id": "B10",
+    "source": "database/baselines/drone_2_B10/drone_2_B10_hover_lv1_20260906_173013_20260906_173013_all_coordination.csv",
+    "sha256": "da6993e538d3970ee930b10053fd605082d5b8899e1dd46c3a565a0e30d2b2db",
+    "samples": 494,
+    "old_rmse": 1.5157258045708135,
+    "new_rmse": 1.2678976971902565,
+    "checked_anchors": 8,
+    "xlim": [
+      -10,
+      515
+    ],
+    "ylim": [
+      14,
+      103
+    ],
+    "residual_ylim": [
+      -8,
+      8
+    ]
+  },
+  {
+    "battery_id": "B11",
+    "source": "database/baselines/drone_1_B11/drone_1_B11_hover_lv1_20260906_164725_20260906_164725_all_coordination.csv",
+    "sha256": "64f7fc219e0ed81e8a8fa3e2ec04db8ad7e0d1eb3c3970b3e4d7becc631d73e6",
+    "samples": 478,
+    "old_rmse": 1.5138375753532762,
+    "new_rmse": 1.469413822548195,
+    "checked_anchors": 8,
+    "xlim": [
+      -10,
+      515
+    ],
+    "ylim": [
+      14,
+      103
+    ],
+    "residual_ylim": [
+      -8,
+      8
+    ]
+  },
+  {
+    "battery_id": "B12",
+    "source": "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260906_182131_20260906_182131_all_coordination.csv",
+    "sha256": "f037c27f085a75ea3b0c9d8a991922a3bb47b316a9d40abb83904b5620352a9a",
+    "samples": 390,
+    "old_rmse": 1.6005033176592618,
+    "new_rmse": 1.4560440352734676,
+    "checked_anchors": 8,
+    "xlim": [
+      -10,
+      515
+    ],
+    "ylim": [
+      14,
+      103
+    ],
+    "residual_ylim": [
+      -8,
+      8
+    ]
+  },
+  {
+    "battery_id": "B13",
+    "source": "database/baselines/drone_3_B13/drone_3_B13_hover_lv1_20260906_170951_20260906_170951_all_coordination.csv",
+    "sha256": "bc7ef3eef2c2bce1ecf141f6ae5d0468e5a9fdbf0448649f4d6b1bc08c087ead",
+    "samples": 423,
+    "old_rmse": 3.774724121715773,
+    "new_rmse": 1.6590129744068443,
+    "checked_anchors": 8,
+    "xlim": [
+      -10,
+      515
+    ],
+    "ylim": [
+      14,
+      103
+    ],
+    "residual_ylim": [
+      -8,
+      8
+    ]
+  },
+  {
+    "battery_id": "B14",
+    "source": "database/baselines/drone_4_B14/drone_4_B14_hover_lv1_20260906_171938_20260906_171938_all_coordination.csv",
+    "sha256": "6ec0bf99e3f1a469884c61b85913685259ae688aa22f778a59f05233fb745c75",
+    "samples": 456,
+    "old_rmse": 3.1548154081678104,
+    "new_rmse": 2.2924363754618726,
+    "checked_anchors": 8,
+    "xlim": [
+      -10,
+      515
+    ],
+    "ylim": [
+      14,
+      103
+    ],
+    "residual_ylim": [
+      -8,
+      8
+    ]
+  }
+]

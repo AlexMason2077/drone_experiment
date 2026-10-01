@@ -1,0 +1,23 @@
+{
+  "source_version": "medium_bideal_v1_20260908",
+  "source_reference": "../rate_reference.json",
+  "source_reference_sha256": "23792fdf6eabad9bfeb78291e518391d663c58a53cf6b3af02cd3ae9348d9566",
+  "source_manifest_sha256": "6094b92fc916d63c2e06f55d44eb8997aad8da70ab41989fe70c34f92593f09a",
+  "output_file": "discharge_rates_wide.csv",
+  "output_sha256": "d5b6fcfd8849dcd2a8c134f9995514b501c06e2802bf04f078484a5281ee90be",
+  "layout": "one row per SOC regime, wind direction, wind level, formation and spacing; five position rate columns",
+  "row_count": 55,
+  "position_rate_count": 275,
+  "soc_interval_pct": [
+    40,
+    75
+  ],
+  "rate_unit": "Bideal percentage points per minute",
+  "transformations": [
+    "reshape only; no refitting, averaging or rounding"
+  ],
+  "source_counts_and_quality_flags": "Preserved in ../rate_reference.json and ../discharge_rates.csv",
+  "missing_and_unsafe_cells": "Preserved in ../coverage.csv; not filled with zero",
+  "original_snapshot_changed": false,
+  "all_275_rates_match": true
+}

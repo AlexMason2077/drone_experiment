@@ -1,0 +1,30 @@
+[
+  {
+    "id": "vee-short-low",
+    "priority": "P1",
+    "condition": "vee_50_tail_lv2",
+    "finding": "D1 Low rate uses only 51 to 50 percent in 4.078 s; the full reference Low stage is 32 percentage points and 580.629 s. Other Vee positions also include nominal-hover samples with unavailable or different assigned pads.",
+    "remedy": "Do not certify a full Low-stage duration from this one-step trace. Keep raw evidence; use a genuinely supported same-condition D1 Low record if available, otherwise leave the coefficient unsupported."
+  },
+  {
+    "id": "front-tail-selection",
+    "priority": "P1",
+    "condition": "front_50_tail_lv2",
+    "finding": "Earlier numbered 001 has actual High and Medium discharge windows. A whole-run rejection caused by one uncommanded landing excluded all its pre-landing windows, while 004 begins at lower SOC and its missing High stages are filled from partial Medium or Low fits.",
+    "remedy": "Screen actual per-drone, per-episode windows, retaining valid pre-landing observations. Re-estimate from supported real stages without bridging stops or assuming a late stage rate applies to an unobserved stage."
+  },
+  {
+    "id": "front-side-high",
+    "priority": "P1",
+    "condition": "front_50_side_lv1",
+    "finding": "D3 High combines partial-SOC full-stage extrapolation with a B13 baseline High rate of 30.962 pp/min. The reported 89 to 81 percent duration is 77.946 s in the wind record and 15.071 s in the baseline. The exporter also repeats the terminal 81-percent plateau in both High and Medium fits.",
+    "remedy": "Remove duplicated boundary-plateau time. Preserve and investigate the genuine reported-SOC discrepancy; do not alter the fixed baseline or force the normalized curve to agree with peers."
+  },
+  {
+    "id": "echelon-missing-stage",
+    "priority": "P1",
+    "condition": "echalon_50_head_lv1",
+    "finding": "Four of five High fits use fewer than 20 s of fitted blocks. All five have partial High SOC coverage; some use fault-labelled or different-pad observations. Nine of fifteen full-curve stages are completed by borrowing an observed stage factor, often High. Raw High rates are similar, but different baseline divisors create a large relative-factor gap that is repeated in missing stages.",
+    "remedy": "Do not call fault/displaced short windows validated configuration data. Retain diagnostic observations and show missing stage support explicitly in coefficients. A full curve requires supported per-stage data or a separately justified model completion."
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "source_hashes_verified_before_and_after": true,
+  "calibration_runs": 5,
+  "excluded_run_used": false,
+  "calibration_scope": "95 to 20 only",
+  "max_inverse_error_pp": 1.4210854715202004e-14,
+  "reference_exact_rmse_pp": 0.4904237590476477,
+  "reference_dense_quadrature_rmse_pp": 0.4904237591126349,
+  "historical": [
+    {
+      "band": "high95_75",
+      "battery_count": 5,
+      "run_count": 5,
+      "observed_rate_cv": 0.33095259176938124,
+      "normalized_factor_cv": 0.33309499232041906,
+      "cv_improvement_fraction": -0.0064734363903418135
+    },
+    {
+      "band": "low40_20",
+      "battery_count": 5,
+      "run_count": 5,
+      "observed_rate_cv": 0.11906800780986437,
+      "normalized_factor_cv": 0.11487459567609451,
+      "cv_improvement_fraction": 0.0352186301837365
+    },
+    {
+      "band": "medium75_40",
+      "battery_count": 5,
+      "run_count": 5,
+      "observed_rate_cv": 0.04892705375558736,
+      "normalized_factor_cv": 0.056946453258467054,
+      "cv_improvement_fraction": -0.16390521985934825
+    },
+    {
+      "band": "whole95_20",
+      "battery_count": 5,
+      "run_count": 5,
+      "observed_rate_cv": 0.07303717359238852,
+      "normalized_factor_cv": 0.077730015490839,
+      "cv_improvement_fraction": -0.06425278618584884
+    }
+  ],
+  "independent_validation_status": "not established: historical wind/height not confirmed; one current run per pair",
+  "activation": "none: old tables, raw files, flight and app code unchanged",
+  "model_sha256": "c5a604e76f49e5655194701d0d194e8e6710095430e983f5e889e2f4d650bc6e"
+}

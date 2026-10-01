@@ -1,0 +1,10 @@
+{
+  "only_one_condition": true,
+  "no_250cm_coefficients_read": true,
+  "observed_rows": 13,
+  "curve_stage_rows": 15,
+  "original_wind_pilot_max_rate_error": 4.866684832904866e-11,
+  "all_curves_monotone": true,
+  "knot_rate_identity_checked": true,
+  "raw_inputs_unchanged": true
+}

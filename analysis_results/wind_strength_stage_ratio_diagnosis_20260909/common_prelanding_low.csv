@@ -1,0 +1,8 @@
+wind_direction,formation,spacing_cm,battery_id,drone_id,included,reason,lower_start_soc,end_soc,ratio_lv1,ratio_lv2,change_pct
+head,front,75,B11,drone_1,False,Common pre-landing Low spans less than 10 percentage points,,,,,
+side,diamond,75,B10,drone_2,True,"Matched battery, matched SOC window; before first landing in both flights",56,38,0.859181126105,0.86422049571,0.586531693066
+side,diamond,75,B11,drone_1,True,"Matched battery, matched SOC window; before first landing in both flights",51,41,0.855384756477,0.799897933699,-6.48676777998
+side,front,75,B11,drone_1,False,No Low before first landing,,,,,
+tail,diamond,75,B11,drone_1,False,Common pre-landing Low spans less than 10 percentage points,,,,,
+tail,front,75,B10,drone_2,True,"Matched battery, matched SOC window; before first landing in both flights",56,46,0.851645250374,0.792647954639,-6.92744962867
+tail,front,75,B11,drone_1,False,Common pre-landing Low spans less than 10 percentage points,,,,,

@@ -1,0 +1,30 @@
+{
+  "wind_candidate_files": 138,
+  "wind_retained_runs": 21,
+  "wind_conditions": 21,
+  "wind_level1_2_conditions": 20,
+  "wind_additional_actual_Level3_conditions": 1,
+  "wind_observed_stage_rates": 293,
+  "wind_curve_model_stage_rates": 315,
+  "wind_missing_whole_stage_completions": 22,
+  "forward_safe_runs": 60,
+  "forward_adjusted_Medium_rates": 281,
+  "forward_conditions": 24,
+  "forward_records_without_Medium": 19,
+  "conditions_without_supported_complete_wind": [
+    "front_50_head_lv2",
+    "vee_50_head_lv1",
+    "vee_50_tail_lv2",
+    "vee_50_side_lv2",
+    "echalon_50_head_lv1"
+  ],
+  "safety_excluded_conditions": [
+    "column_50_head_lv2",
+    "column_50_side_lv2",
+    "column_50_tail_lv2",
+    "diamond_50_side_lv2",
+    "diamond_50_tail_lv2"
+  ],
+  "condition_position_stage_cells_with_both_observed_sources": 94,
+  "cross_protocol_averaging_applied": false
+}

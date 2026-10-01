@@ -1,0 +1,688 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "separate-results-scope",
+      "title": "前进与风洞两个独立结果",
+      "queries": [
+        {
+          "id": "separate-scope",
+          "source": {
+            "label": "两套独立 manifest；固定九月份参考模型",
+            "filters": [
+              "无跨协议平均",
+              "当前五项危险配置已排除",
+              "旧前进包含50/75cm；风洞只含50cm"
+            ],
+            "caveats": [
+              "250cm已有结果只支持Medium；40条没有该阶段前进时间。",
+              "风洞21条件包含20个Level1/2条件与一个实际Level3条件。",
+              "缺失整段系数与观测率分开；部分观测阶段的全阶段曲线也是计算延伸。",
+              "没有更改baseline、原始记录、控制器或训练集。"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "separate-scope-metric",
+                "definition": "先独立得到对应SOC阶段的率，再从SOC差/率计算参考阶段时间；此处没有两类平均。"
+              }
+            ]
+          },
+          "rows": [
+            {
+              "step": "历史250cm换算",
+              "runs": 133,
+              "conditions": 54,
+              "observed_rates": 625,
+              "unobserved_stage_completion": 0
+            },
+            {
+              "step": "50cm风洞独立处理",
+              "runs": 21,
+              "conditions": 21,
+              "observed_rates": 293,
+              "unobserved_stage_completion": 22
+            }
+          ],
+          "columns": [
+            {
+              "field": "step",
+              "label": "处理步骤"
+            },
+            {
+              "field": "runs",
+              "label": "保留实验数"
+            },
+            {
+              "field": "conditions",
+              "label": "条件数"
+            },
+            {
+              "field": "observed_rates",
+              "label": "观测率条数"
+            },
+            {
+              "field": "unobserved_stage_completion",
+              "label": "缺整段模型系数数"
+            }
+          ]
+        },
+        {
+          "id": "medium-baseline-ratios",
+          "source": {
+            "label": "对应旧基线悬停记录与固定九月份模型",
+            "filters": [
+              "各自电池Medium区间",
+              "旧基线使用同逻辑无人机+电池",
+              "参考模型保持不变"
+            ],
+            "caveats": [
+              "P5旧B15到当前B12的相对负载转移是一个假设。",
+              "不同日期间比例稳定并未由本处理独立证实。"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "medium-baseline-ratios-metric",
+                "definition": "调整后原始率=旧原始率×新目标基线阶段率/旧基线同阶段率；标准化率=调整率/新目标基线率×固定参考率。"
+              }
+            ]
+          },
+          "rows": [
+            {
+              "position": 1,
+              "old_battery_id": "B11",
+              "new_position_battery_id": "B11",
+              "old_baseline_rate_pp_min": 7.7799202767,
+              "new_position_baseline_rate_pp_min": 7.8967311354,
+              "old_to_new_position_scale": 1.015014403
+            },
+            {
+              "position": 2,
+              "old_battery_id": "B10",
+              "new_position_battery_id": "B10",
+              "old_baseline_rate_pp_min": 6.6363833999,
+              "new_position_baseline_rate_pp_min": 7.0551599981,
+              "old_to_new_position_scale": 1.0631031351
+            },
+            {
+              "position": 3,
+              "old_battery_id": "B13",
+              "new_position_battery_id": "B13",
+              "old_baseline_rate_pp_min": 7.9282231531,
+              "new_position_baseline_rate_pp_min": 6.9726362763,
+              "old_to_new_position_scale": 0.8794702346
+            },
+            {
+              "position": 4,
+              "old_battery_id": "B14",
+              "new_position_battery_id": "B14",
+              "old_baseline_rate_pp_min": 7.7661236331,
+              "new_position_baseline_rate_pp_min": 6.4637639166,
+              "old_to_new_position_scale": 0.8323024744
+            },
+            {
+              "position": 5,
+              "old_battery_id": "B15",
+              "new_position_battery_id": "B12",
+              "old_baseline_rate_pp_min": 7.1880126067,
+              "new_position_baseline_rate_pp_min": 9.6425516473,
+              "old_to_new_position_scale": 1.3414767301
+            },
+            {
+              "position": 5,
+              "old_battery_id": "B12",
+              "new_position_battery_id": "B12",
+              "old_baseline_rate_pp_min": 7.2860315806,
+              "new_position_baseline_rate_pp_min": 9.6425516473,
+              "old_to_new_position_scale": 1.3234298453
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "old_battery_id",
+              "label": "旧电池"
+            },
+            {
+              "field": "new_position_battery_id",
+              "label": "目标电池"
+            },
+            {
+              "field": "old_baseline_rate_pp_min",
+              "label": "旧基线率 pp/min"
+            },
+            {
+              "field": "new_position_baseline_rate_pp_min",
+              "label": "新目标基线率 pp/min"
+            },
+            {
+              "field": "old_to_new_position_scale",
+              "label": "旧→新比例"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "diamond-forward-example",
+      "title": "Diamond / 50cm / 顶风 Level2：旧前进换算示例",
+      "queries": [
+        {
+          "id": "forward-medium-example",
+          "source": {
+            "label": "condition_position_medium_means.csv；两组历史250cm前进实验",
+            "filters": [
+              "只用前进数据",
+              "Medium 参考SOC82%→52%"
+            ],
+            "caveats": [
+              "图表示统一参考阶段的计算曲线，实际250cm段时间没有被拉伸。",
+              "旧数据缺少High/Low，因此这张仅画Medium。"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "forward-medium-example-metric",
+                "definition": "同条件位置的有效实验率等权平均；参考Medium时间=60×30/标准化率。"
+              }
+            ]
+          },
+          "rows": [
+            {
+              "position": 1,
+              "normalized_rate_pp_min": 6.0239852047,
+              "observed_run_count": 2,
+              "calculated_medium_duration_s": 298.8055147595
+            },
+            {
+              "position": 2,
+              "normalized_rate_pp_min": 10.8363870894,
+              "observed_run_count": 1,
+              "calculated_medium_duration_s": 166.1070230469
+            },
+            {
+              "position": 3,
+              "normalized_rate_pp_min": 7.7038285037,
+              "observed_run_count": 2,
+              "calculated_medium_duration_s": 233.650061024
+            },
+            {
+              "position": 4,
+              "normalized_rate_pp_min": 5.1322261424,
+              "observed_run_count": 1,
+              "calculated_medium_duration_s": 350.7249973153
+            },
+            {
+              "position": 5,
+              "normalized_rate_pp_min": 5.7644598975,
+              "observed_run_count": 2,
+              "calculated_medium_duration_s": 312.2582222799
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "normalized_rate_pp_min",
+              "label": "标准化率 pp/min"
+            },
+            {
+              "field": "observed_run_count",
+              "label": "有效实验数"
+            },
+            {
+              "field": "calculated_medium_duration_s",
+              "label": "参考Medium阶段时间 秒"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "diamond-wind-example",
+      "title": "Diamond / 50cm / 顶风 Level2：风洞三阶段示例",
+      "queries": [
+        {
+          "id": "wind-three-stage-example",
+          "source": {
+            "label": "curve_stage_rates.csv；wind_tunnel_diamond_50_head_lv2_002",
+            "filters": [
+              "只用风洞数据",
+              "本机初始不掉电平台去除",
+              "对应自身High/Medium/Low独立拟合"
+            ],
+            "caveats": [
+              "P3/P4 High缺少实测，以同位置风洞Medium相对因子完成；不记入观测数据表。",
+              "P2/P5 High各仅两档SOC，支撑较弱。",
+              "横轴是统一参考电池100%→20%的计算时间。"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "wind-three-stage-example-metric",
+                "definition": "标准化阶段率=实测阶段率/本机阶段基线率×参考阶段基线率；先计算率，之后计算参考阶段时间。"
+              }
+            ]
+          },
+          "rows": [
+            {
+              "position": 1,
+              "stage": "High",
+              "normalized_rate_pp_min": 16.8162075712,
+              "stage_duration_s": 64.2237552924,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 1,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 8.7037090218,
+              "stage_duration_s": 206.8083842741,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 1,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.8946384584,
+              "stage_duration_s": 148.8990952473,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 2,
+              "stage": "High",
+              "normalized_rate_pp_min": 19.1967627985,
+              "stage_duration_s": 56.2594855881,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 2,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 10.1174813399,
+              "stage_duration_s": 177.9098907656,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 2,
+              "stage": "Low",
+              "normalized_rate_pp_min": 13.7174224166,
+              "stage_duration_s": 139.9679868193,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 3,
+              "stage": "High",
+              "normalized_rate_pp_min": 23.3066333755,
+              "stage_duration_s": 46.3387389591,
+              "is_modeled": true,
+              "rate_origin": "modeled_missing_stage_from_same_position_wind_relative_factor"
+            },
+            {
+              "position": 3,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 10.5300398898,
+              "stage_duration_s": 170.9395233867,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 3,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.7570136721,
+              "stage_duration_s": 150.5054434638,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 4,
+              "stage": "High",
+              "normalized_rate_pp_min": 25.5726765087,
+              "stage_duration_s": 42.2325758367,
+              "is_modeled": true,
+              "rate_origin": "modeled_missing_stage_from_same_position_wind_relative_factor"
+            },
+            {
+              "position": 4,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 11.553848185,
+              "stage_duration_s": 155.7922495755,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 4,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.8033957208,
+              "stage_duration_s": 149.960216951,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 5,
+              "stage": "High",
+              "normalized_rate_pp_min": 28.5199859482,
+              "stage_duration_s": 37.8681813505,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 5,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 9.1713021075,
+              "stage_duration_s": 196.2643885135,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            },
+            {
+              "position": 5,
+              "stage": "Low",
+              "normalized_rate_pp_min": 13.692902724,
+              "stage_duration_s": 140.2186255688,
+              "is_modeled": false,
+              "rate_origin": "mean_of_observed_wind_stage_fits"
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "stage",
+              "label": "阶段"
+            },
+            {
+              "field": "normalized_rate_pp_min",
+              "label": "标准化率 pp/min"
+            },
+            {
+              "field": "stage_duration_s",
+              "label": "参考阶段时间 秒"
+            },
+            {
+              "field": "is_modeled",
+              "label": "缺整段模型补全"
+            },
+            {
+              "field": "rate_origin",
+              "label": "率来源"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wind-data-coverage",
+      "title": "50cm风洞可用条件覆盖",
+      "queries": [
+        {
+          "id": "wind-coverage",
+          "source": {
+            "label": "condition_coverage.csv；所有50cm风洞候选CSV及当前安全排除规则",
+            "filters": [
+              "全部50cm候选逐一筛选",
+              "Level3保留原始级别，不合并Level2"
+            ],
+            "caveats": [
+              "空文件、prepare、中断、控制故障、异常落地和已登记异常/重复合并来源单独审计。",
+              "Front tail Level2一架在38%结束，其Low到20%的剩余段为模型延伸。"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "wind-coverage-metric",
+                "definition": "条件覆盖表示可用阶段拟合与模型补全来源；不是全部条件已通过实机验证或可以直接作为训练观测。"
+              }
+            ]
+          },
+          "rows": [
+            {
+              "condition_id": "front_50_head_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "front_50_head_lv2",
+              "status": "no_supported_complete_wind_record",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "front_50_tail_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            },
+            {
+              "condition_id": "front_50_tail_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 9,
+              "modeled_stage_count": 6
+            },
+            {
+              "condition_id": "front_50_side_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            },
+            {
+              "condition_id": "front_50_side_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            },
+            {
+              "condition_id": "column_50_head_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "column_50_head_lv2",
+              "status": "excluded_safety_condition",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "column_50_tail_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 13,
+              "modeled_stage_count": 2
+            },
+            {
+              "condition_id": "column_50_tail_lv2",
+              "status": "excluded_safety_condition",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "column_50_side_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "column_50_side_lv2",
+              "status": "excluded_safety_condition",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_head_lv1",
+              "status": "no_supported_complete_wind_record",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_head_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_tail_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_tail_lv2",
+              "status": "no_supported_complete_wind_record",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_side_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_side_lv2",
+              "status": "no_supported_complete_wind_record",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "echalon_50_head_lv1",
+              "status": "no_supported_complete_wind_record",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "echalon_50_head_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 12,
+              "modeled_stage_count": 3
+            },
+            {
+              "condition_id": "echalon_50_tail_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "echalon_50_tail_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "echalon_50_side_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 13,
+              "modeled_stage_count": 2
+            },
+            {
+              "condition_id": "echalon_50_side_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            },
+            {
+              "condition_id": "diamond_50_head_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            },
+            {
+              "condition_id": "diamond_50_head_lv2",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 13,
+              "modeled_stage_count": 2
+            },
+            {
+              "condition_id": "diamond_50_tail_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            },
+            {
+              "condition_id": "diamond_50_tail_lv2",
+              "status": "excluded_safety_condition",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "diamond_50_side_lv1",
+              "status": "has_wind_stage_curves",
+              "positions_with_curves": 5,
+              "observed_stage_count": 15,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "diamond_50_side_lv2",
+              "status": "excluded_safety_condition",
+              "positions_with_curves": 0,
+              "observed_stage_count": 0,
+              "modeled_stage_count": 0
+            },
+            {
+              "condition_id": "vee_50_side_lv3",
+              "status": "additional_actual_level_kept_separate",
+              "positions_with_curves": 5,
+              "observed_stage_count": 14,
+              "modeled_stage_count": 1
+            }
+          ],
+          "columns": [
+            {
+              "field": "condition_id",
+              "label": "条件"
+            },
+            {
+              "field": "status",
+              "label": "状态"
+            },
+            {
+              "field": "positions_with_curves",
+              "label": "位置数"
+            },
+            {
+              "field": "observed_stage_count",
+              "label": "观测阶段数"
+            },
+            {
+              "field": "modeled_stage_count",
+              "label": "缺整段补全数"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

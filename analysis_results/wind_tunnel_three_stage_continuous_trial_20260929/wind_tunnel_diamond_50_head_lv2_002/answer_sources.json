@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "single-run-three-stage-pilot",
+      "title": "Diamond 50 cm Headwind Level2：三阶段试处理",
+      "queries": [
+        {
+          "id": "telemetry",
+          "source": {
+            "label": "wind_tunnel_diamond_50_head_lv2_002 · run 20260928_232343",
+            "filters": [
+              "实验类型：静态风洞悬停",
+              "剔除起飞、定位和开头 SOC 不变的平台时间",
+              "保留后续整数 SOC 阶梯",
+              "仅使用首架开始降落前的五机悬停区间"
+            ]
+          },
+          "summary": "从每个位置在有效悬停后的首个掉电读数开始计时。"
+        },
+        {
+          "id": "reference",
+          "source": {
+            "label": "Bideal v3 with B15 · 20260909",
+            "caveats": [
+              "实体电池与参考电池的阶段边界不同，使用连续等效悬停时间积分换算。",
+              "首个有效样本的参考 SOC 与实测 SOC 数值对齐，这是本次试处理的起点约定。",
+              "该参考模型文件仍标注为候选；本次未激活或重新拟合参考模型。"
+            ]
+          },
+          "summary": "使用已有 100/82/52/20% 参考曲线及对应实体电池基线。"
+        },
+        {
+          "id": "stage-fit",
+          "source": {
+            "label": "stage_rates.csv · continuous single-run fit",
+            "caveats": [
+              "P3–P5 未观测 High，采用同位置 Medium 相对参考电池耗电因子补齐。",
+              "P1 Low 和 P2 High 的观测支持很短，阶段斜率仍需重复记录核对。",
+              "最终曲线是理想电池上的三段模型，其总时长不等于这次原始记录总时长。",
+              "当前结果为单组试处理，未加入训练数据。"
+            ]
+          },
+          "summary": "连续三段拟合使用观测标准化 SOC；补齐点不参与拟合。",
+          "rows": [
+            {
+              "position": 1,
+              "stage": "High",
+              "rate_pp_min": 17.4246136556,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 31.901
+            },
+            {
+              "position": 1,
+              "stage": "Medium",
+              "rate_pp_min": 8.24711406911,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 217.944
+            },
+            {
+              "position": 1,
+              "stage": "Low",
+              "rate_pp_min": 29.351802923,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 16.837
+            },
+            {
+              "position": 2,
+              "stage": "High",
+              "rate_pp_min": 52.2205254225,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 9.862
+            },
+            {
+              "position": 2,
+              "stage": "Medium",
+              "rate_pp_min": 10.2483788579,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 162.932
+            },
+            {
+              "position": 2,
+              "stage": "Low",
+              "rate_pp_min": 12.9534949193,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 98.874
+            },
+            {
+              "position": 3,
+              "stage": "High",
+              "rate_pp_min": 26.1741175918,
+              "origin": "modeled_missing_high_from_medium_relative_factor",
+              "observed_duration_s": 0.0
+            },
+            {
+              "position": 3,
+              "stage": "Medium",
+              "rate_pp_min": 11.8255819226,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 151.881
+            },
+            {
+              "position": 3,
+              "stage": "Low",
+              "rate_pp_min": 13.8727526367,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 111.522
+            },
+            {
+              "position": 4,
+              "stage": "High",
+              "rate_pp_min": 27.9758959883,
+              "origin": "modeled_missing_high_from_medium_relative_factor",
+              "observed_duration_s": 0.0
+            },
+            {
+              "position": 4,
+              "stage": "Medium",
+              "rate_pp_min": 12.6396333594,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 124.921
+            },
+            {
+              "position": 4,
+              "stage": "Low",
+              "rate_pp_min": 11.7711838615,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 140.497
+            },
+            {
+              "position": 5,
+              "stage": "High",
+              "rate_pp_min": 21.8609223501,
+              "origin": "modeled_missing_high_from_medium_relative_factor",
+              "observed_duration_s": 0.0
+            },
+            {
+              "position": 5,
+              "stage": "Medium",
+              "rate_pp_min": 9.87686126371,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 169.851
+            },
+            {
+              "position": 5,
+              "stage": "Low",
+              "rate_pp_min": 13.4261359182,
+              "origin": "fitted_observed_normalized_samples",
+              "observed_duration_s": 93.66
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "stage",
+              "label": "阶段"
+            },
+            {
+              "field": "rate_pp_min",
+              "label": "耗电率（SOC 百分点/分钟）"
+            },
+            {
+              "field": "origin",
+              "label": "估计来源"
+            },
+            {
+              "field": "observed_duration_s",
+              "label": "观测时长（秒）"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

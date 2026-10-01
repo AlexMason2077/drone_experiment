@@ -1,0 +1,6 @@
+drone_id,battery_id,initial_takeoff_soc,initial_hover_soc,first_hover_s,first_drop_s,reference_start_soc,initial_hover_plateau_removed_s,excluded_pre_first_drop_s,fit_end_s,last_actual_soc_used,last_reference_soc_used,sample_count,floor_rejected_rows,own_pad_fraction,model_full_100_to_20_s
+drone_1,B11,94,94,15.036,22.553,93,7.517,22.553,289.445,52,48.1524790131,2520,0,1,345.652813439
+drone_2,B10,87,87,15.036,17.566,86,2.53,17.566,289.445,41,32.3138814015,2567,0,1,344.541604281
+drone_3,B13,81,81,15.036,25.936,80,10.9,25.936,289.445,31,24.666749551,2488,0,0.997186495177,331.875314054
+drone_4,B14,79,78,15.036,23.919,77,8.883,23.919,289.445,27,21.8017842583,2507,0,1,344.124042679
+drone_5,B12,81,81,15.036,25.828,80,10.792,25.828,289.445,20,30.6761648782,2489,0,1,374.652013046

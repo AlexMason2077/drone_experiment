@@ -1,0 +1,16 @@
+{
+  "status": "passed_offline_export_checks",
+  "only_50cm": true,
+  "fixed_baseline_byte_identical": true,
+  "all_source_inputs_unchanged": true,
+  "wind_inventory_complete_and_current": true,
+  "five_safety_conditions_absent": true,
+  "separate_source_grains_unique": true,
+  "curve_rows_and_rates_preserved": true,
+  "forward_actual_time_unchanged": true,
+  "averaging_applied": false,
+  "previous_independent_replay": "analysis_results/separate_baseline_processing_20260929/independent_validation.json",
+  "wind_source_replay_max_error_pp_min": 3.552713678800501e-15,
+  "baseline_original_sha256": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "active_dataset_or_training_modified": false
+}

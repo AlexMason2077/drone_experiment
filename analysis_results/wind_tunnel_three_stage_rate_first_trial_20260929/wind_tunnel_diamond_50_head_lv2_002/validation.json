@@ -1,0 +1,14 @@
+{
+  "five_positions": true,
+  "three_stages_per_position": true,
+  "rate_factor_max_error": 1.1102230246251565e-16,
+  "rate_factor_conserved": true,
+  "positive_normalized_rates": true,
+  "initial_plateau_removed": true,
+  "each_own_20_percent_observation_retained": true,
+  "original_stage_slopes_preserved": true,
+  "continuous_82_52_reference_knots": true,
+  "sources_unchanged": true,
+  "hardware_access": false,
+  "active_training_data_modified": false
+}

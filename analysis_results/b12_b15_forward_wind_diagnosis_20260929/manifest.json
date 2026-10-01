@@ -1,0 +1,33 @@
+{
+  "status": "diagnostic_only_no_dataset_changes",
+  "inputs_sha256": {
+    "analysis_results/battery_normalization_v3_with_b15_20260909/model.json": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+    "frozen_data/discharge_rates/medium_bideal_v1_20260908/battery_calibration.csv": "320e24265ba4820466e99eb7721634e5b51c8f465457922b0ab6ed6cddf93974",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/manifest.json": "45a1f817265556e9fad6afb4c8fb45460629fd88fc7acd178929e841a1348cdd",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/run_drone_rates.csv": "99d27578e809994ae26000760f803b2f0fce67d98c4a27851096ef494749d827",
+    "analysis_results/medium_forward_bideal_v3_with_b15_20260909/selected_forward_intervals.csv": "c7dff4e5f77d4197bfc753627336678b80946bf663e5fbf4f27990e4e8675172",
+    "analysis_results/50cm_stage_curves_20260929/measured_run_stage_rates.csv": "8f3f963d140a6083323fe72d09436db627aa7defb1d506107ffb6645afa066ee",
+    "database/wind_tunnel_diamond_50_head_lv2_002/wind_tunnel_diamond_50_head_lv2_002_20260928_232343_all_coordination.csv": "8797f9ba585076ea919945e1b4908d3a7d32edc8243852504048bcf97af5829b",
+    "TRAINING_EXCLUSIONS.md": "81ba056a6492061350d4f83276611467048f7c1aeb99f7d7d0d5f0515e8aa997",
+    "db_copy_for_cleaning/baselines/drone_2_B12/drone_2_B12_hover_20260513_145311_timeseries.csv": "42019b2b48ce8b2ff9ec0198e56c2a6aeef34cdb87b6de0e110617341014c2d2",
+    "db_copy_for_cleaning/baselines/drone_2_B12/drone_2_B12_hover_20260513_154650_timeseries.csv": "a073aa921793a16bb10b3a6b7a5c2131de3e31a59a9a8e24a2c28011cfe4e280",
+    "db_copy_for_cleaning/baselines/drone_2_B12/drone_2_B12_hover_20260513_165620_timeseries.csv": "9039198cdff13068e52bb9db7fd2a151c40b04b35b57fa8edbbe29f28d3a4d08",
+    "db_copy_for_cleaning/baselines/drone_2_B12/drone_2_B12_hover_20260513_174815_timeseries.csv": "3c73a8e6ee6c72cd92c4b2c400f19b35cb01ca7ffcb034ef4c1d8ce07afb58bc",
+    "db_copy_for_cleaning/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260609_174758_20260609_174758_all_battery_timeseries.csv": "34b52dc80999175453e75928731ad9b95a19704acae619b6e54e04f9b845e131",
+    "db_copy_for_cleaning/baselines/drone_5_B15/drone_5_B15_hover_20260513_150444_timeseries.csv": "6e92a975769cfd1e0287fee6558c14368d2eda67a0291f8fc8a13099fa35e0ca",
+    "db_copy_for_cleaning/baselines/drone_5_B15/drone_5_B15_hover_lv1_20260609_180213_20260609_180213_all_battery_timeseries.csv": "124f6a913956856818a32467660527210a14a7f9235ee0b6a0d9a736f338673f",
+    "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260609_174758_20260609_174758_all_coordination.csv": "606fedb74ac69325f5a691719ea6f95cd3b2393a06fe61baec1c9f7f93a903dc",
+    "database/baselines/drone_5_B12/drone_5_B12_hover_lv1_20260906_182131_20260906_182131_all_coordination.csv": "f037c27f085a75ea3b0c9d8a991922a3bb47b316a9d40abb83904b5620352a9a",
+    "database/baselines/drone_5_B15/drone_5_B15_hover_20260513_150444_timeseries.csv": "6e92a975769cfd1e0287fee6558c14368d2eda67a0291f8fc8a13099fa35e0ca",
+    "db_copy_for_cleaning/diamond_50_head_lv2_new_001/diamond_50_head_lv2_new_001_20260520_154459_all_coordination.csv": "d89fc6141a6a5c00a12b397a2d2fa40e08f56bc8e76b7055c921ef7a1de2eaa9",
+    "db_copy_for_cleaning/diamond_50_head_lv2_new_002/diamond_50_head_lv2_new_002_20260520_165537_all_coordination.csv": "92d7bc7ab3729e044d0cfdf4b1ad7d0bbce53f56243387748b0622e0ae0e57d6"
+  },
+  "processing_script_sha256": "8321609567ded40d13379f74a53fd03f2936f58533383062ebadc597fb407fef",
+  "current_exclusions": [
+    "column_50_head_lv2",
+    "column_50_side_lv2",
+    "column_50_tail_lv2",
+    "diamond_50_side_lv2",
+    "diamond_50_tail_lv2"
+  ]
+}

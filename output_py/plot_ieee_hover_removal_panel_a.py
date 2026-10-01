@@ -182,13 +182,13 @@ def main() -> None:
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color("#555B61")
     ax.spines["bottom"].set_color("#555B61")
-    ax.set_xlabel("Wall-clock time from trial recording start (s)")
-    ax.set_ylabel("Calibrated along-track progress (cm)")
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Distance (cm)")
     fig.text(0.014, 0.985, "(a)", ha="left", va="top", fontsize=10, fontweight="bold")
 
     legend_handles = [
-        Line2D([0], [0], color=BLUE, lw=2.0, label="Forward motion (>=2 cm/s)"),
-        Line2D([0], [0], color=GREY, lw=1.2, label="Excluded non-forward interval"),
+        Line2D([0], [0], color=BLUE, lw=2.0, label="Forward"),
+        Line2D([0], [0], color=GREY, lw=1.2, label="Non-forward"),
         Line2D(
             [0],
             [0],

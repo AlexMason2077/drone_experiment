@@ -1,0 +1,5 @@
+condition_id,formation,spacing_cm,wind_direction,wind_level,observed_record_files,usable_flights,usable_steps,supported_cells,total_cells,coverage,historically_missing_or_partial,safety_excluded,requested_simulation_replicates,export_status,simulation_replicates
+column_50_head_lv2,column,50,head,2,0,0,0,0,15,missing_usable_curves,True,True,0,excluded_existing_safety_rule,0
+column_50_side_lv2,column,50,side,2,0,0,0,0,15,missing_usable_curves,True,True,0,excluded_existing_safety_rule,0
+diamond_50_tail_lv2,diamond,50,tail,2,0,0,0,0,15,missing_usable_curves,True,True,0,excluded_existing_safety_rule,0
+diamond_50_side_lv2,diamond,50,side,2,0,0,0,0,15,missing_usable_curves,True,True,0,excluded_existing_safety_rule,0

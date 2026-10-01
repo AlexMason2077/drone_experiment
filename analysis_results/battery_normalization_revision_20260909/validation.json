@@ -1,0 +1,11 @@
+{
+  "old_model_unchanged": true,
+  "source_files_hash_checked": 11,
+  "B12_B13_B14_unchanged": true,
+  "normalization_csv_executed": true,
+  "audit_python_cells_executed": 4,
+  "Jupyter_kernel_execution_verified": false,
+  "all_outputs_candidate_only": true,
+  "model_sha256": "224533785657fcada26a616b4e2fba3fdfd761d15f1c62b293da88d95c19fa70",
+  "historical_records_not_used_in_primary_fit": true
+}

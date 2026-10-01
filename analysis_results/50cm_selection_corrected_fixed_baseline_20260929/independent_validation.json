@@ -1,0 +1,24 @@
+{
+  "status": "passed_independent_replay_and_export_checks",
+  "all_observed_stage_rates_replayed": 341,
+  "raw_rate_replay_max_error_pp_min": 1.7763568394002505e-14,
+  "normalized_rate_replay_max_error_pp_min": 3.197442310920451e-14,
+  "figures_3300x2040_verified": 25,
+  "collection_grid_25_safe_plus_5_excluded": true,
+  "all_25_authored_figures_visually_inspected_in_contact_sheet": true,
+  "echelon_figure_full_size_visually_inspected": true,
+  "cross_protocol_average_applied": false,
+  "baseline_sha256": "5ea37d52e43b4c283f3ce6f956b2b669c1878030e32afc92fc9749fe66af0fe5",
+  "stage_cells_with_both_observed_sources": 115,
+  "simulated_samples_used": 0,
+  "user_confirmed_wind_level_correction": {
+    "experiment_id": "wind_tunnel_vee_50_side_lv3_003",
+    "run_id": "20260927_223215",
+    "original_wind_level": 3,
+    "actual_wind_level": 2,
+    "authorization": "User explicitly confirmed actual Level2 in this session on 2026-09-29",
+    "original_condition_id": "vee_50_side_lv3",
+    "corrected_condition_id": "vee_50_side_lv2",
+    "original_records_unchanged": true
+  }
+}

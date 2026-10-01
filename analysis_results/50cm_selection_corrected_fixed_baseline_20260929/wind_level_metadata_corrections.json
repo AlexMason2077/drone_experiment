@@ -1,0 +1,12 @@
+[
+  {
+    "experiment_id": "wind_tunnel_vee_50_side_lv3_003",
+    "run_id": "20260927_223215",
+    "original_wind_level": 3,
+    "actual_wind_level": 2,
+    "authorization": "User explicitly confirmed actual Level2 in this session on 2026-09-29",
+    "original_condition_id": "vee_50_side_lv3",
+    "corrected_condition_id": "vee_50_side_lv2",
+    "original_records_unchanged": true
+  }
+]

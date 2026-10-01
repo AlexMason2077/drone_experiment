@@ -1,0 +1,14 @@
+{
+  "real_source_points_checked": 2223,
+  "run_stage_fits_independently_checked": 96,
+  "pooled_stage_fits_checked": 92,
+  "model_coefficients_checked": 120,
+  "max_raw_rate_error_pp_min": 1.3713474800169934e-12,
+  "max_normalization_error_pp_min": 7.851497230149107e-13,
+  "max_prior_rate_error_pp_min": 7.105427357601002e-15,
+  "max_model_rate_error_pp_min": 1.0658141036401503e-14,
+  "unchanged_condition_count": 17,
+  "source_hashes_match": true,
+  "dangerous_conditions_absent": true,
+  "interpretation": "Checks verify implementation and provenance of conditional model estimates; they do not validate new physical measurements or fitted-model uncertainty."
+}

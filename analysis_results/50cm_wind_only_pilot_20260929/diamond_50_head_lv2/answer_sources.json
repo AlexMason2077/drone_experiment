@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "wind-only-three-stage-pilot",
+      "title": "Diamond 50cm顶风Level2：仅风洞三阶段曲线",
+      "queries": [
+        {
+          "id": "wind-only-rates",
+          "source": {
+            "label": "wind_tunnel_diamond_50_head_lv2_002 · 20260928_232343",
+            "filters": [
+              "仅风洞实测与已有电池基线",
+              "配置：Diamond / 50cm / Headwind / Level2",
+              "初始不掉电平台去除；各飞机保留至自身20%"
+            ],
+            "caveats": [
+              "P3/P4 High由同位置风洞Medium相对耗电率完成，不是实测阶段。",
+              "P2/P5 High各仅两档SOC。",
+              "横轴为统一参考电池100%到20%的计算时间。",
+              "其他飞机先落地后的本机hover保留，后段未必代表五架同时悬停。"
+            ],
+            "metricDefinitions": [
+              {
+                "id": "normalized-stage-rate",
+                "definition": "各阶段独立拟合的风洞率先除以本电池对应阶段基线率，再乘参考电池对应阶段率；本图不使用250cm结果。"
+              }
+            ]
+          },
+          "rows": [
+            {
+              "position": 1,
+              "stage": "High",
+              "normalized_rate_pp_min": 16.81620757121132,
+              "stage_duration_s": 64.22375529241904,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 1,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 8.703709021846475,
+              "stage_duration_s": 206.80838427410268,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 1,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.894638458421053,
+              "stage_duration_s": 148.89909524730513,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 2,
+              "stage": "High",
+              "normalized_rate_pp_min": 19.19676279847983,
+              "stage_duration_s": 56.25948558813906,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 2,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 10.117481339873347,
+              "stage_duration_s": 177.90989076561348,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 2,
+              "stage": "Low",
+              "normalized_rate_pp_min": 13.717422416586015,
+              "stage_duration_s": 139.9679868193378,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 3,
+              "stage": "High",
+              "normalized_rate_pp_min": 23.306633375457167,
+              "stage_duration_s": 46.338738959067506,
+              "rate_origin": "modeled_missing_high_from_wind_medium_factor"
+            },
+            {
+              "position": 3,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 10.530039889768423,
+              "stage_duration_s": 170.93952338670445,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 3,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.757013672148666,
+              "stage_duration_s": 150.50544346376122,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 4,
+              "stage": "High",
+              "normalized_rate_pp_min": 25.572676508653412,
+              "stage_duration_s": 42.23257583673512,
+              "rate_origin": "modeled_missing_high_from_wind_medium_factor"
+            },
+            {
+              "position": 4,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 11.553848185033385,
+              "stage_duration_s": 155.79224957548627,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 4,
+              "stage": "Low",
+              "normalized_rate_pp_min": 12.803395720792116,
+              "stage_duration_s": 149.96021695103977,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 5,
+              "stage": "High",
+              "normalized_rate_pp_min": 28.519985948185955,
+              "stage_duration_s": 37.86818135051342,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 5,
+              "stage": "Medium",
+              "normalized_rate_pp_min": 9.171302107493666,
+              "stage_duration_s": 196.2643885135198,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            },
+            {
+              "position": 5,
+              "stage": "Low",
+              "normalized_rate_pp_min": 13.692902723955443,
+              "stage_duration_s": 140.21862556877736,
+              "rate_origin": "measured_wind_independent_stage_fit"
+            }
+          ],
+          "columns": [
+            {
+              "field": "position",
+              "label": "位置"
+            },
+            {
+              "field": "stage",
+              "label": "阶段"
+            },
+            {
+              "field": "normalized_rate_pp_min",
+              "label": "标准化耗电率（pp/min）"
+            },
+            {
+              "field": "stage_duration_s",
+              "label": "参考阶段时间（秒）"
+            },
+            {
+              "field": "rate_origin",
+              "label": "系数来源"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

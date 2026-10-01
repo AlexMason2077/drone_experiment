@@ -1,0 +1,9 @@
+{
+  "notebook_figures_inspected": true,
+  "curve_comparison": "Three panels share axes and separate observed from synthetic traces. Integer steps and irregular slopes visible; no clipping found. Reference is explicitly in-sample.",
+  "dwell_comparison": "Stage panels share axes; median and 10th-90th ranges are clearly distinguished. High discrepancy is visible, not hidden.",
+  "native_artifact_validation": "Passed; eight bounded datasets and native chart blocks.",
+  "native_artifact_render_tool": "Returned ok=true; no UI metadata or screenshot supplied. Final native reader visual layout not independently inspected.",
+  "notebook_execution": "Code cells executed sequentially in a shared Python namespace. Actual Jupyter kernel execution unavailable without nbformat/nbclient.",
+  "assessment": "Share with caveats: exploratory synthetic data, not experimentally validated missing conditions."
+}

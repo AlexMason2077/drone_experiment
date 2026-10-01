@@ -1,0 +1,19 @@
+{
+  "review_status": "needs_revision",
+  "review_scope": [
+    "vee_50_tail_lv2",
+    "front_50_tail_lv2",
+    "front_50_side_lv1",
+    "echalon_50_head_lv1"
+  ],
+  "observed_stage_rows_replayed": 44,
+  "replay_max_error_pp_min": 2.539657373290538e-11,
+  "overlooked_front_tail_stage_candidates": 10,
+  "fixed_baseline_unchanged": true,
+  "every_inspected_source_unchanged": true,
+  "original_exports_unchanged": true,
+  "training_data_changed": false,
+  "control_code_changed": false,
+  "new_full_curve_replacements_created": false,
+  "limitation": "This audit explains and flags unreliable inference. It does not prove a physical cause or validate all 25 conditions."
+}

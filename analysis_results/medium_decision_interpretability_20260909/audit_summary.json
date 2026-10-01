@@ -1,0 +1,20 @@
+{
+  "decisions": 30,
+  "all_candidate_schedules_checked": 275,
+  "bootstrap_retention_min": 0.18275488069414317,
+  "bootstrap_retention_max": 0.9501416430594901,
+  "states_where_loo_can_change_winner": 25,
+  "small_gap_states": [
+    "4|side|1",
+    "5|side|1",
+    "1|side|2",
+    "1|tail|1",
+    "5|tail|2"
+  ],
+  "charging_model_changed": {
+    "constant_current_target_99": 0,
+    "exponential_target_80": 0,
+    "exponential_target_90": 0
+  },
+  "source_files_unchanged": true
+}

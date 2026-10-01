@@ -1,0 +1,94 @@
+{
+  "version": "bideal_three_stage_v1_20260908",
+  "kind": "modeled_reference_not_measured_battery",
+  "method": "Endpoint-calibrated battery rates; equal-battery arithmetic mean in each stage; continuity by cumulative segment duration.",
+  "source_date": "2026-09-06",
+  "mathematical_domain_soc": [
+    0,
+    100
+  ],
+  "default_domain_soc": [
+    20,
+    100
+  ],
+  "directly_calibrated_soc": [
+    20,
+    95
+  ],
+  "extrapolated_soc_intervals": [
+    [
+      95,
+      100
+    ],
+    [
+      0,
+      20
+    ]
+  ],
+  "boundaries_soc": [
+    100,
+    75,
+    40,
+    0
+  ],
+  "segments": [
+    {
+      "stage": "high",
+      "calibration_band": "high95_75",
+      "upper_soc": 100.0,
+      "lower_soc": 75.0,
+      "rate_pp_min": 10.991527305183302,
+      "rate_pp_s": 0.18319212175305505,
+      "slope_pp_s": -0.18319212175305505,
+      "start_s": 0.0,
+      "end_s": 136.4687507342716,
+      "duration_s": 136.4687507342716,
+      "intercept_pp": 100.0,
+      "n_batteries": 5,
+      "observed_upper_soc": 95.0,
+      "observed_lower_soc": 75.0
+    },
+    {
+      "stage": "medium",
+      "calibration_band": "medium75_40",
+      "upper_soc": 75.0,
+      "lower_soc": 40.0,
+      "rate_pp_min": 9.074185667844361,
+      "rate_pp_s": 0.151236427797406,
+      "slope_pp_s": -0.151236427797406,
+      "start_s": 136.4687507342716,
+      "end_s": 367.8944760686828,
+      "duration_s": 231.42572533441123,
+      "intercept_pp": 95.63904636702587,
+      "n_batteries": 5,
+      "observed_upper_soc": 75.0,
+      "observed_lower_soc": 40.0
+    },
+    {
+      "stage": "low",
+      "calibration_band": "low40_20",
+      "upper_soc": 40.0,
+      "lower_soc": 0.0,
+      "rate_pp_min": 14.029981008465608,
+      "rate_pp_s": 0.23383301680776014,
+      "slope_pp_s": -0.23383301680776014,
+      "start_s": 367.8944760686828,
+      "end_s": 538.9567176035683,
+      "duration_s": 171.0622415348855,
+      "intercept_pp": 126.02587520605042,
+      "n_batteries": 5,
+      "observed_upper_soc": 40.0,
+      "observed_lower_soc": 20.0
+    }
+  ],
+  "high_extension_note": "100→95 uses the slope measured over 95→75; not a measured 100→75 average.",
+  "low_extension_note": "20→0 is an unvalidated extension of the 40→20 slope; it is not a safe flight target.",
+  "unit": "reported SOC percentage points per minute",
+  "excluded_run": "B12/drone_2/20260906_165812",
+  "normalization": "For a drop, split its original SOC range at 75 and 40; multiply each part by stage Bideal_rate / own_baseline_rate. Not an absolute SOC multiplier.",
+  "limitations": [
+    "One contemporary complete run per battery-airframe pair; coefficients remain provisional.",
+    "Piecewise linearity is a deliberate approximation, not a test result proving true linear discharge.",
+    "Wind/load transfer and pure battery/airframe separation are not validated."
+  ]
+}
